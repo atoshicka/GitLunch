@@ -1,45 +1,29 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+//онли навигация
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+// import React from 'react';
+// import AppNavigator from './src/navigation/AppNavigation';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+// const App: React.FC = () => {
+//   return <AppNavigator />;
+// };
 
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
+// export default App;
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
+//навигация и авторизация
 
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
+import React, { useState } from 'react';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+import { AppNavigator } from './src/app/navigation/AppNavigation';
+import { AuthScreen } from './src/screens/auth/authScreen/AuthScreen';
+
+const App: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  if (isLoggedIn) {
+    return <AppNavigator />;
+  }
+
+  return <AuthScreen onLogin={() => setIsLoggedIn(true)} />;
+};
 
 export default App;
