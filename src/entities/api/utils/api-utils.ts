@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { api } from '../config/axiosConfig';
+import { api } from '../config/axios-config';
 
 // Утилиты для работы с API
 export const apiUtils = {

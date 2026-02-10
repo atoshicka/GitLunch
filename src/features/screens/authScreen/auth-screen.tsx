@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { LoginForm } from '../loginScreen/LoginForm';
-import { RegisterForm } from '../signUpScreen/SignUpForm';
-import { AuthMode } from '../typesAuth';
-import { styles } from './authStyles';
-
+import { SafeAreaView, ScrollView, View } from 'react-native';
+import { AuthMode } from '../../auth/model/types-auth';
+import { LoginForm } from '../../auth/ui/loginScreen/login-form';
+import { RegisterForm } from '../../auth/ui/signUpScreen/sign-up-form';
+import { styles } from './auth-styles';
 interface AuthScreenProps {
   onLogin: () => void;
 }
