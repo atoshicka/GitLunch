@@ -3,11 +3,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { Text } from 'react-native';
 
-import { AccountScreen } from '../../screens/accountScreen/AccountScreen';
-import { HomeScreen } from '../../screens/homeScreen/HomeScreen';
-import { MenuScreen } from '../../screens/menuScreen/MenuScreen';
-import { SettingsScreen } from '../../screens/settingsScreen/SettingsScreen';
-import { navigationStyles } from './navigationStyles';
+import { AccountScreen } from '../../screens/accountScreen/account-screen';
+import { HomeScreen } from '../../screens/homeScreen/home-screen';
+import { MenuScreen } from '../../screens/menuScreen/menu-screen';
+import { SettingsScreen } from '../../screens/settingsScreen/settings-screen';
+import { navigationStyles } from './navigation-styles';
 
 const Tab = createBottomTabNavigator();
 

@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import {
-  View,
+  Keyboard,
   Text,
   TextInput,
-  StyleSheet,
   TouchableOpacity,
-  Keyboard,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
-import { styles } from './loginStyles';
+import { styles } from './login-styles';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;

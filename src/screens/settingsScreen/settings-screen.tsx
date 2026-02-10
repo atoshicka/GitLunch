@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { styles } from './settingsStyles';
+import { Text, View } from 'react-native';
+import { styles } from './settings-styles';
 
 export const SettingsScreen: React.FC = () => {
   return (

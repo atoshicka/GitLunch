@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { styles } from './accountStyles';
+import { Text, View } from 'react-native';
+import { styles } from './account-styles';
 
 export const AccountScreen: React.FC = () => {
   return (

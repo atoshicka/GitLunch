@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import { styles } from './menuStyles';
+import { Text, View } from 'react-native';
+import { styles } from './menu-styles';
 
 export const MenuScreen: React.FC = () => {
   return (

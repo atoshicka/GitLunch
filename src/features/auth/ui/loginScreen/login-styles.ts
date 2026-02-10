@@ -7,10 +7,10 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
     color: '#6e40c9',
     textAlign: 'center',
     marginBottom: 10,
+    fontFamily: 'Roboto-Bold',
   },
   subtitle: {
     fontSize: 24,

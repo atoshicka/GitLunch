@@ -1,8 +1,6 @@
-import { api } from '../config/axiosConfig';
-import { API_ENDPOINTS } from '../constants/api';
-import { Dish, Category, MenuResponse } from '../types/menu';
+import { Category, Dish } from '../types/menu';
 
-import { MOCK_DISHES, MOCK_CATEGORIES } from '../constants/mocks';
+import { MOCK_CATEGORIES, MOCK_DISHES } from '../constants/mocks';
 
 export const menuService = {
   // Получить все блюда
