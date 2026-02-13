@@ -12,6 +12,7 @@
     '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/no-require-imports': 'off',
     'react/react-in-jsx-scope': 'off',
+    'linebreak-style': 'off',
   },
   overrides: [
     {

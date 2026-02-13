@@ -13,8 +13,7 @@
 
 import React, { useState } from 'react';
 
-import { AppNavigator } from './src/app/navigation/app-navigation';
-import { AuthScreen } from './src/features/screens/authScreen/auth-screen';
+import { AppNavigator, AuthScreen } from './src/app/navigation/app-navigation';
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
