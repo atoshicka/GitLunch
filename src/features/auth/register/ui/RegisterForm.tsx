@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Keyboard,
   ScrollView,
@@ -8,73 +8,16 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { styles } from './sign-up-styles';
-
-interface RegisterFormProps {
-  onSwitchToLogin: () => void;
-  onRegisterSuccess: () => void;
-}
+import { useRegisterForm } from '../hooks/useRegisterForm';
+import { RegisterFormProps } from '../model/types';
+import { styles } from './register-form-styles';
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSwitchToLogin,
   onRegisterSuccess,
 }) => {
-  const [formData, setFormData] = useState({
-    login: '',
-    password: '',
-    email: '',
-    firstName: '',
-    lastName: '',
-    phone: '',
-  });
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  const validateForm = (): boolean => {
-    const newErrors: { [key: string]: string } = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^[\+]?[0-9]{10,15}$/;
-
-    if (!formData.login.trim()) {
-      newErrors.login = 'Это обязательное поле';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Это обязательное поле';
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Введите корректный email';
-    }
-
-    if (!formData.password.trim()) {
-      newErrors.password = 'Это обязательное поле';
-    }
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'Это обязательное поле';
-    }
-
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Это обязательное поле';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleRegister = () => {
-    Keyboard.dismiss();
-
-    if (validateForm()) {
-      onRegisterSuccess();
-    }
-  };
-
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData({ ...formData, [field]: value });
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: '' });
-    }
-  };
+  const { formData, errors, handleInputChange, handleRegister } =
+    useRegisterForm(onRegisterSuccess);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

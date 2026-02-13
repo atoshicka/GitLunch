@@ -1,4 +1,4 @@
-import { TextStyle, ViewStyle } from 'react-native';
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native';
 
 export const navigationStyles = {
   getScreenOptions: () => ({
@@ -34,3 +34,19 @@ export const navigationStyles = {
     opacity: focused ? 1 : 0.7,
   }),
 };
+
+export const authStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f0ff',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+  },
+});
