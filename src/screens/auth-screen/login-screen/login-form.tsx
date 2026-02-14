@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Keyboard,
   Text,
@@ -7,6 +7,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../../app/store';
+import { setLogin, setPassword, submitLogin } from '../../../features/auth/store/authSlice';
 import { styles } from './login-styles';
 
 interface LoginFormProps {
@@ -15,46 +18,24 @@ interface LoginFormProps {
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onLoginSuccess }) => {
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const dispatch = useDispatch();
 
-  const validateForm = (): boolean => {
-    const newErrors: { [key: string]: string } = {};
-
-    if (!login.trim()) {
-      newErrors.login = 'Это обязательное поле';
-    }
-
-    if (!password.trim()) {
-      newErrors.password = 'Это обязательное поле';
-    } else if (password.length < 6) {
-      newErrors.password = 'Пароль должен быть не менее 6 символов';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  //получаем данные из Redux
+  const { login, password, errors, isLoading, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const handleLogin = () => {
     Keyboard.dismiss();
+    dispatch(submitLogin());
+  };
 
-    if (validateForm()) {
+  //useEffect для обработки успешного входа
+  React.useEffect(() => {
+    if (isAuthenticated) {
       onLoginSuccess();
     }
-  };
-
-  const handleInputChange = (field: 'login' | 'password', value: string) => {
-    if (field === 'login') {
-      setLogin(value);
-    } else {
-      setPassword(value);
-    }
-
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: '' });
-    }
-  };
+  }, [isAuthenticated, onLoginSuccess]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -69,19 +50,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onLogi
               style={[styles.input, errors.login && styles.inputError]}
               placeholder="Введите логин или email"
               value={login}
-              onChangeText={(text) => handleInputChange('login', text)}
+              onChangeText={(text) => dispatch(setLogin(text))}
               autoCapitalize="none"
+              editable={!isLoading}
             />
             {errors.login && <Text style={styles.errorText}>{errors.login}</Text>}
           </View>
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Пароль</Text>
             <TextInput
               style={[styles.input, errors.password && styles.inputError]}
               placeholder="Введите пароль"
               value={password}
-              onChangeText={(text) => handleInputChange('password', text)}
+              onChangeText={(text) => dispatch(setPassword(text))}
               secureTextEntry
+              editable={!isLoading}
             />
             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
           </View>
@@ -90,8 +74,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onLogi
             <Text style={styles.forgotPasswordText}>Забыли пароль?</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Войти</Text>
+          <TouchableOpacity style={[styles.button]} onPress={handleLogin} disabled={isLoading}>
+            <Text style={styles.buttonText}>{isLoading ? 'Вход...' : 'Войти'}</Text>
           </TouchableOpacity>
 
           <View style={styles.registerContainer}>
