@@ -3,7 +3,7 @@ import { RegisterFormData, RegisterFormErrors } from './types';
 export const validateRegisterForm = (formData: RegisterFormData): RegisterFormErrors => {
   const errors: RegisterFormErrors = {};
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegex = /^[\+]?[0-9]{10,15}$/;
+  const phoneRegex = /^[+]?[0-9]{10,15}$/;
 
   if (!formData.login.trim()) {
     errors.login = 'Это обязательное поле';
@@ -27,7 +27,9 @@ export const validateRegisterForm = (formData: RegisterFormData): RegisterFormEr
     errors.lastName = 'Это обязательное поле';
   }
 
-  if (formData.phone.trim() && !phoneRegex.test(formData.phone)) {
+  if (!formData.phone.trim()) {
+    errors.phone = 'Это обязательное поле';
+  } else if (!phoneRegex.test(formData.phone)) {
     errors.phone = 'Введите корректный номер телефона';
   }
 
