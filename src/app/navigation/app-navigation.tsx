@@ -5,9 +5,9 @@ import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 //общая навигация
 import { AccountScreen } from '../../screens/account-screen/account-screen';
+import { SettingsScreen } from '../../screens/basket-screen/basket-screen';
 import { HomeScreen } from '../../screens/home-screen/home-screen';
 import { MenuScreen } from '../../screens/menu-screen/menu-screen';
-import { SettingsScreen } from '../../screens/settings-screen/settings-screen';
 
 //авторизация
 import { LoginForm } from '../../screens/auth-screen/login-screen/login-form';
@@ -48,8 +48,8 @@ export const AppNavigator: React.FC = () => {
               iconText = '🏠';
             } else if (route.name === 'Меню') {
               iconText = '📋';
-            } else if (route.name === 'Настройки') {
-              iconText = '⚙️';
+            } else if (route.name === 'Корзина') {
+              iconText = '🛒';
             } else if (route.name === 'Аккаунт') {
               iconText = '👤';
             } else {
@@ -68,7 +68,7 @@ export const AppNavigator: React.FC = () => {
           name="Главная"
           component={HomeScreen}
           options={{
-            title: 'GitLunch',
+            title: 'Главная',
           }}
         />
         <Tab.Screen
@@ -79,10 +79,10 @@ export const AppNavigator: React.FC = () => {
           }}
         />
         <Tab.Screen
-          name="Настройки"
+          name="Корзина"
           component={SettingsScreen}
           options={{
-            title: 'Настройки',
+            title: 'Корзина',
           }}
         />
         <Tab.Screen
