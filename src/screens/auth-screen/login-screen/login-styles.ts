@@ -54,15 +54,6 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 5,
   },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: 25,
-  },
-  forgotPasswordText: {
-    color: '#6e40c9',
-    fontSize: 14,
-    fontWeight: '500',
-  },
   button: {
     backgroundColor: '#6e40c9',
     padding: 15,
@@ -74,22 +65,5 @@ export const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  registerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  registerText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  registerLink: {
-    fontSize: 16,
-    color: '#6e40c9',
-    fontWeight: '600',
   },
 });
