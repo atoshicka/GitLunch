@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import React, { useState } from 'react';
-import { Text } from 'react-native';
+import React from 'react';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 //общая навигация
 import { AccountScreen } from '../../screens/account-screen/account-screen';
@@ -10,9 +10,6 @@ import { MenuScreen } from '../../screens/menu-screen/menu-screen';
 import { SettingsScreen } from '../../screens/settings-screen/settings-screen';
 
 //авторизация
-import { SafeAreaView, ScrollView, View } from 'react-native';
-import { AuthMode } from '../../entities/auth/types-auth';
-import { RegisterForm } from '../../features/auth/register/ui/RegisterForm';
 import { LoginForm } from '../../screens/auth-screen/login-screen/login-form';
 
 //стили
@@ -23,20 +20,11 @@ interface AuthScreenProps {
 }
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
-  const [mode, setMode] = useState<AuthMode>('login');
-
-  const switchToRegister = () => setMode('register');
-  const switchToLogin = () => setMode('login');
-
   return (
     <SafeAreaView style={authStyles.container}>
       <ScrollView contentContainerStyle={authStyles.scrollContainer}>
         <View style={authStyles.content}>
-          {mode === 'login' ? (
-            <LoginForm onSwitchToRegister={switchToRegister} onLoginSuccess={onLogin} />
-          ) : (
-            <RegisterForm onSwitchToLogin={switchToLogin} onRegisterSuccess={onLogin} />
-          )}
+          <LoginForm onLoginSuccess={onLogin} />
         </View>
       </ScrollView>
     </SafeAreaView>

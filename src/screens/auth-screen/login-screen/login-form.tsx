@@ -13,14 +13,12 @@ import { setLogin, setPassword, submitLogin } from '../../../features/auth/store
 import { styles } from './login-styles';
 
 interface LoginFormProps {
-  onSwitchToRegister: () => void;
   onLoginSuccess: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onLoginSuccess }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const dispatch = useDispatch();
 
-  //получаем данные из Redux
   const { login, password, errors, isLoading, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
   );
@@ -30,7 +28,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onLogi
     dispatch(submitLogin());
   };
 
-  //useEffect для обработки успешного входа
   React.useEffect(() => {
     if (isAuthenticated) {
       onLoginSuccess();
@@ -45,10 +42,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onLogi
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Логин или почта</Text>
+            <Text style={styles.label}>Логин</Text>
             <TextInput
               style={[styles.input, errors.login && styles.inputError]}
-              placeholder="Введите логин или email"
+              placeholder="Введите логин"
               value={login}
               onChangeText={(text) => dispatch(setLogin(text))}
               autoCapitalize="none"
@@ -70,20 +67,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister, onLogi
             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Забыли пароль?</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity style={[styles.button]} onPress={handleLogin} disabled={isLoading}>
             <Text style={styles.buttonText}>{isLoading ? 'Вход...' : 'Войти'}</Text>
           </TouchableOpacity>
-
-          <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>Нет аккаунта? </Text>
-            <TouchableOpacity onPress={onSwitchToRegister}>
-              <Text style={styles.registerLink}>Зарегистрироваться</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </TouchableWithoutFeedback>
