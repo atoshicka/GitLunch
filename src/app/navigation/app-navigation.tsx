@@ -10,7 +10,7 @@ import { HomeScreen } from '../../screens/home-screen/home-screen';
 import { MenuScreen } from '../../screens/menu-screen/menu-screen';
 
 //авторизация
-import { LoginForm } from '../../screens/auth-screen/login-screen/login-form';
+import { LoginForm } from '../../features/login/ui/login-form';
 
 //стили
 import { authStyles, navigationStyles } from './navigation-styles';

@@ -1,8 +1,7 @@
 //асинхронные операции
-
 import { all } from 'redux-saga/effects';
-import { watchAuth } from '../features/auth/store/authSaga';
+import { watchLogin } from '../features/login/store/loginSaga';
 
 export function* rootSaga() {
-  yield all([watchAuth()]);
+  yield all([watchLogin()]);
 }

@@ -1,6 +1,6 @@
 import { delay, put, select, takeLatest } from 'redux-saga/effects';
 import { RootState } from '../../../app/store';
-import { loginFailure, loginSuccess, submitLogin } from './authSlice';
+import { loginFailure, loginSuccess, submitLogin } from './loginSlice';
 
 //валидация формы
 const validateForm = (login: string, password: string) => {
@@ -23,8 +23,8 @@ const validateForm = (login: string, password: string) => {
 function* handleSubmitLogin() {
   try {
     //получаем текущие значения из Redux state
-    const login: string = yield select((state: RootState) => state.auth.login);
-    const password: string = yield select((state: RootState) => state.auth.password);
+    const login: string = yield select((state: RootState) => state.login.login);
+    const password: string = yield select((state: RootState) => state.login.password);
 
     //валидация
     const errors = validateForm(login, password);
@@ -39,6 +39,6 @@ function* handleSubmitLogin() {
   }
 }
 
-export function* watchAuth() {
+export function* watchLogin() {
   yield takeLatest(submitLogin.type, handleSubmitLogin);
 }

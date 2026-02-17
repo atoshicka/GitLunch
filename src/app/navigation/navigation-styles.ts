@@ -38,7 +38,7 @@ export const navigationStyles = {
 export const authStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f0ff',
+    backgroundColor: '#1F2937',
   },
   scrollContainer: {
     flexGrow: 1,
