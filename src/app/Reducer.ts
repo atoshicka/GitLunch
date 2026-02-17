@@ -1,8 +1,6 @@
-//синхронные операции
-
 import { combineReducers } from '@reduxjs/toolkit';
-import authReducer from '../features/auth/store/authSlice';
+import loginReducer from '../features/login/store/loginSlice';
 
 export const rootReducer = combineReducers({
-  auth: authReducer,
+  login: loginReducer,
 });

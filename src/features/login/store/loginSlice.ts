@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface AuthState {
+interface LoginState {
   login: string;
   password: string;
   errors: {
@@ -11,7 +11,7 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-const initialState: AuthState = {
+const initialState: LoginState = {
   login: '',
   password: '',
   errors: {},
@@ -19,8 +19,8 @@ const initialState: AuthState = {
   isAuthenticated: false,
 };
 
-const authSlice = createSlice({
-  name: 'auth',
+const loginSlice = createSlice({
+  name: 'login',
   initialState,
   reducers: {
     //экшены для полей ввода
@@ -64,6 +64,6 @@ const authSlice = createSlice({
 });
 
 export const { setLogin, setPassword, submitLogin, loginSuccess, loginFailure, logout } =
-  authSlice.actions;
+  loginSlice.actions;
 
-export default authSlice.reducer;
+export default loginSlice.reducer;

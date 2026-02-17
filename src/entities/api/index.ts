@@ -1,5 +1,5 @@
 // Экспорт сервисов
-export { menuService } from './services/menu-service';
+export { menuService } from './services/api-interface';
 
 // Экспорт типов
 export type { Category, Dish } from './types/menu';
