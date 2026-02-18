@@ -3,30 +3,35 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f0ff',
+    backgroundColor: '#F8FAFC',
   },
-  profileSection: {
+  settingsButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 1,
+    padding: 8,
+  },
+  settingsIcon: {
+    fontSize: 28,
+  },
+  content: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
-    margin: 20,
-    borderRadius: 20,
-    padding: 40,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+  },
+  avatarContainer: {
+    marginBottom: 16,
   },
   avatar: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#6200ee',
+    backgroundColor: '#1BB910',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 25,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
@@ -36,16 +41,31 @@ export const styles = StyleSheet.create({
   avatarText: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#FFFFFF',
   },
-  profileName: {
-    fontSize: 32,
+  userName: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    color: '#1F2937',
+    marginBottom: 32,
   },
-  profileEmail: {
-    fontSize: 18,
-    color: '#666',
+  menuBlock: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  menuItem: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  menuItemText: {
+    fontSize: 16,
+    color: '#1F2937',
   },
 });

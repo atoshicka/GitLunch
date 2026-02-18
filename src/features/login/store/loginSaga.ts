@@ -12,8 +12,6 @@ const validateForm = (login: string, password: string) => {
 
   if (!password.trim()) {
     errors.password = 'Это обязательное поле';
-  } else if (password.length < 6) {
-    errors.password = 'Пароль должен быть не менее 6 символов';
   }
 
   return errors;
