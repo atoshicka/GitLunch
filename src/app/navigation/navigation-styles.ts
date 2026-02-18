@@ -17,12 +17,13 @@ export const navigationStyles = {
       marginBottom: 5,
     } as TextStyle,
     headerStyle: {
-      backgroundColor: '#6200ee',
+      backgroundColor: '#22C55E',
+      height: 50,
     } as ViewStyle,
     headerTintColor: '#fff',
     headerTitleStyle: {
       fontWeight: 'bold',
-      fontSize: 20,
+      fontSize: 18,
     } as TextStyle,
     headerTitleAlign: 'center' as const,
     tabBarIcon: undefined,
