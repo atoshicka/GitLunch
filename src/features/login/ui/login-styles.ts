@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1F2937', // тёмный фон 🖤
+    backgroundColor: '#F8FAFC',
     paddingHorizontal: 20,
     justifyContent: 'center',
   },
@@ -21,25 +21,25 @@ export const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#4B5563', // чуть светлее граница
+    borderColor: '#1F2937',
     borderRadius: 20,
     paddingVertical: 12,
     paddingHorizontal: 14,
     fontSize: 16,
-    backgroundColor: '#374151', // тёмный инпут
-    color: '#F9FAFB', // светлый текст
+    backgroundColor: '#F8FAFC',
+    color: '#495E7C',
   },
   inputError: {
     borderColor: '#ef4444',
   },
   errorText: {
-    color: '#f87171', // мягкий красный
+    color: '#ef4444',
     fontSize: 14,
     marginTop: 5,
     marginLeft: 5,
   },
   button: {
-    backgroundColor: '#86EFAC', // оставим зелёную, красиво контрастирует
+    backgroundColor: '#1BB910',
     paddingVertical: 12,
     borderRadius: 30,
     alignItems: 'center',
@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
   buttonText: {
-    color: '#1F2937', // тёмный текст на зелёном
+    color: '#1F2937',
     fontSize: 16,
     fontWeight: 'bold',
   },
