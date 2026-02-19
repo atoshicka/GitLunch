@@ -1,11 +1,11 @@
 // Экспорт сервисов
-export { menuService } from './services/api-interface';
+export { createMenuService } from './api-interface';
 
 // Экспорт типов
-export type { Category, Dish } from './types/menu';
+export type { Category, Dish } from './types/menu-types';
 
 // Экспорт констант
-export { API_ENDPOINTS } from './constants/api';
+export { API_ENDPOINTS } from './api';
 
 // Экспорт конфигурации
-export { api } from './config/axios-config';
+export { api } from './axios-config';

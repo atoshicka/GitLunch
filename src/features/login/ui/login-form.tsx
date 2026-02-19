@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   Image,
   Keyboard,
@@ -9,19 +9,17 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { LoginFormData, LoginFormProps } from '../../../entities/api/types/login-types';
+import { loginFailure, setLogin, setPassword, submitLogin } from '../store/login-slice';
 import {
   selectErrors,
   selectIsAuthenticated,
   selectIsLoading,
   selectLogin,
   selectPassword,
-} from '../../../features/login/store/selectors';
-import { setLogin, setPassword, submitLogin } from '../store/loginSlice';
+} from '../store/selectors';
+import { validateLoginForm } from '../validation';
 import { styles } from './login-styles';
-
-interface LoginFormProps {
-  onLoginSuccess: () => void;
-}
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const dispatch = useDispatch();
@@ -32,20 +30,39 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const isSubmitting = useSelector(selectIsLoading);
   const isLoggedIn = useSelector(selectIsAuthenticated);
 
-  const handleLoginChange = (text: string) => {
-    dispatch(setLogin(text));
-  };
+  const handleLoginChange = useCallback(
+    (text: string) => {
+      dispatch(setLogin(text));
+    },
+    [dispatch]
+  );
 
-  const handlePasswordChange = (text: string) => {
-    dispatch(setPassword(text));
-  };
+  const handlePasswordChange = useCallback(
+    (text: string) => {
+      dispatch(setPassword(text));
+    },
+    [dispatch]
+  );
 
-  const handleLoginSubmit = () => {
+  const handleLoginSubmit = useCallback(() => {
+    // Валидация
+    const formData: LoginFormData = {
+      login: loginValue,
+      password: passwordValue,
+    };
+
+    const validationErrors = validateLoginForm(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      dispatch(loginFailure(validationErrors));
+      return;
+    }
+
     Keyboard.dismiss();
     dispatch(submitLogin());
-  };
+  }, [dispatch, loginValue, passwordValue]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isLoggedIn) {
       onLoginSuccess();
     }
@@ -54,16 +71,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        {/* Картинка сверху */}
         <Image
           source={require('../../../assets/images/logo.png')}
           style={styles.logo}
           resizeMode="contain"
         />
 
-        {/* Форма без белого фона */}
         <View style={styles.form}>
-          {/* Поле логина */}
           <View style={styles.inputGroup}>
             <TextInput
               style={[styles.input, fieldErrors.login && styles.inputError]}
@@ -77,7 +91,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
             {fieldErrors.login && <Text style={styles.errorText}>{fieldErrors.login}</Text>}
           </View>
 
-          {/* Поле пароля */}
           <View style={styles.inputGroup}>
             <TextInput
               style={[styles.input, fieldErrors.password && styles.inputError]}
@@ -91,7 +104,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
             {fieldErrors.password && <Text style={styles.errorText}>{fieldErrors.password}</Text>}
           </View>
 
-          {/* Кнопка */}
           <TouchableOpacity
             style={[styles.button]}
             onPress={handleLoginSubmit}

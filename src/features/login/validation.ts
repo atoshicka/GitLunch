@@ -1,4 +1,4 @@
-import { LoginFormData, LoginFormErrors } from './types';
+import { LoginFormData, LoginFormErrors } from '../../entities/api/types/login-types';
 
 export const validateLoginForm = (formData: LoginFormData): LoginFormErrors => {
   const errors: LoginFormErrors = {};
@@ -9,8 +9,6 @@ export const validateLoginForm = (formData: LoginFormData): LoginFormErrors => {
 
   if (!formData.password.trim()) {
     errors.password = 'Это обязательное поле';
-  } else if (formData.password.length < 6) {
-    errors.password = 'Пароль должен быть не менее 6 символов';
   }
 
   return errors;
