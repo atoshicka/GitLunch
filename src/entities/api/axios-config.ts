@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { getApiConfig } from '../constants/api';
+import { getApiConfig } from './api';
 
 const { BASE_URL, DEBUG } = getApiConfig();
 
-// Создаем экземпляр axios с настройками
+//экземпляр axios с настройками
 export const api = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,

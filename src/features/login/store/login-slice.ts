@@ -6,17 +6,19 @@ interface LoginState {
   errors: {
     login?: string;
     password?: string;
+    general?: string; // для ошибок сервера
   };
   isLoading: boolean;
   isAuthenticated: boolean;
+  token: string | null; // добавить токен
 }
-
 const initialState: LoginState = {
   login: '',
   password: '',
   errors: {},
   isLoading: false,
   isAuthenticated: false,
+  token: null,
 };
 
 const loginSlice = createSlice({
@@ -45,14 +47,19 @@ const loginSlice = createSlice({
     },
 
     //успешный вход
-    loginSuccess: (state) => {
+    loginSuccess: (state, action: PayloadAction<{ token: string }>) => {
       state.isLoading = false;
       state.isAuthenticated = true;
+      state.token = action.payload.token; // сохраняем токен
       state.login = '';
       state.password = '';
+      state.errors = {};
     },
     //ошибка валидации/входа
-    loginFailure: (state, action: PayloadAction<{ login?: string; password?: string }>) => {
+    loginFailure: (
+      state,
+      action: PayloadAction<{ login?: string; password?: string; general?: string }>
+    ) => {
       state.isLoading = false;
       state.errors = action.payload;
     },

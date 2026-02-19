@@ -1,11 +1,16 @@
-import { Category, Dish } from '../types/menu';
+import { AxiosInstance } from 'axios';
+import { MOCK_CATEGORIES, MOCK_DISHES } from '../../../mocks';
+import { Category, Dish } from './types/menu-types';
 
-import { MOCK_CATEGORIES, MOCK_DISHES } from '../constants/mocks';
-
-export const menuService = {
+export const createMenuService = (api: AxiosInstance) => ({
   // Получить все блюда
   async getDishes(): Promise<Dish[]> {
     try {
+      // бэк:
+      // const response = await api.get<{ dishes: Dish[] }>(API_ENDPOINTS.DISHES);
+      // return response.data.dishes;
+
+      // мок
       return new Promise((resolve) => {
         setTimeout(() => resolve(MOCK_DISHES), 300);
       });
@@ -18,6 +23,13 @@ export const menuService = {
   // Получить блюда по категории
   async getDishesByCategory(categoryId: string): Promise<Dish[]> {
     try {
+      // бэк:
+      // const response = await api.get<{ dishes: Dish[] }>(
+      //   API_ENDPOINTS.DISHES_BY_CATEGORY(categoryId)
+      // );
+      // return response.data.dishes;
+
+      // мок
       return MOCK_DISHES.filter((dish) => dish.category === categoryId);
     } catch (error) {
       console.error(`Error fetching dishes for category ${categoryId}:`, error);
@@ -28,6 +40,11 @@ export const menuService = {
   // Получить все категории
   async getCategories(): Promise<Category[]> {
     try {
+      // бэк
+      // const response = await api.get<{ categories: Category[] }>(API_ENDPOINTS.CATEGORIES);
+      // return response.data.categories;
+
+      // мок
       return MOCK_CATEGORIES;
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -38,6 +55,11 @@ export const menuService = {
   // Получить блюдо по ID
   async getDishById(id: string): Promise<Dish> {
     try {
+      // бэк
+      // const response = await api.get<{ dish: Dish }>(API_ENDPOINTS.DISH_DETAIL(id));
+      // return response.data.dish;
+
+      // мок
       const dish = MOCK_DISHES.find((d) => d.id === id);
       if (!dish) throw new Error(`Dish with id ${id} not found`);
       return dish;
@@ -50,6 +72,13 @@ export const menuService = {
   // Поиск блюд
   async searchDishes(query: string): Promise<Dish[]> {
     try {
+      // бэк
+      // const response = await api.get<{ dishes: Dish[] }>(
+      //   `${API_ENDPOINTS.DISHES}?search=${query}`
+      // );
+      // return response.data.dishes;
+
+      // мок
       return MOCK_DISHES.filter(
         (dish) =>
           dish.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -60,4 +89,7 @@ export const menuService = {
       throw error;
     }
   },
-};
+});
+
+// Тип для самого сервиса
+export type MenuService = ReturnType<typeof createMenuService>;

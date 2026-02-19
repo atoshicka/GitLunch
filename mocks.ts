@@ -1,4 +1,4 @@
-import { Dish, Category } from '../types/menu';
+import { Category, Dish } from './src/entities/api/types/menu-types';
 
 export const MOCK_DISHES: Dish[] = [
   {
