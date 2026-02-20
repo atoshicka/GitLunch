@@ -1,18 +1,16 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 
-//общая навигация
+import { SearchScreen } from '../../features/search/ui/search-screen'; // импорт SearchScreen
 import { AccountScreen } from '../../screens/account-screen/account-screen';
 import { SettingsScreen } from '../../screens/basket-screen/basket-screen';
 import { HomeScreen } from '../../screens/home-screen/home-screen';
 import { MenuScreen } from '../../screens/menu-screen/menu-screen';
 
-//авторизация
 import { LoginForm } from '../../features/login/ui/login-form';
-
-//стили
 import { authStyles, navigationStyles } from './navigation-styles';
 
 interface AuthScreenProps {
@@ -31,68 +29,87 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
   );
 };
 
+// Создаем Stack для экранов, которые должны открываться поверх табов
+const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-export const AppNavigator: React.FC = () => {
+// Все таб-экраны внутри отдельного компонента
+const TabNavigator = () => {
   const baseScreenOptions = navigationStyles.getScreenOptions();
 
   return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        ...baseScreenOptions,
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconText;
+          if (route.name === 'Главная') {
+            iconText = '🏠';
+          } else if (route.name === 'Меню') {
+            iconText = '📋';
+          } else if (route.name === 'Корзина') {
+            iconText = '🛒';
+          } else if (route.name === 'Аккаунт') {
+            iconText = '👤';
+          } else {
+            iconText = '❓';
+          }
+
+          return (
+            <Text style={navigationStyles.getTabBarIconStyle(focused, color, size)}>
+              {iconText}
+            </Text>
+          );
+        },
+      })}
+    >
+      <Tab.Screen
+        name="Главная"
+        component={HomeScreen}
+        options={{
+          title: 'Главная',
+        }}
+      />
+      <Tab.Screen
+        name="Меню"
+        component={MenuScreen}
+        options={{
+          title: 'Меню',
+        }}
+      />
+      <Tab.Screen
+        name="Корзина"
+        component={SettingsScreen}
+        options={{
+          title: 'Корзина',
+        }}
+      />
+      <Tab.Screen
+        name="Аккаунт"
+        component={AccountScreen}
+        options={{
+          title: 'Аккаунт',
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
+
+// Главный навигатор со Stack поверх табов
+export const AppNavigator: React.FC = () => {
+  return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          ...baseScreenOptions,
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconText;
-
-            if (route.name === 'Главная') {
-              iconText = '🏠';
-            } else if (route.name === 'Меню') {
-              iconText = '📋';
-            } else if (route.name === 'Корзина') {
-              iconText = '🛒';
-            } else if (route.name === 'Аккаунт') {
-              iconText = '👤';
-            } else {
-              iconText = '❓';
-            }
-
-            return (
-              <Text style={navigationStyles.getTabBarIconStyle(focused, color, size)}>
-                {iconText}
-              </Text>
-            );
-          },
-        })}
-      >
-        <Tab.Screen
-          name="Главная"
-          component={HomeScreen}
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        <RootStack.Screen name="Tabs" component={TabNavigator} />
+        <RootStack.Screen
+          name="Search"
+          component={SearchScreen}
           options={{
-            title: 'Главная',
+            presentation: 'card', // или 'modal' если хочешь модальное окно
+            headerShown: false,
           }}
         />
-        <Tab.Screen
-          name="Меню"
-          component={MenuScreen}
-          options={{
-            title: 'Меню',
-          }}
-        />
-        <Tab.Screen
-          name="Корзина"
-          component={SettingsScreen}
-          options={{
-            title: 'Корзина',
-          }}
-        />
-        <Tab.Screen
-          name="Аккаунт"
-          component={AccountScreen}
-          options={{
-            title: 'Аккаунт',
-          }}
-        />
-      </Tab.Navigator>
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 };

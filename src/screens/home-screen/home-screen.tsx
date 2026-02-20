@@ -1,17 +1,31 @@
+import { useNavigation } from '@react-navigation/native'; // добавь
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'; // добавь
 import React from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { SearchInput } from '../../shared/ui/search-input';
 import { styles } from './home-styles';
 
+type RootStackParamList = {
+  Tabs: undefined;
+  Search: {
+    category?: string;
+    onSearch?: (query: string) => void;
+  };
+};
+
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+
 export const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
+  const handleSearchPress = () => {
+    navigation.navigate('Search', {});
+  };
+
   return (
     <View style={styles.container}>
-      {/* Поисковое поле сверху */}
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Поиск блюд..."
-          placeholderTextColor="#999"
-        />
+        <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
       </View>
 
       {/* Сетка из 4 мини-блоков */}

@@ -37,7 +37,7 @@ function* handleSubmitLogin(api: AxiosInstance) {
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Ошибка сервера';
-    yield put(loginFailure({ general: errorMessage })); // general а не login
+    yield put(loginFailure({ general: errorMessage }));
   }
 }
 
