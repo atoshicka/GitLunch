@@ -24,15 +24,23 @@ function* handleSubmitLogin(api: AxiosInstance) {
       data: {
         success: true,
         token: 'mock-token-123',
+        // user: { name: login }
       },
     };
 
     if (response.data.token) {
       yield call([AsyncStorage, 'setItem'], 'token', response.data.token);
-      // передаем токен в loginSuccess
-      yield put(loginSuccess({ token: response.data.token }));
+
+      //response.data.user.name
+      const userName = login;
+
+      yield put(
+        loginSuccess({
+          token: response.data.token,
+          userName: userName,
+        })
+      );
     } else {
-      // если токена нет
       yield put(loginFailure({ general: 'Ошибка авторизации' }));
     }
   } catch (error: unknown) {

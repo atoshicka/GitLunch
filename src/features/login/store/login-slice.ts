@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface LoginState {
   login: string;
   password: string;
+  userName: string;
   errors: {
     login?: string;
     password?: string;
@@ -10,11 +11,12 @@ interface LoginState {
   };
   isLoading: boolean;
   isAuthenticated: boolean;
-  token: string | null; // добавить токен
+  token: string | null;
 }
 const initialState: LoginState = {
   login: '',
   password: '',
+  userName: '',
   errors: {},
   isLoading: false,
   isAuthenticated: false,
@@ -47,10 +49,11 @@ const loginSlice = createSlice({
     },
 
     //успешный вход
-    loginSuccess: (state, action: PayloadAction<{ token: string }>) => {
+    loginSuccess: (state, action: PayloadAction<{ token: string; userName: string }>) => {
       state.isLoading = false;
       state.isAuthenticated = true;
-      state.token = action.payload.token; // сохраняем токен
+      state.token = action.payload.token;
+      state.userName = action.payload.userName;
       state.login = '';
       state.password = '';
       state.errors = {};
@@ -66,6 +69,8 @@ const loginSlice = createSlice({
     // Выход
     logout: (state) => {
       state.isAuthenticated = false;
+      state.userName = '';
+      state.token = null;
     },
   },
 });
