@@ -1,15 +1,47 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyText: { fontSize: 18, color: '#94A3B8' },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: '#FFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  headerTitle: { fontSize: 18, fontWeight: '600' },
+  headerCount: { fontSize: 14, color: '#94A3B8' },
+  list: { padding: 16 },
+  cartItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFF',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  itemInfo: { flex: 1 },
+  itemName: { fontSize: 16, fontWeight: '500', marginBottom: 4 },
+  itemPrice: { fontSize: 14, color: '#94A3B8' },
+  itemControls: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  controlButton: { fontSize: 20, fontWeight: 'bold', color: '#1BB910' },
+  quantity: { fontSize: 16, minWidth: 20, textAlign: 'center' },
+  removeButton: { fontSize: 18, color: '#EF4444', marginLeft: 8 },
+  footer: {
+    padding: 16,
+    backgroundColor: '#FFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+  },
+  total: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  orderButton: {
+    backgroundColor: '#1BB910',
+    padding: 16,
+    borderRadius: 8,
     alignItems: 'center',
-    backgroundColor: '#fffaf0',
   },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#333',
-  },
+  orderButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
 });
