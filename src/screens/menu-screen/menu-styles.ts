@@ -97,4 +97,29 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  quantityControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  quantityButton: {
+    backgroundColor: '#1BB910',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quantityButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  quantityText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1F2937',
+    minWidth: 20,
+    textAlign: 'center',
+  },
 });
