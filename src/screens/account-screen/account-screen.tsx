@@ -1,8 +1,9 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import { selectUserName } from '../../features/login/store/selectors';
 import { styles } from './account-styles';
 
-// Массив пунктов меню
 const MENU_ITEMS = [
   { id: '1', title: 'Мои заказы' },
   { id: '2', title: 'Поддержка' },
@@ -14,6 +15,8 @@ const MENU_ITEMS = [
 ];
 
 export const AccountScreen: React.FC = () => {
+  const userName = useSelector(selectUserName);
+
   const handleSettingsPress = () => {
     console.log('Настройки');
   };
@@ -24,24 +27,22 @@ export const AccountScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Шестеренка справа сверху */}
       <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
         <Text style={styles.settingsIcon}>⚙️</Text>
       </TouchableOpacity>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          {/* Аватар */}
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>М</Text>
+              <Text style={styles.avatarText}>
+                {userName ? userName.charAt(0).toUpperCase() : '?'}
+              </Text>
             </View>
           </View>
 
-          {/* Имя пользователя */}
-          <Text style={styles.userName}>Мария</Text>
+          <Text style={styles.userName}>{userName || 'Гость'}</Text>
 
-          {/* Блок с пунктами меню */}
           <View style={styles.menuBlock}>
             {MENU_ITEMS.map((item) => (
               <TouchableOpacity
