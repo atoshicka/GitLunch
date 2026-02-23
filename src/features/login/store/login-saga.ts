@@ -18,7 +18,7 @@ interface LoginResponse {
 // Функция для запроса к бэкенду
 async function fetchLogin(login: string, password: string) {
   try {
-    const response = await fetch('http://192.168.31.142:3000/api/v1/auth/login', {
+    const response = await fetch('https://breezy-tires-speak.loca.lt/api/v1/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ login, password }),
@@ -33,9 +33,17 @@ async function fetchLogin(login: string, password: string) {
         user: data.user,
       };
     } else {
-      throw new Error(data.error || 'Неправильный логин или пароль');
+      if (response.status === 401) {
+        throw new Error('Неправильный логин или пароль');
+      } else {
+        throw new Error(data.error || 'Ошибка сервера');
+      }
     }
   } catch (error) {
+    // Ошибка сети или таймаут
+    if (error instanceof Error && error.message === 'Неправильный логин или пароль') {
+      throw error; // пробрасываем дальше
+    }
     throw new Error('Ошибка подключения к серверу');
   }
 }
@@ -73,7 +81,16 @@ function* handleSubmitLogin() {
       yield put(loginFailure({ general: 'Ошибка авторизации' }));
     }
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Ошибка сервера';
+    let errorMessage = 'Ошибка подключения к серверу';
+
+    if (error instanceof Error) {
+      if (error.message === 'Неправильный логин или пароль') {
+        errorMessage = error.message;
+      } else {
+        console.log('Другая ошибка:', error.message);
+      }
+    }
+
     yield put(loginFailure({ general: errorMessage }));
   }
 }
