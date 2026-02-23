@@ -1,13 +1,47 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AxiosInstance } from 'axios';
-import { call, delay, put, select, takeLatest } from 'redux-saga/effects';
-import { LoginResponse } from '../../../entities/api/types/login-types';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { validateLoginForm } from '../validation';
 import { loginFailure, loginSuccess, submitLogin } from './login-slice';
 import { selectLogin, selectPassword } from './selectors';
 
-// сага для обработки сабмита - принимаем api как параметр
-function* handleSubmitLogin(api: AxiosInstance) {
+// Типы для ответа от сервера
+interface LoginResponse {
+  token: string;
+  user: {
+    id: number;
+    login: string;
+    full_name: string;
+    role: string;
+  };
+}
+
+// Функция для запроса к бэкенду
+async function fetchLogin(login: string, password: string) {
+  try {
+    const response = await fetch('http://192.168.31.142:3000/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ login, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        token: data.token,
+        user: data.user,
+      };
+    } else {
+      throw new Error(data.error || 'Неправильный логин или пароль');
+    }
+  } catch (error) {
+    throw new Error('Ошибка подключения к серверу');
+  }
+}
+
+// Сага для обработки сабмита
+function* handleSubmitLogin() {
   try {
     const login: string = yield select(selectLogin);
     const password: string = yield select(selectPassword);
@@ -19,25 +53,20 @@ function* handleSubmitLogin(api: AxiosInstance) {
       return;
     }
 
-    yield delay(1000);
-    const response: { data: LoginResponse } = {
-      data: {
-        success: true,
-        token: 'mock-token-123',
-        // user: { name: login }
-      },
-    };
+    const result: { success: boolean; token: string; user: LoginResponse['user'] } = yield call(
+      fetchLogin,
+      login,
+      password
+    );
 
-    if (response.data.token) {
-      yield call([AsyncStorage, 'setItem'], 'token', response.data.token);
-
-      //response.data.user.name
-      const userName = login;
+    if (result.token) {
+      yield call([AsyncStorage, 'setItem'], 'token', result.token);
+      yield call([AsyncStorage, 'setItem'], 'user', JSON.stringify(result.user));
 
       yield put(
         loginSuccess({
-          token: response.data.token,
-          userName: userName,
+          token: result.token,
+          userName: result.user.full_name,
         })
       );
     } else {
@@ -49,6 +78,6 @@ function* handleSubmitLogin(api: AxiosInstance) {
   }
 }
 
-export function* watchLogin(api: AxiosInstance) {
-  yield takeLatest(submitLogin.type, handleSubmitLogin, api);
+export function* watchLogin() {
+  yield takeLatest(submitLogin.type, handleSubmitLogin);
 }
