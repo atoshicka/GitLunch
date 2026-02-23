@@ -38,6 +38,11 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     marginLeft: 5,
   },
+  generalError: {
+    textAlign: 'center',
+    marginBottom: 12,
+    fontWeight: '500',
+  },
   button: {
     backgroundColor: '#1BB910',
     paddingVertical: 12,

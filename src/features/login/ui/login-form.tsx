@@ -103,6 +103,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
             />
             {fieldErrors.password && <Text style={styles.errorText}>{fieldErrors.password}</Text>}
           </View>
+          {fieldErrors.general && (
+            <Text style={[styles.errorText, styles.generalError]}>{fieldErrors.general}</Text>
+          )}
 
           <TouchableOpacity
             style={[styles.button]}
