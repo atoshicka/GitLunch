@@ -8,6 +8,7 @@ export interface LoginFormData {
 export interface LoginFormErrors {
   login?: string;
   password?: string;
+  general?: string;
 }
 
 // Пропсы компонента LoginForm
@@ -15,14 +16,18 @@ export interface LoginFormProps {
   onLoginSuccess: () => void;
 }
 
-//типы для ответа от сервера
+// типы для ответа от сервера
 export interface LoginResponse {
-  success: boolean;
-  token?: string;
-  error?: string;
+  token: string;
+  user: {
+    id: number;
+    login: string;
+    full_name: string;
+    role: string;
+  };
 }
 
-//типы для запроса
+// типы для запроса
 export interface LoginRequest {
   login: string;
   password: string;
