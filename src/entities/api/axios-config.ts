@@ -41,11 +41,8 @@ api.interceptors.response.use(
 
     console.error(`API Error [${status}]:`, message);
 
-    return Promise.reject({
-      status,
-      message,
-      originalError: error,
-    });
+    error.customMessage = message;
+    return Promise.reject(error);
   }
 );
 

@@ -1,14 +1,15 @@
-//создание хранилища
-
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
-import { rootReducer } from './reducer';
+import { CartFeature, LoginFeature } from '../features';
 import { rootSaga } from './saga';
 
 const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
-  reducer: rootReducer,
+  reducer: {
+    ...LoginFeature.reducer,
+    ...CartFeature.reducer,
+  },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,

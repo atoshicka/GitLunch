@@ -1,8 +1,11 @@
 import { AxiosInstance } from 'axios';
 import { MOCK_CATEGORIES, MOCK_DISHES } from '../../../mocks';
+import { API_ENDPOINTS } from './api';
 import { Category, Dish } from './types/menu-types';
 
-export const createMenuService = (api: AxiosInstance) => ({
+export const createApiService = (api: AxiosInstance) => ({
+  // методы меню
+
   // Получить все блюда
   async getDishes(): Promise<Dish[]> {
     try {
@@ -89,7 +92,17 @@ export const createMenuService = (api: AxiosInstance) => ({
       throw error;
     }
   },
+
+  //методы логина
+  async login(login: string, password: string) {
+    const response = await api.post(API_ENDPOINTS.LOGIN, { login, password });
+    return {
+      success: true,
+      token: response.data.token,
+      user: response.data.user,
+    };
+  },
 });
 
 // Тип для самого сервиса
-export type MenuService = ReturnType<typeof createMenuService>;
+export type ApiService = ReturnType<typeof createApiService>;
