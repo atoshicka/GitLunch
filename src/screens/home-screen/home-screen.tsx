@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native'; // добавь
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'; // добавь
 import React from 'react';
 import { Text, View } from 'react-native';
-import { SearchInput } from '../../shared/ui/search-input';
+import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './home-styles';
 
 type RootStackParamList = {

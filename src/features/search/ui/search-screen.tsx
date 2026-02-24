@@ -9,31 +9,46 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SearchInput } from '../../../shared/ui/search-input';
+import { MOCK_DISHES } from '../../../../mocks';
+import { useSearch } from '../../../shared/search/hooks/use-search';
+import { SearchInput } from '../../../shared/search/ui/search-input';
 import { styles } from './search-screen.styles';
 
 export const SearchScreen: React.FC = () => {
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { query, setQuery, searchResults } = useSearch(MOCK_DISHES);
   const [recentSearches, setRecentSearches] = useState<string[]>(['Пицца', 'Бургер', 'Суши']);
 
-  const handleSearch = (text: string) => {
-    setSearchQuery(text);
-  };
-
   const handleSubmit = () => {
-    if (searchQuery.trim()) {
-      setRecentSearches((prev) =>
-        [searchQuery, ...prev.filter((s) => s !== searchQuery)].slice(0, 5)
+    if (query.trim()) {
+      setRecentSearches((prev: string[]) =>
+        [query, ...prev.filter((s: string) => s !== query)].slice(0, 5)
       );
     }
   };
+
+  const renderSearchResult = ({ item }: { item: (typeof MOCK_DISHES)[0] }) => (
+    <TouchableOpacity
+      style={styles.resultItem}
+      onPress={() => {
+        console.log('Выбрано:', item.name);
+      }}
+    >
+      <View style={styles.resultImageContainer}>
+        <Text style={styles.resultImagePlaceholder}>🍽️</Text>
+      </View>
+      <View style={styles.resultInfo}>
+        <Text style={styles.resultName}>{item.name}</Text>
+        <Text style={styles.resultPrice}>{item.price} ₽</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   const renderRecentItem = ({ item }: { item: string }) => (
     <TouchableOpacity
       style={styles.recentItem}
       onPress={() => {
-        setSearchQuery(item);
+        setQuery(item);
         handleSubmit();
       }}
     >
@@ -57,15 +72,23 @@ export const SearchScreen: React.FC = () => {
           </TouchableOpacity>
           <View style={styles.searchContainer}>
             <SearchInput
-              value={searchQuery}
-              onChangeText={handleSearch}
+              value={query}
+              onChangeText={setQuery}
               onSubmitEditing={handleSubmit}
               placeholder="Поиск блюд..."
             />
           </View>
         </View>
 
-        {searchQuery.length === 0 && (
+        {query.length > 0 ? (
+          <FlatList
+            data={searchResults}
+            renderItem={renderSearchResult}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.resultsList}
+            ListEmptyComponent={<Text style={styles.emptyText}>Ничего не найдено</Text>}
+          />
+        ) : (
           <View style={styles.recentContainer}>
             <Text style={styles.recentTitle}>Недавние запросы</Text>
             <FlatList
