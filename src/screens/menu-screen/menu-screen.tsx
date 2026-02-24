@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
-import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React from 'react';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { MOCK_DISHES } from '../../../mocks';
 import { selectCartItemById } from '../../features/cart/store/cart-selectors';
 import { addToCart } from '../../features/cart/store/cart-slice';
+import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './menu-styles';
 
-const MOCK_DISHES = [
-  { id: '1', name: 'Цезарь с курицей', price: 450 },
-  { id: '2', name: 'American burger', price: 350 },
-  { id: '3', name: 'Пицца Маргарита', price: 550 },
-  { id: '4', name: 'Роллы', price: 400 },
-];
+type RootStackParamList = {
+  Tabs: undefined;
+  Search: {
+    category?: string;
+    onSearch?: (query: string) => void;
+  };
+};
+
+type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
 const DishCard = ({ item }: { item: (typeof MOCK_DISHES)[0] }) => {
   const dispatch = useDispatch();
@@ -59,17 +66,14 @@ const DishCard = ({ item }: { item: (typeof MOCK_DISHES)[0] }) => {
 };
 
 export const MenuScreen: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const navigation = useNavigation<MenuScreenNavigationProp>();
 
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
+        <SearchInput
+          onPress={() => navigation.navigate('Search', {})}
           placeholder="Поиск блюд..."
-          placeholderTextColor="#94A3B8"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
         />
       </View>
 
