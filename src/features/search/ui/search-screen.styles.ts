@@ -46,4 +46,46 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: '#0F172A',
   },
+  resultsList: {
+    padding: 16,
+  },
+  resultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  resultImageContainer: {
+    width: 50,
+    height: 50,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  resultImagePlaceholder: {
+    fontSize: 24,
+  },
+  resultInfo: {
+    flex: 1,
+  },
+  resultName: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  resultPrice: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1BB910',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#94A3B8',
+    fontSize: 16,
+    marginTop: 32,
+  },
 });
