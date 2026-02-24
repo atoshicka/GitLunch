@@ -1,22 +1,22 @@
-export const API_CONFIG = {
-  BASE_URL: __DEV__ ? 'http://localhost:3000' : 'https://api.gitlunch.app',
-  TIMEOUT: 10000,
-  VERSION: 'v1',
-} as const;
-
 export const getApiConfig = () => {
   if (__DEV__) {
     return {
-      BASE_URL: 'http://10.0.2.2:3000',
+      BASE_URL: 'https://two-tools-boil.loca.lt/api/v1',
       DEBUG: true,
     };
   }
 
   return {
-    BASE_URL: 'https://api.gitlunch.app',
+    BASE_URL: 'https://api.gitlunch.app/api/v1',
     DEBUG: false,
   };
 };
+
+export const API_CONFIG = {
+  ...getApiConfig(),
+  TIMEOUT: 10000,
+  VERSION: 'v1',
+} as const;
 
 export const API_ENDPOINTS = {
   // Меню

@@ -1,7 +1,10 @@
-import { all } from 'redux-saga/effects';
+import { all, call } from 'redux-saga/effects';
+import { createApiService } from '../entities/api/api-interface';
 import { api } from '../entities/api/axios-config';
 import { watchLogin } from '../features/login/store/login-saga';
 
+const apiService = createApiService(api);
+
 export function* rootSaga() {
-  yield all([watchLogin(api)]);
+  yield all([call(watchLogin, apiService)]);
 }
