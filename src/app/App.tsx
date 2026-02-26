@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Provider } from 'react-redux';
-import { store } from './index.ts';
 import { AppNavigator, AuthScreen } from './navigation/app-navigation';
+import { store } from './store';
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
