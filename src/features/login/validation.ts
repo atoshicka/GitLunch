@@ -1,4 +1,4 @@
-import { LoginFormData, LoginFormErrors } from '../../entities/api/types/login-types';
+import { LoginFormData, LoginFormErrors } from './types';
 
 export const validateLoginForm = (formData: LoginFormData): LoginFormErrors => {
   const errors: LoginFormErrors = {};
