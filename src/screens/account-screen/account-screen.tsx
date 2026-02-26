@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { selectUserName } from '../../features/login/store/selectors';
+import { selectUserName } from '../../features/login/selectors';
 import { styles } from './account-styles';
 
 const MENU_ITEMS = [
