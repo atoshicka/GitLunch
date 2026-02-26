@@ -95,11 +95,11 @@ export const createApiService = (api: AxiosInstance) => ({
 
   //методы логина
   async login(login: string, password: string) {
-    const response = await api.post(API_ENDPOINTS.LOGIN, { login, password });
+    const { data } = await api.post(API_ENDPOINTS.LOGIN, { login, password });
     return {
       success: true,
-      token: response.data.token,
-      user: response.data.user,
+      token: data.token,
+      user: data.user,
     };
   },
 });

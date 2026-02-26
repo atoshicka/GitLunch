@@ -9,15 +9,15 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { LoginFormData, LoginFormProps } from '../../../entities/api/types/login-types';
-import { loginFailure, setLogin, setPassword, submitLogin } from '../store/login-slice';
+import { loginFailure, setLogin, setPassword, submitLogin } from '../login-slice';
 import {
   selectErrors,
   selectIsAuthenticated,
   selectIsLoading,
   selectLogin,
   selectPassword,
-} from '../store/selectors';
+} from '../selectors';
+import { LoginFormData, LoginFormProps } from '../types';
 import { validateLoginForm } from '../validation';
 import { styles } from './login-styles';
 

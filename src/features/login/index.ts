@@ -1,10 +1,6 @@
-import type {
-  LoginFormData,
-  LoginFormErrors,
-  LoginFormProps,
-} from '../../entities/api/types/login-types';
-import { watchLogin } from './store/login-saga';
-import loginReducer from './store/login-slice';
+import { watchLogin } from './login-saga';
+import loginReducer from './login-slice';
+import type { LoginFormData, LoginFormErrors, LoginFormProps } from './types';
 import { LoginForm } from './ui/login-form';
 import { validateLoginForm } from './validation';
 
