@@ -4,6 +4,7 @@ export interface Dish {
   description: string;
   price: number;
   category: string;
+  filterType?: string;
   imageUrl: string;
   isVegetarian: boolean;
   isSpicy: boolean;
