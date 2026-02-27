@@ -122,4 +122,18 @@ export const styles = StyleSheet.create({
     minWidth: 20,
     textAlign: 'center',
   },
+  filters: {
+    marginBottom: 16,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#94A3B8',
+    fontSize: 16,
+    marginTop: 32,
+  },
+  filtersWrapper: {
+    marginBottom: 16,
+    minHeight: 44,
+    backgroundColor: '#F8FAFC',
+  },
 });
