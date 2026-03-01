@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { Typography } from '../../../shared/fontsFile/fonts';
 import { loginFailure, setLogin, setPassword, submitLogin } from '../login-slice';
 import {
   selectErrors,
@@ -45,7 +46,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   );
 
   const handleLoginSubmit = useCallback(() => {
-    // Валидация
     const formData: LoginFormData = {
       login: loginValue,
       password: passwordValue,
@@ -72,15 +72,30 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Image
-          source={require('../../../assets/images/logo.png')}
-          style={styles.logo}
+          source={require('../../../assets/images/vector1.png')}
+          style={styles.vectorTopLeft}
           resizeMode="contain"
         />
+
+        <Image
+          source={require('../../../assets/images/vector2.png')}
+          style={styles.vectorBottomRight}
+          resizeMode="contain"
+        />
+
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../../../assets/images/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <Text style={styles.logoTextAgbalumo}>GitLunch</Text>
+        </View>
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <TextInput
-              style={[styles.input, fieldErrors.login && styles.inputError]}
+              style={[styles.input, Typography.bodyRegular, fieldErrors.login && styles.inputError]}
               placeholder="Login"
               placeholderTextColor="#94A3B8"
               value={loginValue}
@@ -88,12 +103,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
               autoCapitalize="none"
               editable={!isSubmitting}
             />
-            {fieldErrors.login && <Text style={styles.errorText}>{fieldErrors.login}</Text>}
+            {fieldErrors.login && (
+              <Text style={[styles.errorText, Typography.caption]}>{fieldErrors.login}</Text>
+            )}
           </View>
 
           <View style={styles.inputGroup}>
             <TextInput
-              style={[styles.input, fieldErrors.password && styles.inputError]}
+              style={[
+                styles.input,
+                Typography.bodyRegular,
+                fieldErrors.password && styles.inputError,
+              ]}
               placeholder="Password"
               placeholderTextColor="#94A3B8"
               value={passwordValue}
@@ -101,18 +122,25 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
               secureTextEntry
               editable={!isSubmitting}
             />
-            {fieldErrors.password && <Text style={styles.errorText}>{fieldErrors.password}</Text>}
+            {fieldErrors.password && (
+              <Text style={[styles.errorText, Typography.caption]}>{fieldErrors.password}</Text>
+            )}
           </View>
+
           {fieldErrors.general && (
-            <Text style={[styles.errorText, styles.generalError]}>{fieldErrors.general}</Text>
+            <Text style={[styles.errorText, styles.generalError, Typography.bodySmall]}>
+              {fieldErrors.general}
+            </Text>
           )}
 
           <TouchableOpacity
-            style={[styles.button]}
+            style={styles.button}
             onPress={handleLoginSubmit}
             disabled={isSubmitting}
           >
-            <Text style={styles.buttonText}>{isSubmitting ? 'Вход...' : 'Войти'}</Text>
+            <Text style={[styles.buttonText, Typography.buttonRegular]}>
+              {isSubmitting ? 'Вход...' : 'Войти'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
