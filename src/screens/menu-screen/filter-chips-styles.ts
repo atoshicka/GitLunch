@@ -41,4 +41,7 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
   },
+  lastChip: {
+    marginRight: 20,
+  },
 });
