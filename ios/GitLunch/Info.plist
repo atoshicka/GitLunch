@@ -51,6 +51,7 @@
 	<false/>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Agbalumo-Regular.ttf</string>
 		<string>Roboto_Condensed-Medium.ttf</string>
 		<string>Roboto_Condensed-Regular.ttf</string>
 		<string>Roboto_SemiCondensed-Bold.ttf</string>
