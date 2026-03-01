@@ -1,0 +1,192 @@
+import { Dimensions, StyleSheet } from 'react-native';
+
+const { width } = Dimensions.get('window');
+const cardWidth = (width - 48) / 2;
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  gridContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  block: {
+    backgroundColor: '#DFFCEA',
+    borderRadius: 20,
+    paddingVertical: 24,
+    width: '48%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#22C55E',
+  },
+  blockText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#1F2937',
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#1F2937',
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 8,
+  },
+  largeBlockContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  largeBlock: {
+    backgroundColor: '#1BB910',
+    borderRadius: 20,
+    paddingVertical: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0,
+  },
+  largeBlockText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1F2937',
+    textAlign: 'center',
+    paddingHorizontal: 16,
+  },
+  carouselItem: {
+    width: width,
+    paddingHorizontal: 16,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingBottom: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#D1D5DB',
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: '#22C55E',
+    width: 20,
+  },
+  noveltyBlock: {
+    backgroundColor: '#22C55E',
+    borderRadius: 20,
+    paddingVertical: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0,
+  },
+  noveltyBlockText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1F2937',
+    textAlign: 'center',
+    paddingHorizontal: 16,
+  },
+  promoSection: {
+    marginBottom: 20,
+  },
+  promoList: {
+    paddingLeft: 16,
+    paddingRight: 8,
+  },
+  promoCardContainer: {
+    width: cardWidth,
+    marginRight: 12,
+  },
+  dishCard: {
+    width: '100%',
+    backgroundColor: '#DFFCEA',
+    borderRadius: 16,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  imageContainer: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  imagePlaceholder: {
+    fontSize: 40,
+  },
+  dishName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 4,
+    textAlign: 'left',
+  },
+  dishPrice: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#22C55E',
+    marginBottom: 12,
+    textAlign: 'left',
+  },
+  addToCartButton: {
+    backgroundColor: '#1BB910',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  addToCartButtonText: {
+    color: '#1F2937',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  quantityControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 4,
+  },
+  quantityButton: {
+    backgroundColor: '#1BB910',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quantityButtonText: {
+    color: '#1F2937',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  quantityText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1F2937',
+    minWidth: 30,
+    textAlign: 'center',
+  },
+});

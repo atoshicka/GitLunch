@@ -1,3 +1,4 @@
+import { PromoDish, Restaurant } from './src/entities/api/types/home-types';
 import { Category, Dish } from './src/entities/api/types/menu-types';
 
 export const MOCK_DISHES: Dish[] = [
@@ -8,6 +9,7 @@ export const MOCK_DISHES: Dish[] = [
     price: 550,
     category: 'pizza',
     filterType: 'горячее',
+    isPromo: true,
     imageUrl: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca',
     isVegetarian: true,
     isSpicy: false,
@@ -21,6 +23,7 @@ export const MOCK_DISHES: Dish[] = [
     price: 450,
     category: 'burgers',
     filterType: 'новинки',
+    isPromo: true,
     imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd',
     isVegetarian: false,
     isSpicy: true,
@@ -34,6 +37,7 @@ export const MOCK_DISHES: Dish[] = [
     price: 380,
     category: 'sushi',
     filterType: 'закуски',
+    isPromo: false,
     imageUrl: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351',
     isVegetarian: false,
     isSpicy: false,
@@ -47,6 +51,7 @@ export const MOCK_DISHES: Dish[] = [
     price: 320,
     category: 'salads',
     filterType: 'салаты',
+    isPromo: false,
     imageUrl: 'https://images.unsplash.com/photo-1546793665-c74683f339c1',
     isVegetarian: false,
     isSpicy: false,
@@ -60,6 +65,7 @@ export const MOCK_DISHES: Dish[] = [
     price: 250,
     category: 'desserts',
     filterType: 'десерты',
+    isPromo: true,
     imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587',
     isVegetarian: true,
     isSpicy: false,
@@ -73,6 +79,7 @@ export const MOCK_DISHES: Dish[] = [
     price: 120,
     category: 'drinks',
     filterType: 'напитки',
+    isPromo: false,
     imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97',
     isVegetarian: true,
     isSpicy: false,
@@ -80,12 +87,54 @@ export const MOCK_DISHES: Dish[] = [
     preparationTime: 2,
   },
 ];
-
 export const MOCK_CATEGORIES: Category[] = [
-  { id: 'pizza', name: 'Пицца', description: 'Итальянская классика', icon: '🍕' },
-  { id: 'burgers', name: 'Бургеры', description: 'Американские бургеры', icon: '🍔' },
-  { id: 'sushi', name: 'Суши', description: 'Японская кухня', icon: '🍣' },
-  { id: 'salads', name: 'Салаты', description: 'Легкие и свежие', icon: '🥗' },
-  { id: 'drinks', name: 'Напитки', description: 'Прохладительные напитки', icon: '🥤' },
-  { id: 'desserts', name: 'Десерты', description: 'Сладкие удовольствия', icon: '🍰' },
+  {
+    id: 'pizza',
+    name: 'Пицца',
+    description: 'Итальянская классика',
+    icon: '🍕',
+  },
+  {
+    id: 'burgers',
+    name: 'Бургеры',
+    description: 'Американские бургеры',
+    icon: '🍔',
+  },
+  {
+    id: 'sushi',
+    name: 'Суши',
+    description: 'Японская кухня',
+    icon: '🍣',
+  },
+  {
+    id: 'salads',
+    name: 'Салаты',
+    description: 'Легкие и свежие',
+    icon: '🥗',
+  },
+  {
+    id: 'desserts',
+    name: 'Десерты',
+    description: 'Сладкие удовольствия',
+    icon: '🍰',
+  },
+  {
+    id: 'drinks',
+    name: 'Напитки',
+    description: 'Прохладительные напитки',
+    icon: '🥤',
+  },
 ];
+export const MOCK_RESTAURANTS: Restaurant[] = [
+  { id: '1', name: 'Цезарь' },
+  { id: '2', name: 'Ресторан 2' },
+];
+
+export const MOCK_PROMO_DISHES: PromoDish[] = MOCK_DISHES.filter((dish) => dish.isPromo).map(
+  (dish) => ({
+    id: dish.id,
+    name: dish.name,
+    price: dish.price,
+    isPromo: true,
+  })
+);

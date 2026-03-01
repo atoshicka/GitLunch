@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Dish } from '../../../entities/api/types/menu-types';
 
-// Список доступных фильтров
-const AVAILABLE_FILTERS = ['горячее', 'салаты', 'десерты', 'закуски', 'новинки'];
+const AVAILABLE_FILTERS = ['горячее', 'салаты', 'десерты', 'закуски', 'новинки', 'акции'];
 
 export const useSearch = (items: Dish[]) => {
   const [query, setQuery] = useState('');
@@ -16,7 +15,11 @@ export const useSearch = (items: Dish[]) => {
     );
 
     if (matchedFilter) {
-      return items.filter((item) => item.filterType === matchedFilter);
+      if (matchedFilter === 'акции') {
+        return items.filter((item) => item.isPromo === true);
+      } else {
+        return items.filter((item) => item.filterType === matchedFilter);
+      }
     } else {
       return items.filter((item) => item.name.toLowerCase().includes(trimmedQuery));
     }
