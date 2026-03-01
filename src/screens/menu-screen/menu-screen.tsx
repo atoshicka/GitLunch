@@ -1,37 +1,39 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { MOCK_DISHES } from '../../../mocks';
+import {
+  MainFilterType,
+  RootStackParamList,
+  SubFilterType,
+} from '../../app/navigation/navigation-types';
+import { Dish } from '../../entities/api';
 import { selectCartItemById } from '../../features/cart/store/cart-selectors';
-import { addToCart } from '../../features/cart/store/cart-slice';
+import { addToCart, decreaseQuantity } from '../../features/cart/store/cart-slice';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { FilterChips } from './filter-chips';
 import { styles } from './menu-styles';
 
-type RootStackParamList = {
-  Tabs: undefined;
-  Search: {
-    category?: string;
-    onSearch?: (query: string) => void;
-  };
-  Menu: {
-    filterType?: string;
-    restaurantId?: string;
-    restaurantName?: string;
-  };
-};
-
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 type MenuScreenRouteProp = RouteProp<RootStackParamList, 'Menu'>;
 
-const FILTERS = ['Все', 'горячее', 'салаты', 'десерты', 'закуски', 'новинки'];
+const MAIN_FILTERS: MainFilterType[] = ['Все', 'акции'];
+const SUB_FILTERS: SubFilterType[] = ['горячее', 'салаты', 'десерты', 'закуски', 'новинки'];
 
-const DishCard = ({ item }: { item: (typeof MOCK_DISHES)[0] }) => {
+const DishCard = React.memo(({ item }: { item: Dish }) => {
   const dispatch = useDispatch();
   const cartItem = useSelector(selectCartItemById(item.id));
   const quantity = cartItem?.quantity || 0;
+
+  const handleAddToCart = useCallback(() => {
+    dispatch(addToCart({ id: item.id, name: item.name, price: item.price }));
+  }, [dispatch, item.id, item.name, item.price]);
+
+  const handleDecrease = useCallback(() => {
+    dispatch(decreaseQuantity(item.id));
+  }, [dispatch, item.id]);
 
   return (
     <View style={styles.dishCard}>
@@ -43,82 +45,96 @@ const DishCard = ({ item }: { item: (typeof MOCK_DISHES)[0] }) => {
         {item.name}
       </Text>
 
-      <View style={styles.dishFooter}>
-        <Text style={styles.dishPrice}>{item.price} ₽</Text>
+      <Text style={styles.dishPrice}>{item.price} ₽</Text>
 
-        {quantity > 0 ? (
-          <View style={styles.quantityControl}>
-            <TouchableOpacity style={styles.quantityButton}>
-              <Text style={styles.quantityButtonText}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.quantityText}>{quantity}</Text>
-            <TouchableOpacity
-              style={styles.quantityButton}
-              onPress={() =>
-                dispatch(addToCart({ id: item.id, name: item.name, price: item.price }))
-              }
-            >
-              <Text style={styles.quantityButtonText}>+</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => dispatch(addToCart({ id: item.id, name: item.name, price: item.price }))}
-          >
-            <Text style={styles.addButtonText}>+</Text>
+      {quantity > 0 ? (
+        <View style={styles.quantityControl}>
+          <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
+            <Text style={styles.quantityButtonText}>-</Text>
           </TouchableOpacity>
-        )}
-      </View>
+          <Text style={styles.quantityText}>{quantity}</Text>
+          <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
+            <Text style={styles.quantityButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+          <Text style={styles.addToCartButtonText}>В корзину</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
-};
+});
 
 export const MenuScreen: React.FC = () => {
   const navigation = useNavigation<MenuScreenNavigationProp>();
   const route = useRoute<MenuScreenRouteProp>();
-  const filterType = route.params?.filterType;
-  const restaurantName = route.params?.restaurantName;
+  const {
+    restaurantName,
+    mainFilter: initialMainFilter,
+    subFilters: initialSubFilters,
+  } = route.params || {};
 
-  const [selectedFilters, setSelectedFilters] = useState<string[]>(['Все']);
+  const [mainFilter, setMainFilter] = useState<MainFilterType>(initialMainFilter || 'Все');
+  const [subFilters, setSubFilters] = useState<SubFilterType[]>(initialSubFilters || []);
 
   useEffect(() => {
-    if (filterType && filterType !== 'Все') {
-      setSelectedFilters([filterType]);
+    if (initialMainFilter) {
+      setMainFilter(initialMainFilter);
+      if (initialMainFilter === 'акции') {
+        setSubFilters([]);
+      }
     }
-  }, [filterType]);
+  }, [initialMainFilter]);
+
+  useEffect(() => {
+    if (initialSubFilters) {
+      setSubFilters(initialSubFilters);
+    }
+  }, [initialSubFilters]);
 
   const filteredDishes = useMemo(() => {
-    if (selectedFilters.includes('Все')) {
+    const subFiltersSet = new Set(subFilters);
+
+    if (mainFilter === 'акции') {
+      return MOCK_DISHES.filter((dish) => dish.isPromo);
+    }
+
+    if (subFilters.length === 0) {
       return MOCK_DISHES;
     }
+
     return MOCK_DISHES.filter(
-      (dish) => dish.filterType && selectedFilters.includes(dish.filterType)
+      (dish) => dish.filterType && subFiltersSet.has(dish.filterType as SubFilterType)
     );
-  }, [selectedFilters]);
+  }, [mainFilter, subFilters]);
 
-  const handleSelectFilter = (filter: string) => {
-    setSelectedFilters((prev) => {
-      if (filter === 'Все') {
-        return ['Все'];
+  const handleMainFilterPress = useCallback((filter: string) => {
+    if (filter === 'Все' || filter === 'акции') {
+      setMainFilter(filter as MainFilterType);
+      if (filter === 'акции') {
+        setSubFilters([]);
       }
+    }
+  }, []);
 
-      if (prev.includes('Все')) {
-        return [filter];
+  const handleSubFilterPress = useCallback((filter: string) => {
+    const subFilter = filter as SubFilterType;
+    setSubFilters((prev) => {
+      if (prev.includes(subFilter)) {
+        return prev.filter((f) => f !== subFilter);
       }
-
-      if (prev.includes(filter)) {
-        const newFilters = prev.filter((f) => f !== filter);
-        return newFilters.length === 0 ? ['Все'] : newFilters;
-      }
-
-      return [...prev, filter];
+      return [...prev, subFilter];
     });
-  };
+  }, []);
 
-  const handleSearchPress = () => {
+  const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
-  };
+  }, [navigation]);
+
+  const getTitle = useCallback(() => {
+    return mainFilter === 'акции' ? 'Акции дня' : 'Меню';
+  }, [mainFilter]);
 
   const restaurantTitle = restaurantName || 'Кафе Цезарь';
 
@@ -129,15 +145,25 @@ export const MenuScreen: React.FC = () => {
       </View>
 
       <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
-      <Text style={styles.sectionTitle}>Предложения дня</Text>
+      <Text style={styles.sectionTitle}>{getTitle()}</Text>
 
       <View style={styles.filtersWrapper}>
         <FilterChips
-          filters={FILTERS}
-          selectedFilters={selectedFilters}
-          onSelectFilter={handleSelectFilter}
+          filters={MAIN_FILTERS}
+          selectedFilters={[mainFilter]}
+          onSelectFilter={handleMainFilterPress}
         />
       </View>
+
+      {mainFilter === 'Все' && (
+        <View style={styles.filtersWrapper}>
+          <FilterChips
+            filters={SUB_FILTERS}
+            selectedFilters={subFilters}
+            onSelectFilter={handleSubFilterPress}
+          />
+        </View>
+      )}
 
       <FlatList
         data={filteredDishes}
@@ -146,6 +172,10 @@ export const MenuScreen: React.FC = () => {
         contentContainerStyle={styles.dishesGrid}
         renderItem={({ item }) => <DishCard item={item} />}
         ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
+        initialNumToRender={4}
+        maxToRenderPerBatch={6}
+        windowSize={5}
+        removeClippedSubviews={true}
       />
     </View>
   );

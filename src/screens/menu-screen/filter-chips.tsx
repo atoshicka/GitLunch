@@ -1,94 +1,88 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { Animated, ScrollView, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { Animated, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { FilterChipsProps } from '../../app/navigation/navigation-types';
 import { styles } from './filter-chips-styles';
 
-interface FilterChipsProps {
-  filters: string[];
-  selectedFilters: string[];
-  onSelectFilter: (filter: string) => void;
-  style?: ViewStyle;
-}
+const ALL_FILTER = 'Все';
 
 export const FilterChips: React.FC<FilterChipsProps> = ({
   filters,
   selectedFilters,
   onSelectFilter,
   style,
+  disableSort = false,
 }) => {
-  const scrollViewRef = useRef<ScrollView>(null);
+  const getAnimatedStyle = useCallback(
+    (filter: string) => {
+      const isSelected = selectedFilters.includes(filter);
+      return {
+        transform: [{ scale: isSelected ? 1.05 : 1 }],
+      };
+    },
+    [selectedFilters]
+  );
 
-  const scaleAnims = useRef<{ [key: string]: Animated.Value }>({}).current;
+  const handlePress = useCallback(
+    (filter: string) => {
+      onSelectFilter(filter);
+    },
+    [onSelectFilter]
+  );
 
-  filters.forEach((filter) => {
-    if (!scaleAnims[filter]) {
-      scaleAnims[filter] = new Animated.Value(1);
+  const displayedFilters = useMemo(() => {
+    if (disableSort || !filters.length) {
+      return filters;
     }
-  });
 
-  useEffect(() => {
-    if (selectedFilters.length > 0 && !selectedFilters.includes('Все')) {
-      scrollViewRef.current?.scrollTo({
-        x: 0,
-        animated: false,
-      });
+    const hasAllFilter = filters.includes(ALL_FILTER);
+
+    if (!hasAllFilter) {
+      return filters;
     }
-  }, [selectedFilters]);
 
-  const sortedFilters = useMemo(() => {
-    const allFilter = 'Все';
-    const otherFilters = filters.filter((f) => f !== allFilter);
+    const otherFilters = filters.filter((f) => f !== ALL_FILTER);
 
-    if (selectedFilters.length === 0 || selectedFilters.includes(allFilter)) {
-      return [allFilter, ...otherFilters];
+    if (selectedFilters.length === 0 || selectedFilters.includes(ALL_FILTER)) {
+      return [ALL_FILTER, ...otherFilters];
     }
 
     const selected = otherFilters.filter((f) => selectedFilters.includes(f));
     const remaining = otherFilters.filter((f) => !selectedFilters.includes(f));
 
-    return [allFilter, ...selected, ...remaining];
-  }, [filters, selectedFilters]);
+    return [ALL_FILTER, ...selected, ...remaining];
+  }, [filters, selectedFilters, disableSort]);
 
-  const handlePress = (filter: string) => {
-    Animated.sequence([
-      Animated.timing(scaleAnims[filter], {
-        toValue: 0.95,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnims[filter], {
-        toValue: 1,
-        duration: 50,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    onSelectFilter(filter);
-  };
+  if (!filters.length) {
+    return null;
+  }
 
   return (
     <ScrollView
-      ref={scrollViewRef}
       horizontal
       showsHorizontalScrollIndicator={false}
       style={[styles.container, style]}
       contentContainerStyle={styles.content}
     >
-      {sortedFilters.map((filter) => {
+      {displayedFilters.map((filter) => {
         const isSelected = selectedFilters.includes(filter);
 
         return (
-          <Animated.View
-            key={filter}
-            style={{
-              transform: [{ scale: scaleAnims[filter] || 1 }],
-            }}
-          >
+          <Animated.View key={filter} style={getAnimatedStyle(filter)}>
             <TouchableOpacity
-              style={[styles.chip, isSelected && styles.chipSelected]}
+              style={[
+                styles.chip,
+                isSelected && styles.chipSelected,
+                filter === displayedFilters[displayedFilters.length - 1] && styles.lastChip,
+              ]}
               onPress={() => handlePress(filter)}
-              activeOpacity={0.9}
+              activeOpacity={0.7}
             >
-              <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>{filter}</Text>
+              <Text
+                style={[styles.chipText, isSelected && styles.chipTextSelected]}
+                numberOfLines={1}
+              >
+                {filter}
+              </Text>
             </TouchableOpacity>
           </Animated.View>
         );

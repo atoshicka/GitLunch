@@ -1,6 +1,7 @@
 import { AxiosInstance } from 'axios';
 import { MOCK_CATEGORIES, MOCK_DISHES } from '../../../mocks';
 import { API_ENDPOINTS } from './api';
+import { PromoDish, Restaurant } from './types/home-types';
 import { Category, Dish } from './types/menu-types';
 
 export const createApiService = (api: AxiosInstance) => ({
@@ -101,6 +102,42 @@ export const createApiService = (api: AxiosInstance) => ({
       token: data.token,
       user: data.user,
     };
+  },
+
+  async getRestaurants(): Promise<Restaurant[]> {
+    try {
+      // TODO: заменить на реальный API
+      // const response = await api.get<{ restaurants: Restaurant[] }>(API_ENDPOINTS.RESTAURANTS);
+      // return response.data.restaurants;
+
+      // мок
+      return [
+        { id: '1', name: 'Цезарь' },
+        { id: '2', name: 'Ресторан 2' },
+      ];
+    } catch (error) {
+      console.error('Error fetching restaurants:', error);
+      throw error;
+    }
+  },
+
+  async getPromoDishes(): Promise<PromoDish[]> {
+    try {
+      // TODO: заменить на реальный API
+      // const response = await api.get<{ promoDishes: PromoDish[] }>(API_ENDPOINTS.PROMO);
+      // return response.data.promoDishes;
+
+      // мок - берем из MOCK_DISHES с isPromo: true
+      return MOCK_DISHES.filter((dish) => dish.isPromo).map((dish) => ({
+        id: dish.id,
+        name: dish.name,
+        price: dish.price,
+        isPromo: true,
+      }));
+    } catch (error) {
+      console.error('Error fetching promo dishes:', error);
+      throw error;
+    }
   },
 });
 
