@@ -4,10 +4,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 
+import { HomeScreen } from '../../features/home/ui/home-screen';
 import { SearchScreen } from '../../features/search/ui/search-screen';
 import { AccountScreen } from '../../screens/account-screen/account-screen';
 import { BasketScreen } from '../../screens/basket-screen/basket-screen';
-import { HomeScreen } from '../../screens/home-screen/home-screen';
 import { MenuScreen } from '../../screens/menu-screen/menu-screen';
 
 import { LoginForm } from '../../features/login/ui/login-form';
