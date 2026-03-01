@@ -2,12 +2,8 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "src/shared/fonts/fonts.ts",
-      "sha1": "636e2a753ab8d8d60db429d456c71fef5c890ec7"
-    },
-    {
-      "path": "src/shared/fonts/index.ts",
-      "sha1": "aed51ee9ac7851d6fb8cfd59d3f804da51ec4d84"
+      "path": "src/shared/fonts/Agbalumo-Regular.ttf",
+      "sha1": "75b3e0d3ed30ecc1e93398119f480d0604c9973b"
     },
     {
       "path": "src/shared/fonts/Roboto_Condensed-Medium.ttf",

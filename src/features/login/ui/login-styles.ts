@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { AgbalumoTypography } from '../../../shared/fontsFile/agbalumoFonts';
 
 export const styles = StyleSheet.create({
   container: {
@@ -6,55 +7,82 @@ export const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     paddingHorizontal: 20,
     justifyContent: 'center',
+    position: 'relative',
+  },
+  vectorTopLeft: {
+    position: 'absolute',
+    top: -30,
+    left: -30,
+    width: 300,
+    height: 300,
+    opacity: 0.8,
+  },
+  vectorBottomRight: {
+    position: 'absolute',
+    bottom: -20,
+    right: -20,
+    width: 200,
+    height: 200,
+    opacity: 0.8,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    zIndex: 1,
   },
   logo: {
-    width: 120,
-    height: 120,
-    alignSelf: 'center',
-    marginBottom: 40,
+    width: 100,
+    height: 100,
+  },
+  logoTextAgbalumo: {
+    ...AgbalumoTypography.agbalumoMedium,
+    color: '#1F2937',
+    marginTop: 4,
+    letterSpacing: 1,
+  },
+  logoText: {
+    color: '#1F2937',
+    marginTop: 4,
+    letterSpacing: 1,
   },
   form: {
     width: '100%',
+    zIndex: 1,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   input: {
     borderWidth: 1,
     borderColor: '#1F2937',
     borderRadius: 20,
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 14,
-    fontSize: 16,
     backgroundColor: '#F8FAFC',
-    color: '#495E7C',
+    color: '#1F2937',
   },
   inputError: {
     borderColor: '#ef4444',
   },
   errorText: {
     color: '#ef4444',
-    fontSize: 14,
-    marginTop: 5,
+    marginTop: 4,
     marginLeft: 5,
   },
   generalError: {
     textAlign: 'center',
-    marginBottom: 12,
-    fontWeight: '500',
+    marginBottom: 8,
   },
   button: {
     backgroundColor: '#1BB910',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 16,
+    marginTop: 8,
     width: '100%',
   },
   buttonText: {
     color: '#1F2937',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
