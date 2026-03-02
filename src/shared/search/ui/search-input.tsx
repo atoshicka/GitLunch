@@ -1,6 +1,15 @@
 import React from 'react';
-import { TextInput, TouchableOpacity, View, ViewStyle } from 'react-native';
+import {
+  Image,
+  ImageSourcePropType,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { styles } from './search-input.styles';
+
+const searchIcon = require('../../../assets/images/search.png');
 
 interface SearchInputProps {
   onPress?: () => void;
@@ -10,6 +19,7 @@ interface SearchInputProps {
   placeholder?: string;
   editable?: boolean;
   style?: ViewStyle;
+  iconSource?: ImageSourcePropType;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -20,11 +30,17 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = 'Поиск блюд...',
   editable = true,
   style,
+  iconSource = searchIcon,
 }) => {
   if (onPress) {
     return (
-      <TouchableOpacity style={[styles.container, style]} onPress={onPress} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={[styles.container, styles.searchContainer, style]}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
         <View style={styles.placeholderContainer}>
+          <Image source={iconSource} style={styles.searchIcon} resizeMode="contain" />
           <TextInput
             style={styles.placeholderText}
             placeholder={placeholder}
@@ -38,18 +54,21 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   }
 
   return (
-    <View style={[styles.container, style]}>
-      <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        placeholderTextColor="#94A3B8"
-        value={value}
-        onChangeText={onChangeText}
-        onSubmitEditing={onSubmitEditing}
-        returnKeyType="search"
-        autoFocus
-        editable={editable}
-      />
+    <View style={[styles.container, styles.searchContainer, style]}>
+      <View style={styles.inputWrapper}>
+        <Image source={iconSource} style={styles.searchIcon} resizeMode="contain" />
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          placeholderTextColor="#94A3B8"
+          value={value}
+          onChangeText={onChangeText}
+          onSubmitEditing={onSubmitEditing}
+          returnKeyType="search"
+          autoFocus
+          editable={editable}
+        />
+      </View>
     </View>
   );
 };
