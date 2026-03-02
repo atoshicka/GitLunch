@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Dimensions,
   FlatList,
+  Image,
   ListRenderItem,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -24,6 +25,13 @@ import { styles } from './home-styles';
 const { width } = Dimensions.get('window');
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+
+const filterIcons = {
+  hot: require('../../../assets/images/hot.png'),
+  salads: require('../../../assets/images/salads.png'),
+  snacks: require('../../../assets/images/snacks.png'),
+  desserts: require('../../../assets/images/desserts.png'),
+};
 
 const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
   const dispatch = useDispatch();
@@ -96,34 +104,41 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
     <View style={styles.gridContainer}>
       <View style={styles.row}>
         <TouchableOpacity
-          style={styles.block}
+          style={styles.filterBlock}
           onPress={() => onFilterPress('горячее')}
-          activeOpacity={1}
+          activeOpacity={0.7}
         >
-          <Text style={styles.blockText}>Горячее</Text>
+          <Image source={filterIcons.hot} style={styles.filterIcon} resizeMode="contain" />
+          <Text style={styles.filterText}>Горячее</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={styles.block}
+          style={styles.filterBlock}
           onPress={() => onFilterPress('салаты')}
-          activeOpacity={1}
+          activeOpacity={0.7}
         >
-          <Text style={styles.blockText}>Салаты</Text>
+          <Image source={filterIcons.salads} style={styles.filterIcon} resizeMode="contain" />
+          <Text style={styles.filterText}>Салаты</Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.row}>
         <TouchableOpacity
-          style={styles.block}
+          style={styles.filterBlock}
           onPress={() => onFilterPress('десерты')}
-          activeOpacity={1}
+          activeOpacity={0.7}
         >
-          <Text style={styles.blockText}>Десерты</Text>
+          <Image source={filterIcons.desserts} style={styles.filterIcon} resizeMode="contain" />
+          <Text style={styles.filterText}>Десерты</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={styles.block}
+          style={styles.filterBlock}
           onPress={() => onFilterPress('закуски')}
-          activeOpacity={1}
+          activeOpacity={0.7}
         >
-          <Text style={styles.blockText}>Закуски</Text>
+          <Image source={filterIcons.snacks} style={styles.filterIcon} resizeMode="contain" />
+          <Text style={styles.filterText}>Закуски</Text>
         </TouchableOpacity>
       </View>
     </View>
