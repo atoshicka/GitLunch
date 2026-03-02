@@ -37,6 +37,28 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#1F2937',
   },
+  filterBlock: {
+    backgroundColor: '#DFFCEA',
+    borderRadius: 32,
+    width: '48%',
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#1BB910',
+    padding: 16,
+  },
+  filterIcon: {
+    width: 64,
+    height: 64,
+    marginBottom: 12,
+  },
+  filterText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    textAlign: 'center',
+  },
   sectionTitle: {
     fontSize: 22,
     fontWeight: '600',
