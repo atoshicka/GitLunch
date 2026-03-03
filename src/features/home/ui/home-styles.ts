@@ -1,4 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
+import { Typography } from '../../../shared/fontsFile/fonts';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2;
@@ -6,7 +7,7 @@ const cardWidth = (width - 48) / 2;
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F4F4F4',
   },
   searchContainer: {
     paddingHorizontal: 16,
@@ -23,7 +24,7 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   block: {
-    backgroundColor: '#DFFCEA',
+    backgroundColor: '#F4F4F4',
     borderRadius: 20,
     paddingVertical: 24,
     width: '48%',
@@ -33,12 +34,11 @@ export const styles = StyleSheet.create({
     borderColor: '#22C55E',
   },
   blockText: {
-    fontSize: 18,
-    fontWeight: '500',
+    ...Typography.buttonRegular,
     color: '#1F2937',
   },
   filterBlock: {
-    backgroundColor: '#DFFCEA',
+    backgroundColor: '#F4F4F4',
     borderRadius: 32,
     width: '48%',
     aspectRatio: 1,
@@ -46,22 +46,20 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#1BB910',
-    padding: 16,
+    padding: 12,
   },
   filterIcon: {
-    width: 64,
-    height: 64,
-    marginBottom: 12,
+    width: 100,
+    height: 100,
+    marginBottom: 8,
   },
   filterText: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...Typography.buttonRegular,
     color: '#1F2937',
     textAlign: 'center',
   },
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: '600',
+    ...Typography.titleSmall,
     color: '#1F2937',
     paddingHorizontal: 16,
     paddingTop: 24,
@@ -80,8 +78,7 @@ export const styles = StyleSheet.create({
     borderWidth: 0,
   },
   largeBlockText: {
-    fontSize: 24,
-    fontWeight: '600',
+    ...Typography.decorativeSmall,
     color: '#1F2937',
     textAlign: 'center',
     paddingHorizontal: 16,
@@ -101,7 +98,7 @@ export const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#D1D5DB',
+    backgroundColor: '#1F2937',
     marginHorizontal: 4,
   },
   activeDot: {
@@ -117,8 +114,7 @@ export const styles = StyleSheet.create({
     borderWidth: 0,
   },
   noveltyBlockText: {
-    fontSize: 24,
-    fontWeight: '600',
+    ...Typography.decorativeSmall,
     color: '#1F2937',
     textAlign: 'center',
     paddingHorizontal: 16,
@@ -148,7 +144,7 @@ export const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#F4F4F4',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -158,13 +154,14 @@ export const styles = StyleSheet.create({
     fontSize: 40,
   },
   dishName: {
-    fontSize: 16,
+    ...Typography.bodyRegular,
     fontWeight: '600',
     color: '#1F2937',
     marginBottom: 4,
     textAlign: 'left',
   },
   dishPrice: {
+    ...Typography.buttonRegular,
     fontSize: 18,
     fontWeight: 'bold',
     color: '#22C55E',
@@ -180,9 +177,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addToCartButtonText: {
+    ...Typography.buttonSmall,
     color: '#1F2937',
-    fontSize: 14,
-    fontWeight: '600',
   },
   quantityControl: {
     flexDirection: 'row',
@@ -200,13 +196,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quantityButtonText: {
-    color: '#1F2937',
+    ...Typography.buttonRegular,
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#1F2937',
   },
   quantityText: {
-    fontSize: 16,
-    fontWeight: '500',
+    ...Typography.bodyRegular,
     color: '#1F2937',
     minWidth: 30,
     textAlign: 'center',
