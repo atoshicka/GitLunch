@@ -13,16 +13,12 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     top: -30,
     left: -30,
-    width: 300,
-    height: 300,
     opacity: 0.8,
   },
   vectorBottomRight: {
     position: 'absolute',
     bottom: -20,
     right: -20,
-    width: 200,
-    height: 200,
     opacity: 0.8,
   },
   logoContainer: {
@@ -30,17 +26,8 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     zIndex: 1,
   },
-  logo: {
-    width: 100,
-    height: 100,
-  },
   logoTextAgbalumo: {
     ...AgbalumoTypography.agbalumoMedium,
-    color: '#1F2937',
-    marginTop: 4,
-    letterSpacing: 1,
-  },
-  logoText: {
     color: '#1F2937',
     marginTop: 4,
     letterSpacing: 1,

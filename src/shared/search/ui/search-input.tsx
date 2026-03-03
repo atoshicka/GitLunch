@@ -1,15 +1,7 @@
 import React from 'react';
-import {
-  Image,
-  ImageSourcePropType,
-  TextInput,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { TextInput, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { Images } from '../../../shared/constants/images';
 import { styles } from './search-input.styles';
-
-const searchIcon = require('../../../assets/images/search.png');
 
 interface SearchInputProps {
   onPress?: () => void;
@@ -19,7 +11,6 @@ interface SearchInputProps {
   placeholder?: string;
   editable?: boolean;
   style?: ViewStyle;
-  iconSource?: ImageSourcePropType;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -30,8 +21,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = 'Поиск блюд...',
   editable = true,
   style,
-  iconSource = searchIcon,
 }) => {
+  const SearchIcon = Images.search.icon;
+
   if (onPress) {
     return (
       <TouchableOpacity
@@ -40,7 +32,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         activeOpacity={0.7}
       >
         <View style={styles.placeholderContainer}>
-          <Image source={iconSource} style={styles.searchIcon} resizeMode="contain" />
+          <SearchIcon width={24} height={24} style={styles.searchIcon} />
           <TextInput
             style={styles.placeholderText}
             placeholder={placeholder}
@@ -56,7 +48,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   return (
     <View style={[styles.container, styles.searchContainer, style]}>
       <View style={styles.inputWrapper}>
-        <Image source={iconSource} style={styles.searchIcon} resizeMode="contain" />
+        <SearchIcon width={24} height={24} style={styles.searchIcon} />
         <TextInput
           style={styles.input}
           placeholder={placeholder}

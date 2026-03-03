@@ -3,9 +3,9 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     backgroundColor: '#F4F4F4',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: 30,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   searchContainer: {
     borderWidth: 1,
@@ -15,20 +15,17 @@ export const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 4,
   },
   placeholderText: {
     color: '#495E7C',
-    fontSize: 16,
-    padding: 0,
-    margin: 0,
+    fontSize: 14,
     flex: 1,
   },
   searchIcon: {
-    width: 22,
-    height: 22,
-    tintColor: '#1F2937',
-    marginRight: 8,
+    width: 20,
+    height: 20,
+    marginRight: 4,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -36,10 +33,9 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    fontSize: 16,
-    color: '#0F172A',
-    padding: 0,
-    margin: 0,
+    fontSize: 14,
+    color: '#1F2937',
     flex: 1,
+    marginLeft: 4,
   },
 });
