@@ -1,5 +1,6 @@
 import { watchLogin } from './login-saga';
-import loginReducer from './login-slice';
+import loginReducer, * as loginActions from './login-slice';
+import * as loginSelectors from './selectors';
 import type { LoginFormData, LoginFormErrors, LoginFormProps } from './types';
 import { LoginForm } from './ui/login-form';
 import { validateLoginForm } from './validation';
@@ -7,13 +8,23 @@ import { validateLoginForm } from './validation';
 export const LOGIN_SLICE_NAME = 'login';
 
 export const LoginFeature = {
-  LoginForm,
+  actions: loginActions,
+  sagas: {
+    watchLogin,
+  },
   reducer: {
     [LOGIN_SLICE_NAME]: loginReducer,
   },
-  saga: watchLogin,
-  validate: validateLoginForm,
+  selectors: loginSelectors,
+  ui: {
+    LoginForm,
+  },
+  utils: {
+    validateLoginForm,
+  },
 };
 
+export * from './login-slice';
+export * from './selectors';
 export { LoginForm, loginReducer, validateLoginForm, watchLogin };
 export type { LoginFormData, LoginFormErrors, LoginFormProps };

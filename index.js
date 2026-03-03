@@ -2,4 +2,4 @@
  * @format
  */
 
-import './src/app/index';
+import './src/app/index.ts';
