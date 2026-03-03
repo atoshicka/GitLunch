@@ -4,14 +4,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { MOCK_DISHES } from '../../../mocks';
-import {
-  MainFilterType,
-  RootStackParamList,
-  SubFilterType,
-} from '../../app/navigation/navigation-types';
+import { MAIN_FILTERS, SUB_FILTERS } from '../../app/constants/filters';
+import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Dish } from '../../entities/api';
-import { selectCartItemById } from '../../features/cart/store/cart-selectors';
-import { addToCart, decreaseQuantity } from '../../features/cart/store/cart-slice';
+import { CartFeature } from '../../features/cart';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { FilterChips } from './filter-chips';
 import { styles } from './menu-styles';
@@ -19,20 +15,21 @@ import { styles } from './menu-styles';
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 type MenuScreenRouteProp = RouteProp<RootStackParamList, 'Menu'>;
 
-const MAIN_FILTERS: MainFilterType[] = ['Все', 'акции'];
-const SUB_FILTERS: SubFilterType[] = ['горячее', 'салаты', 'десерты', 'закуски', 'новинки'];
-
 const DishCard = React.memo(({ item }: { item: Dish }) => {
   const dispatch = useDispatch();
-  const cartItem = useSelector(selectCartItemById(item.id));
+  const cartItemSelector = useMemo(
+    () => CartFeature.selectors.selectCartItemById(item.id),
+    [item.id]
+  );
+  const cartItem = useSelector(cartItemSelector);
   const quantity = cartItem?.quantity || 0;
 
   const handleAddToCart = useCallback(() => {
-    dispatch(addToCart({ id: item.id, name: item.name, price: item.price }));
+    dispatch(CartFeature.actions.addToCart({ id: item.id, name: item.name, price: item.price }));
   }, [dispatch, item.id, item.name, item.price]);
 
   const handleDecrease = useCallback(() => {
-    dispatch(decreaseQuantity(item.id));
+    dispatch(CartFeature.actions.decreaseQuantity(item.id));
   }, [dispatch, item.id]);
 
   return (
@@ -75,8 +72,8 @@ export const MenuScreen: React.FC = () => {
     subFilters: initialSubFilters,
   } = route.params || {};
 
-  const [mainFilter, setMainFilter] = useState<MainFilterType>(initialMainFilter || 'Все');
-  const [subFilters, setSubFilters] = useState<SubFilterType[]>(initialSubFilters || []);
+  const [mainFilter, setMainFilter] = useState<string>(initialMainFilter || 'Все');
+  const [subFilters, setSubFilters] = useState<string[]>(initialSubFilters || []);
 
   useEffect(() => {
     if (initialMainFilter) {
@@ -104,14 +101,12 @@ export const MenuScreen: React.FC = () => {
       return MOCK_DISHES;
     }
 
-    return MOCK_DISHES.filter(
-      (dish) => dish.filterType && subFiltersSet.has(dish.filterType as SubFilterType)
-    );
+    return MOCK_DISHES.filter((dish) => dish.filterType && subFiltersSet.has(dish.filterType));
   }, [mainFilter, subFilters]);
 
   const handleMainFilterPress = useCallback((filter: string) => {
     if (filter === 'Все' || filter === 'акции') {
-      setMainFilter(filter as MainFilterType);
+      setMainFilter(filter);
       if (filter === 'акции') {
         setSubFilters([]);
       }
@@ -119,12 +114,11 @@ export const MenuScreen: React.FC = () => {
   }, []);
 
   const handleSubFilterPress = useCallback((filter: string) => {
-    const subFilter = filter as SubFilterType;
     setSubFilters((prev) => {
-      if (prev.includes(subFilter)) {
-        return prev.filter((f) => f !== subFilter);
+      if (prev.includes(filter)) {
+        return prev.filter((f) => f !== filter);
       }
-      return [...prev, subFilter];
+      return [...prev, filter];
     });
   }, []);
 
@@ -149,7 +143,7 @@ export const MenuScreen: React.FC = () => {
 
       <View style={styles.filtersWrapper}>
         <FilterChips
-          filters={MAIN_FILTERS}
+          filters={MAIN_FILTERS as unknown as string[]}
           selectedFilters={[mainFilter]}
           onSelectFilter={handleMainFilterPress}
         />
@@ -158,7 +152,7 @@ export const MenuScreen: React.FC = () => {
       {mainFilter === 'Все' && (
         <View style={styles.filtersWrapper}>
           <FilterChips
-            filters={SUB_FILTERS}
+            filters={SUB_FILTERS as unknown as string[]}
             selectedFilters={subFilters}
             onSelectFilter={handleSubFilterPress}
           />

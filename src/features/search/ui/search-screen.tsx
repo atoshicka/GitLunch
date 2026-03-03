@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { MOCK_DISHES } from '../../../../mocks';
+import { Images } from '../../../shared/constants/images';
 import { useSearch } from '../../../shared/search/hooks/use-search';
 import { SearchInput } from '../../../shared/search/ui/search-input';
 import { styles } from './search-screen.styles';
@@ -35,7 +36,7 @@ export const SearchScreen: React.FC = () => {
       }}
     >
       <View style={styles.resultImageContainer}>
-        <Text style={styles.resultImagePlaceholder}>🍽️</Text>
+        <Text style={styles.resultImagePlaceholder}>{Images.promo.placeholder}</Text>
       </View>
       <View style={styles.resultInfo}>
         <Text style={styles.resultName}>{item.name}</Text>
