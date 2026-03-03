@@ -23,20 +23,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  block: {
-    backgroundColor: '#F4F4F4',
-    borderRadius: 20,
-    paddingVertical: 24,
-    width: '48%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#22C55E',
-  },
-  blockText: {
-    ...Typography.buttonRegular,
-    color: '#1F2937',
-  },
   filterBlock: {
     backgroundColor: '#F4F4F4',
     borderRadius: 32,
@@ -55,6 +41,8 @@ export const styles = StyleSheet.create({
   },
   filterText: {
     ...Typography.buttonRegular,
+    fontSize: 18,
+    fontWeight: '600',
     color: '#1F2937',
     textAlign: 'center',
   },
@@ -75,10 +63,10 @@ export const styles = StyleSheet.create({
     paddingVertical: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 0,
   },
   largeBlockText: {
     ...Typography.decorativeSmall,
+    fontSize: 22,
     color: '#1F2937',
     textAlign: 'center',
     paddingHorizontal: 16,
@@ -111,10 +99,10 @@ export const styles = StyleSheet.create({
     paddingVertical: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 0,
   },
   noveltyBlockText: {
     ...Typography.decorativeSmall,
+    fontSize: 22,
     color: '#1F2937',
     textAlign: 'center',
     paddingHorizontal: 16,

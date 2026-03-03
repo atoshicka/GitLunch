@@ -1,6 +1,6 @@
+// features/login/ui/login-form.tsx
 import React, { useCallback, useEffect } from 'react';
 import {
-  Image,
   Keyboard,
   Text,
   TextInput,
@@ -9,38 +9,31 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { LoginFeature } from '..';
+import { Images } from '../../../shared/constants/images';
 import { Typography } from '../../../shared/fontsFile/fonts';
-import { loginFailure, setLogin, setPassword, submitLogin } from '../login-slice';
-import {
-  selectErrors,
-  selectIsAuthenticated,
-  selectIsLoading,
-  selectLogin,
-  selectPassword,
-} from '../selectors';
 import { LoginFormData, LoginFormProps } from '../types';
-import { validateLoginForm } from '../validation';
 import { styles } from './login-styles';
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const dispatch = useDispatch();
 
-  const loginValue = useSelector(selectLogin);
-  const passwordValue = useSelector(selectPassword);
-  const fieldErrors = useSelector(selectErrors);
-  const isSubmitting = useSelector(selectIsLoading);
-  const isLoggedIn = useSelector(selectIsAuthenticated);
+  const loginValue = useSelector(LoginFeature.selectors.selectLogin);
+  const passwordValue = useSelector(LoginFeature.selectors.selectPassword);
+  const fieldErrors = useSelector(LoginFeature.selectors.selectErrors);
+  const isSubmitting = useSelector(LoginFeature.selectors.selectIsLoading);
+  const isLoggedIn = useSelector(LoginFeature.selectors.selectIsAuthenticated);
 
   const handleLoginChange = useCallback(
     (text: string) => {
-      dispatch(setLogin(text));
+      dispatch(LoginFeature.actions.setLogin(text));
     },
     [dispatch]
   );
 
   const handlePasswordChange = useCallback(
     (text: string) => {
-      dispatch(setPassword(text));
+      dispatch(LoginFeature.actions.setPassword(text));
     },
     [dispatch]
   );
@@ -50,16 +43,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
       login: loginValue,
       password: passwordValue,
     };
-
-    const validationErrors = validateLoginForm(formData);
+    const validationErrors = LoginFeature.utils.validateLoginForm(formData);
 
     if (Object.keys(validationErrors).length > 0) {
-      dispatch(loginFailure(validationErrors));
+      dispatch(LoginFeature.actions.loginFailure(validationErrors));
       return;
     }
 
     Keyboard.dismiss();
-    dispatch(submitLogin());
+    dispatch(LoginFeature.actions.submitLogin());
   }, [dispatch, loginValue, passwordValue]);
 
   useEffect(() => {
@@ -68,27 +60,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     }
   }, [isLoggedIn, onLoginSuccess]);
 
+  const Vector1Svg = Images.auth.vector1;
+  const Vector2Svg = Images.auth.vector2;
+  const LogoSvg = Images.auth.logo;
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <Image
-          source={require('../../../assets/images/vector1.png')}
-          style={styles.vectorTopLeft}
-          resizeMode="contain"
-        />
-
-        <Image
-          source={require('../../../assets/images/vector2.png')}
-          style={styles.vectorBottomRight}
-          resizeMode="contain"
-        />
+        <Vector2Svg width={330} height={320} style={styles.vectorTopLeft} />
+        <Vector1Svg width={290} height={200} style={styles.vectorBottomRight} />
 
         <View style={styles.logoContainer}>
-          <Image
-            source={require('../../../assets/images/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+          <LogoSvg width={100} height={100} />
           <Text style={styles.logoTextAgbalumo}>GitLunch</Text>
         </View>
 

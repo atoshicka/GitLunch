@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Dimensions,
   FlatList,
-  Image,
   ListRenderItem,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -17,39 +16,41 @@ import { useDispatch, useSelector } from 'react-redux';
 import { MOCK_PROMO_DISHES, MOCK_RESTAURANTS } from '../../../../mocks';
 import { RootStackParamList, SubFilterType } from '../../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../../entities/api/types/home-types';
+import { Images } from '../../../shared/constants/images';
 import { SearchInput } from '../../../shared/search/ui/search-input';
-import { selectCartItemById } from '../../cart/store/cart-selectors';
-import { addToCart, decreaseQuantity } from '../../cart/store/cart-slice';
+import { CartFeature } from '../../cart';
 import { styles } from './home-styles';
 
 const { width } = Dimensions.get('window');
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
-const filterIcons = {
-  hot: require('../../../assets/images/hot.png'),
-  salads: require('../../../assets/images/salads.png'),
-  snacks: require('../../../assets/images/snacks.png'),
-  desserts: require('../../../assets/images/desserts.png'),
-};
+const HotIcon = Images.filters.hot;
+const SaladsIcon = Images.filters.salads;
+const SnacksIcon = Images.filters.snacks;
+const DessertsIcon = Images.filters.desserts;
 
 const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
   const dispatch = useDispatch();
-  const cartItem = useSelector(selectCartItemById(item.id));
+  const cartItemSelector = useMemo(
+    () => CartFeature.selectors.selectCartItemById(item.id),
+    [item.id]
+  );
+  const cartItem = useSelector(cartItemSelector);
   const quantity = cartItem?.quantity || 0;
 
   const handleAddToCart = useCallback(() => {
-    dispatch(addToCart({ id: item.id, name: item.name, price: item.price }));
+    dispatch(CartFeature.actions.addToCart({ id: item.id, name: item.name, price: item.price }));
   }, [dispatch, item.id, item.name, item.price]);
 
   const handleDecrease = useCallback(() => {
-    dispatch(decreaseQuantity(item.id));
+    dispatch(CartFeature.actions.decreaseQuantity(item.id));
   }, [dispatch, item.id]);
 
   return (
     <View style={styles.dishCard}>
       <View style={styles.imageContainer}>
-        <Text style={styles.imagePlaceholder}>🍽️</Text>
+        <Text style={styles.imagePlaceholder}>{Images.promo.placeholder}</Text>
       </View>
 
       <Text style={styles.dishName} numberOfLines={2}>
@@ -108,7 +109,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
           onPress={() => onFilterPress('горячее')}
           activeOpacity={0.7}
         >
-          <Image source={filterIcons.hot} style={styles.filterIcon} resizeMode="contain" />
+          <HotIcon width={100} height={100} style={styles.filterIcon} />
           <Text style={styles.filterText}>Горячее</Text>
         </TouchableOpacity>
 
@@ -117,7 +118,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
           onPress={() => onFilterPress('салаты')}
           activeOpacity={0.7}
         >
-          <Image source={filterIcons.salads} style={styles.filterIcon} resizeMode="contain" />
+          <SaladsIcon width={100} height={100} style={styles.filterIcon} />
           <Text style={styles.filterText}>Салаты</Text>
         </TouchableOpacity>
       </View>
@@ -128,7 +129,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
           onPress={() => onFilterPress('десерты')}
           activeOpacity={0.7}
         >
-          <Image source={filterIcons.desserts} style={styles.filterIcon} resizeMode="contain" />
+          <DessertsIcon width={100} height={100} style={styles.filterIcon} />
           <Text style={styles.filterText}>Десерты</Text>
         </TouchableOpacity>
 
@@ -137,7 +138,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
           onPress={() => onFilterPress('закуски')}
           activeOpacity={0.7}
         >
-          <Image source={filterIcons.snacks} style={styles.filterIcon} resizeMode="contain" />
+          <SnacksIcon width={100} height={100} style={styles.filterIcon} />
           <Text style={styles.filterText}>Закуски</Text>
         </TouchableOpacity>
       </View>
