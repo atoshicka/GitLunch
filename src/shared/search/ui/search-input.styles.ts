@@ -2,8 +2,8 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F1F5F9',
-    borderRadius: 12,
+    backgroundColor: '#F4F4F4',
+    borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
@@ -18,15 +18,15 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   placeholderText: {
-    color: '#94A3B8',
+    color: '#495E7C',
     fontSize: 16,
     padding: 0,
     margin: 0,
     flex: 1,
   },
   searchIcon: {
-    width: 20,
-    height: 20,
+    width: 22,
+    height: 22,
     tintColor: '#1F2937',
     marginRight: 8,
   },
