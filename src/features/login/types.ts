@@ -10,8 +10,3 @@ export interface LoginFormErrors {
   password?: string;
   general?: string;
 }
-
-// Пропсы компонента LoginForm
-export interface LoginFormProps {
-  onLoginSuccess: () => void;
-}

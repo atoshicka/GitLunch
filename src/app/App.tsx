@@ -4,7 +4,7 @@ import { AppNavigator, AuthScreen } from './navigation/app-navigation';
 import { store } from './store';
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
     <Provider store={store}>
