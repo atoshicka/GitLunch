@@ -7,12 +7,13 @@ interface LoginState {
   errors: {
     login?: string;
     password?: string;
-    general?: string; // для ошибок сервера
+    general?: string;
   };
   isLoading: boolean;
   isAuthenticated: boolean;
   token: string | null;
 }
+
 const initialState: LoginState = {
   login: '',
   password: '',
@@ -27,28 +28,22 @@ const loginSlice = createSlice({
   name: 'login',
   initialState,
   reducers: {
-    //экшены для полей ввода
     setLogin: (state, action: PayloadAction<string>) => {
       state.login = action.payload;
       if (state.errors.login) {
         state.errors.login = undefined;
       }
     },
-
     setPassword: (state, action: PayloadAction<string>) => {
       state.password = action.payload;
       if (state.errors.password) {
         state.errors.password = undefined;
       }
     },
-
-    //экшен сабмита (обрабатывается в saga)
     submitLogin: (state) => {
       state.isLoading = true;
       state.errors = {};
     },
-
-    //успешный вход
     loginSuccess: (state, action: PayloadAction<{ token: string; userName: string }>) => {
       state.isLoading = false;
       state.isAuthenticated = true;
@@ -58,7 +53,6 @@ const loginSlice = createSlice({
       state.password = '';
       state.errors = {};
     },
-    //ошибка валидации/входа
     loginFailure: (
       state,
       action: PayloadAction<{ login?: string; password?: string; general?: string }>
@@ -66,7 +60,6 @@ const loginSlice = createSlice({
       state.isLoading = false;
       state.errors = action.payload;
     },
-    // Выход
     logout: (state) => {
       state.isAuthenticated = false;
       state.userName = '';
@@ -75,7 +68,6 @@ const loginSlice = createSlice({
   },
 });
 
-export const { setLogin, setPassword, submitLogin, loginSuccess, loginFailure, logout } =
-  loginSlice.actions;
+export const { name: LOGIN_SLICE_NAME, actions, reducer } = loginSlice;
 
-export default loginSlice.reducer;
+export const { setLogin, setPassword, submitLogin, loginSuccess, loginFailure, logout } = actions;
