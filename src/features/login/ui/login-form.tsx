@@ -1,4 +1,3 @@
-// features/login/ui/login-form.tsx
 import React, { useCallback, useEffect } from 'react';
 import {
   Keyboard,
@@ -12,8 +11,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LoginFeature } from '..';
 import { Images } from '../../../shared/constants/images';
 import { Typography } from '../../../shared/fontsFile/fonts';
-import { LoginFormData, LoginFormProps } from '../types';
+import { LoginFormData } from '../types';
 import { styles } from './login-styles';
+
+interface LoginFormProps {
+  onLoginSuccess: () => void;
+}
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
   const dispatch = useDispatch();

@@ -1,4 +1,3 @@
-// shared/constants/images.ts
 import Desserts from '../../assets/images/desserts.svg';
 import Hot from '../../assets/images/hot.svg';
 import Logo from '../../assets/images/logo.svg';
