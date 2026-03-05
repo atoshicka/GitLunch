@@ -1,18 +1,16 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { HomeScreen } from '../../features/home/ui/home-screen';
-import { SearchScreen } from '../../features/search/ui/search-screen';
-import { AccountScreen } from '../../screens/account-screen/account-screen';
-import { BasketScreen } from '../../screens/basket-screen/basket-screen';
-import { MenuScreen } from '../../screens/menu-screen/menu-screen';
-
 import { LoginForm } from '../../features/login/ui/login-form';
-import { authStyles, navigationStyles } from './navigation-styles';
+import { SearchScreen } from '../../features/search/ui/search-screen';
+import { SCREEN_NAMES } from '../../shared/constants/navigation';
+import { TabNavigator } from '../../shared/constants/TabNavigator';
+import { authStyles } from './navigation-styles';
+
+const RootStack = createNativeStackNavigator();
 
 interface AuthScreenProps {
   onLogin: () => void;
@@ -30,43 +28,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
   );
 };
 
-const RootStack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
-
-const TabNavigator = () => {
-  const baseScreenOptions = navigationStyles.getScreenOptions();
-
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        ...baseScreenOptions,
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconText;
-          if (route.name === 'Главная') iconText = '🏠';
-          else if (route.name === 'Меню') iconText = '📋';
-          else if (route.name === 'Корзина') iconText = '🛒';
-          else if (route.name === 'Аккаунт') iconText = '👤';
-          else iconText = '❓';
-
-          return <Text style={{ fontSize: size, color }}>{iconText}</Text>;
-        },
-      })}
-    >
-      <Tab.Screen name="Главная" component={HomeScreen} options={{ title: 'Главная' }} />
-      <Tab.Screen name="Меню" component={MenuScreen} options={{ title: 'Меню' }} />
-      <Tab.Screen name="Корзина" component={BasketScreen} options={{ title: 'Корзина' }} />
-      <Tab.Screen name="Аккаунт" component={AccountScreen} options={{ title: 'Аккаунт' }} />
-    </Tab.Navigator>
-  );
-};
-
 export const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        <RootStack.Screen name="Tabs" component={TabNavigator} />
+        <RootStack.Screen name={SCREEN_NAMES.TABS} component={TabNavigator} />
         <RootStack.Screen
-          name="Search"
+          name={SCREEN_NAMES.SEARCH}
           component={SearchScreen}
           options={{ presentation: 'card' }}
         />

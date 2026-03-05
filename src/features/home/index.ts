@@ -18,7 +18,3 @@ export const HomeFeature = {
     HomeScreen,
   },
 };
-
-export * from './home-selectors';
-export * from './home-slice';
-export { homeReducer, watchHome };
