@@ -68,6 +68,6 @@ const loginSlice = createSlice({
   },
 });
 
-export const { name: LOGIN_SLICE_NAME, actions, reducer } = loginSlice;
-
+export const LOGIN_SLICE_NAME = loginSlice.name;
+export const { actions, reducer } = loginSlice;
 export const { setLogin, setPassword, submitLogin, loginSuccess, loginFailure, logout } = actions;

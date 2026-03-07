@@ -16,16 +16,7 @@ export const navigationStyles = {
       fontSize: 12,
       marginBottom: 5,
     } as TextStyle,
-    headerStyle: {
-      backgroundColor: '#22C55E',
-      height: 50,
-    } as ViewStyle,
-    headerTintColor: '#fff',
-    headerTitleStyle: {
-      fontWeight: 'bold',
-      fontSize: 18,
-    } as TextStyle,
-    headerTitleAlign: 'center' as const,
+    headerShown: false,
     tabBarIcon: undefined,
   }),
 

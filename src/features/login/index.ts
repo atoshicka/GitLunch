@@ -4,6 +4,11 @@ import * as loginSelectors from './selectors';
 import { LoginForm } from './ui/login-form';
 import { validateLoginForm } from './utils';
 
+export { watchLogin } from './login-saga';
+export { LOGIN_SLICE_NAME } from './login-slice';
+export { LoginForm } from './ui/login-form';
+export { validateLoginForm } from './utils';
+
 export const LoginFeature = {
   actions,
   sagas: {
