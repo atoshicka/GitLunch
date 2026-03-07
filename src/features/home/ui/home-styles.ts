@@ -5,18 +5,38 @@ const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2;
 
 export const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#F4F4F4',
   },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#F4F4F4',
+  },
+  searchWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    backgroundColor: '#F4F4F4',
+    paddingTop: 8,
     paddingBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  searchInnerWrapper: {
+    paddingHorizontal: 16,
+  },
+  searchSpacer: {
+    height: 70,
   },
   gridContainer: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 8,
   },
   row: {
     flexDirection: 'row',
@@ -35,8 +55,8 @@ export const styles = StyleSheet.create({
     padding: 12,
   },
   filterIcon: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
     marginBottom: 8,
   },
   filterText: {
@@ -51,7 +71,9 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
     paddingHorizontal: 16,
     paddingTop: 24,
-    paddingBottom: 8,
+    paddingBottom: 12,
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   largeBlockContainer: {
     paddingHorizontal: 16,
@@ -70,28 +92,7 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
     textAlign: 'center',
     paddingHorizontal: 16,
-  },
-  carouselItem: {
-    width: width,
-    paddingHorizontal: 16,
-  },
-  dotsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 12,
-    paddingBottom: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#1F2937',
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    backgroundColor: '#22C55E',
-    width: 20,
+    fontWeight: '600',
   },
   noveltyBlock: {
     backgroundColor: '#22C55E',
@@ -106,9 +107,32 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
     textAlign: 'center',
     paddingHorizontal: 16,
+    fontWeight: '600',
+  },
+  carouselItem: {
+    width: width,
+    paddingHorizontal: 16,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingBottom: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#1F2937',
+    marginHorizontal: 4,
+  },
+  activeDot: {
+    backgroundColor: '#22C55E',
+    width: 24,
   },
   promoSection: {
-    marginBottom: 20,
+    marginTop: 8,
   },
   promoList: {
     paddingLeft: 16,
@@ -139,34 +163,33 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   imagePlaceholder: {
-    fontSize: 40,
+    fontSize: 32,
   },
   dishName: {
     ...Typography.bodyRegular,
     fontWeight: '600',
     color: '#1F2937',
     marginBottom: 4,
-    textAlign: 'left',
+    fontSize: 14,
   },
   dishPrice: {
     ...Typography.buttonRegular,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#22C55E',
     marginBottom: 12,
-    textAlign: 'left',
   },
   addToCartButton: {
     backgroundColor: '#1BB910',
     borderRadius: 20,
     paddingVertical: 10,
-    paddingHorizontal: 12,
-    width: '100%',
     alignItems: 'center',
   },
   addToCartButtonText: {
     ...Typography.buttonSmall,
     color: '#1F2937',
+    fontSize: 14,
+    fontWeight: '600',
   },
   quantityControl: {
     flexDirection: 'row',
@@ -194,5 +217,6 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
     minWidth: 30,
     textAlign: 'center',
+    fontSize: 16,
   },
 });

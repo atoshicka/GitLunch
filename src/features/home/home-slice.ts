@@ -35,6 +35,8 @@ const homeSlice = createSlice({
   },
 });
 
+export const HOME_SLICE_NAME = homeSlice.name;
+
 export const {
   setCurrentRestaurant,
   fetchRestaurantsStart,

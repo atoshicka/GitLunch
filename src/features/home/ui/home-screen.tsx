@@ -2,16 +2,18 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   Dimensions,
   FlatList,
   ListRenderItem,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  ScrollView,
+  StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { MOCK_PROMO_DISHES, MOCK_RESTAURANTS } from '../../../../mocks';
 import { RootStackParamList, SubFilterType } from '../../../app/navigation/navigation-types';
@@ -22,6 +24,7 @@ import { CartFeature } from '../../cart';
 import { styles } from './home-styles';
 
 const { width } = Dimensions.get('window');
+const cardWidth = (width - 48) / 2;
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
@@ -40,7 +43,13 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
   const quantity = cartItem?.quantity || 0;
 
   const handleAddToCart = useCallback(() => {
-    dispatch(CartFeature.actions.addToCart({ id: item.id, name: item.name, price: item.price }));
+    dispatch(
+      CartFeature.actions.addToCart({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+      })
+    );
   }, [dispatch, item.id, item.name, item.price]);
 
   const handleDecrease = useCallback(() => {
@@ -50,13 +59,11 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
   return (
     <View style={styles.dishCard}>
       <View style={styles.imageContainer}>
-        <Text style={styles.imagePlaceholder}>{Images.promo.placeholder}</Text>
+        <Text style={styles.imagePlaceholder}>🍽️</Text>
       </View>
-
       <Text style={styles.dishName} numberOfLines={2}>
         {item.name}
       </Text>
-
       <Text style={styles.dishPrice}>{item.price} ₽</Text>
 
       {quantity > 0 ? (
@@ -90,9 +97,9 @@ const PaginationDots = React.memo(
 
 const RestaurantCarouselItem = React.memo(
   ({ item, onPress }: { item: Restaurant; onPress: (item: Restaurant) => void }) => (
-    <TouchableOpacity style={styles.carouselItem} onPress={() => onPress(item)} activeOpacity={1}>
+    <TouchableOpacity style={styles.carouselItem} onPress={() => onPress(item)} activeOpacity={0.9}>
       <View style={styles.largeBlock}>
-        <Text style={styles.largeBlockText} numberOfLines={2} ellipsizeMode="tail">
+        <Text style={styles.largeBlockText} numberOfLines={2}>
           {item.name}
         </Text>
       </View>
@@ -109,7 +116,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
           onPress={() => onFilterPress('горячее')}
           activeOpacity={0.7}
         >
-          <HotIcon width={100} height={100} style={styles.filterIcon} />
+          <HotIcon width={80} height={80} style={styles.filterIcon} />
           <Text style={styles.filterText}>Горячее</Text>
         </TouchableOpacity>
 
@@ -118,7 +125,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
           onPress={() => onFilterPress('салаты')}
           activeOpacity={0.7}
         >
-          <SaladsIcon width={100} height={100} style={styles.filterIcon} />
+          <SaladsIcon width={80} height={80} style={styles.filterIcon} />
           <Text style={styles.filterText}>Салаты</Text>
         </TouchableOpacity>
       </View>
@@ -129,7 +136,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
           onPress={() => onFilterPress('десерты')}
           activeOpacity={0.7}
         >
-          <DessertsIcon width={100} height={100} style={styles.filterIcon} />
+          <DessertsIcon width={80} height={80} style={styles.filterIcon} />
           <Text style={styles.filterText}>Десерты</Text>
         </TouchableOpacity>
 
@@ -138,7 +145,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
           onPress={() => onFilterPress('закуски')}
           activeOpacity={0.7}
         >
-          <SnacksIcon width={100} height={100} style={styles.filterIcon} />
+          <SnacksIcon width={80} height={80} style={styles.filterIcon} />
           <Text style={styles.filterText}>Закуски</Text>
         </TouchableOpacity>
       </View>
@@ -148,7 +155,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
       <TouchableOpacity
         style={styles.noveltyBlock}
         onPress={() => onFilterPress('новинки')}
-        activeOpacity={1}
+        activeOpacity={0.9}
       >
         <Text style={styles.noveltyBlockText}>Новинки</Text>
       </TouchableOpacity>
@@ -160,6 +167,8 @@ export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const flatListRef = useRef<FlatList<Restaurant>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const restaurants = useMemo(() => MOCK_RESTAURANTS, []);
   const promoDishes = useMemo(() => MOCK_PROMO_DISHES, []);
@@ -223,7 +232,6 @@ export const HomeScreen: React.FC = () => {
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const contentOffset = event.nativeEvent.contentOffset;
       const index = Math.round(contentOffset.x / width);
-
       const realIndex = (index - 1 + restaurants.length) % restaurants.length;
       setCurrentIndex(realIndex);
 
@@ -267,54 +275,70 @@ export const HomeScreen: React.FC = () => {
 
   const keyExtractor = useCallback((item: Restaurant, index: number) => `${item.id}-${index}`, []);
 
+  const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+    useNativeDriver: true,
+  });
+
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.searchContainer}>
-        <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F4F4F4" />
+
+      <View style={styles.searchWrapper}>
+        <View style={styles.searchInnerWrapper}>
+          <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+        </View>
       </View>
 
-      <FilterGrid onFilterPress={handleFilterPress} />
+      <Animated.ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      >
+        <View style={styles.searchSpacer} />
 
-      <Text style={styles.sectionTitle}>Рестораны</Text>
+        <FilterGrid onFilterPress={handleFilterPress} />
 
-      <View>
-        <FlatList
-          ref={flatListRef}
-          data={infiniteData}
-          renderItem={renderRestaurantItem}
-          keyExtractor={keyExtractor}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={onMomentumScrollEnd}
-          decelerationRate="fast"
-          getItemLayout={getItemLayout}
-          initialScrollIndex={1}
-          scrollEnabled={true}
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={3}
-          windowSize={3}
-        />
+        <Text style={styles.sectionTitle}>Рестораны</Text>
 
-        <PaginationDots count={restaurants.length} currentIndex={currentIndex} />
-      </View>
+        <View>
+          <FlatList
+            ref={flatListRef}
+            data={infiniteData}
+            renderItem={renderRestaurantItem}
+            keyExtractor={keyExtractor}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={onMomentumScrollEnd}
+            decelerationRate="fast"
+            getItemLayout={getItemLayout}
+            initialScrollIndex={1}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={3}
+            windowSize={3}
+          />
+          <PaginationDots count={restaurants.length} currentIndex={currentIndex} />
+        </View>
 
-      <View style={styles.promoSection}>
-        <Text style={styles.sectionTitle}>Акции дня</Text>
-        <FlatList
-          data={promoDishes}
-          renderItem={renderPromoItem}
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.promoList}
-          decelerationRate="fast"
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={3}
-          windowSize={3}
-        />
-      </View>
-      <View style={{ height: 20 }} />
-    </ScrollView>
+        <View style={styles.promoSection}>
+          <Text style={styles.sectionTitle}>Акции дня</Text>
+          <FlatList
+            data={promoDishes}
+            renderItem={renderPromoItem}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.promoList}
+            decelerationRate="fast"
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={3}
+            windowSize={3}
+          />
+        </View>
+
+        <View style={{ height: 30 }} />
+      </Animated.ScrollView>
+    </SafeAreaView>
   );
 };
