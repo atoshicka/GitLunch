@@ -3,16 +3,17 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F4F4F4',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F8FAFC',
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
+  content: {
+    flex: 1,
   },
   backButton: {
     width: 44,
@@ -30,7 +31,8 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   recentContainer: {
-    padding: 16,
+    flex: 1,
+    paddingHorizontal: 16,
     paddingTop: 20,
   },
   recentTitle: {
@@ -54,7 +56,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F8FAFC',
+    borderBottomColor: '#E2E8F0',
   },
   resultImageContainer: {
     width: 50,
@@ -80,7 +82,7 @@ export const styles = StyleSheet.create({
   resultPrice: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#1BB910',
+    color: '#22C55E',
   },
   emptyText: {
     textAlign: 'center',
