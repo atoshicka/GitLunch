@@ -4,11 +4,11 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MOCK_DISHES } from '../../../../mocks';
 import { Images } from '../../../shared/constants/images';
 import { useSearch } from '../../../shared/search/hooks/use-search';
@@ -63,6 +63,7 @@ export const SearchScreen: React.FC = () => {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        {/* Шапка с поиском и кнопкой назад */}
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -81,24 +82,34 @@ export const SearchScreen: React.FC = () => {
           </View>
         </View>
 
-        {query.length > 0 ? (
-          <FlatList
-            data={searchResults}
-            renderItem={renderSearchResult}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.resultsList}
-            ListEmptyComponent={<Text style={styles.emptyText}>Ничего не найдено</Text>}
-          />
-        ) : (
-          <View style={styles.recentContainer}>
-            <Text style={styles.recentTitle}>Недавние запросы</Text>
+        {/* контент */}
+        <View style={styles.content}>
+          {query.length > 0 ? (
             <FlatList
-              data={recentSearches}
-              renderItem={renderRecentItem}
-              keyExtractor={(item, index) => index.toString()}
+              data={searchResults}
+              renderItem={renderSearchResult}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.resultsList}
+              ListEmptyComponent={<Text style={styles.emptyText}>Ничего не найдено</Text>}
             />
-          </View>
-        )}
+          ) : (
+            <View style={styles.recentContainer}>
+              <Text style={styles.recentTitle}>Недавние запросы</Text>
+              {recentSearches.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.recentItem}
+                  onPress={() => {
+                    setQuery(item);
+                    handleSubmit();
+                  }}
+                >
+                  <Text style={styles.recentText}>{item}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
