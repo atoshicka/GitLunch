@@ -63,7 +63,6 @@ export const SearchScreen: React.FC = () => {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Шапка с поиском и кнопкой назад */}
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -82,7 +81,6 @@ export const SearchScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* контент */}
         <View style={styles.content}>
           {query.length > 0 ? (
             <FlatList
