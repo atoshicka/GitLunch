@@ -2,6 +2,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
 import { MOCK_DISHES } from '../../../mocks';
 import { MAIN_FILTERS, SUB_FILTERS } from '../../app/constants/filters';
@@ -32,11 +33,23 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
     dispatch(CartFeature.actions.decreaseQuantity(item.id));
   }, [dispatch, item.id]);
 
+  const renderImage = () => {
+    if (item.imageSvg) {
+      const SvgImage = item.imageSvg;
+      return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
+    }
+    return <Text style={styles.imagePlaceholder}>🍽️</Text>;
+  };
+
   return (
-    <View style={styles.dishCard}>
-      <View style={styles.imageContainer}>
-        <Text style={styles.imagePlaceholder}>🍽️</Text>
-      </View>
+    <LinearGradient
+      colors={['#86EFAC', '#A8F0B5', '#F4F4F4']}
+      locations={[0, 0.2, 0.6]}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 0, y: 0 }}
+      style={styles.dishCard}
+    >
+      <View style={styles.imageContainer}>{renderImage()}</View>
 
       <Text style={styles.dishName} numberOfLines={2}>
         {item.name}
@@ -59,7 +72,7 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
           <Text style={styles.addToCartButtonText}>В корзину</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </LinearGradient>
   );
 });
 
