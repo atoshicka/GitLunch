@@ -1,16 +1,17 @@
 import { PromoDish, Restaurant } from './src/entities/api/types/home-types';
 import { Category, Dish } from './src/entities/api/types/menu-types';
+import { Images } from './src/shared/constants/images';
 
 export const MOCK_DISHES: Dish[] = [
   {
     id: '1',
-    name: 'Пицца Маргарита',
-    description: 'Классическая итальянская пицца с томатным соусом и моцареллой',
+    name: 'Шоколадный пирог',
+    description: 'Нежный шоколадный десерт с орехами',
     price: 550,
-    category: 'pizza',
-    filterType: 'горячее',
+    category: 'desserts',
+    filterType: 'десерты',
     isPromo: true,
-    imageUrl: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca',
+    imageSvg: Images.dishes.brownie,
     isVegetarian: true,
     isSpicy: false,
     rating: 4.8,
@@ -18,13 +19,13 @@ export const MOCK_DISHES: Dish[] = [
   },
   {
     id: '2',
-    name: 'Бургер с говядиной',
-    description: 'Сочная говяжья котлета с овощами и соусом',
+    name: 'Суп грибной',
+    description: 'Нежный суп с грибами',
     price: 450,
-    category: 'burgers',
+    category: 'soup',
     filterType: 'новинки',
     isPromo: true,
-    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd',
+    imageSvg: Images.dishes.soup,
     isVegetarian: false,
     isSpicy: true,
     rating: 4.6,
@@ -60,13 +61,13 @@ export const MOCK_DISHES: Dish[] = [
   },
   {
     id: '5',
-    name: 'Кусок торта',
-    description: 'Нежный шоколадный торт с кремом',
+    name: 'Американский бургер',
+    description: 'Крутой',
     price: 250,
-    category: 'desserts',
-    filterType: 'десерты',
+    category: 'burgers',
+    filterType: 'горячее',
     isPromo: true,
-    imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587',
+    imageSvg: Images.dishes.burger,
     isVegetarian: true,
     isSpicy: false,
     rating: 4.9,
@@ -136,5 +137,6 @@ export const MOCK_PROMO_DISHES: PromoDish[] = MOCK_DISHES.filter((dish) => dish.
     name: dish.name,
     price: dish.price,
     isPromo: true,
+    imageSvg: dish.imageSvg,
   })
 );

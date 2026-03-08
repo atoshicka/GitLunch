@@ -53,11 +53,12 @@ export const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: 'transparent',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+    overflow: 'hidden',
   },
   imagePlaceholder: {
     fontSize: 40,
@@ -72,13 +73,13 @@ export const styles = StyleSheet.create({
   dishPrice: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#22C55E',
+    color: '#1F2937',
     marginBottom: 12,
     textAlign: 'left',
   },
   addToCartButton: {
-    backgroundColor: '#1BB910',
-    borderRadius: 20,
+    backgroundColor: '#22C55E',
+    borderRadius: 15,
     paddingVertical: 10,
     paddingHorizontal: 12,
     width: '100%',

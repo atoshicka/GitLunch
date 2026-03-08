@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { MOCK_PROMO_DISHES, MOCK_RESTAURANTS } from '../../../../mocks';
@@ -28,7 +29,6 @@ const cardWidth = (width - 48) / 2;
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
-// Иконки фильтров
 const HotIcon = Images.filters.hot;
 const SaladsIcon = Images.filters.salads;
 const SnacksIcon = Images.filters.snacks;
@@ -60,11 +60,23 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
     dispatch(CartFeature.actions.decreaseQuantity(item.id));
   }, [dispatch, item.id]);
 
+  const renderImage = () => {
+    if (item.imageSvg) {
+      const SvgImage = item.imageSvg;
+      return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
+    }
+    return <Text style={styles.imagePlaceholder}>🍽️</Text>;
+  };
+
   return (
-    <View style={styles.dishCard}>
-      <View style={styles.imageContainer}>
-        <Text style={styles.imagePlaceholder}>🍽️</Text>
-      </View>
+    <LinearGradient
+      colors={['#86EFAC', '#A8F0B5', '#F4F4F4']}
+      locations={[0, 0.2, 0.6]}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 0, y: 0 }}
+      style={styles.dishCard}
+    >
+      <View style={styles.imageContainer}>{renderImage()}</View>
       <Text style={styles.dishName} numberOfLines={2}>
         {item.name}
       </Text>
@@ -85,7 +97,7 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
           <Text style={styles.addToCartButtonText}>В корзину</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </LinearGradient>
   );
 });
 

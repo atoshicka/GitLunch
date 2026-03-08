@@ -206,7 +206,7 @@ export const styles = StyleSheet.create({
   dishCard: {
     width: '100%',
     backgroundColor: '#DFFCEA',
-    borderRadius: 16,
+    borderRadius: 30,
     padding: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -217,11 +217,12 @@ export const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#F4F4F4',
+    backgroundColor: 'transparent',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
+    overflow: 'hidden',
   },
   imagePlaceholder: {
     fontSize: 32,
@@ -237,12 +238,12 @@ export const styles = StyleSheet.create({
     ...Typography.buttonRegular,
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#22C55E',
+    color: '#1F2937',
     marginBottom: 12,
   },
   addToCartButton: {
-    backgroundColor: '#1BB910',
-    borderRadius: 20,
+    backgroundColor: '#22C55E',
+    borderRadius: 15,
     paddingVertical: 10,
     alignItems: 'center',
   },
@@ -260,7 +261,7 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   quantityButton: {
-    backgroundColor: '#1BB910',
+    backgroundColor: '#22C55E',
     width: 36,
     height: 36,
     borderRadius: 18,
