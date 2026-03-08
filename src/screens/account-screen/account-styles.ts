@@ -11,6 +11,7 @@ export const styles = StyleSheet.create({
     right: 16,
     zIndex: 1,
     padding: 8,
+    paddingTop: 30,
   },
   settingsIcon: {
     fontSize: 28,
@@ -18,7 +19,7 @@ export const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 60,
+    paddingTop: 80,
     paddingBottom: 20,
     paddingHorizontal: 20,
   },

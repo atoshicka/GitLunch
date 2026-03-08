@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: 60,
     paddingBottom: 8,
   },
   cafeTitle: {
