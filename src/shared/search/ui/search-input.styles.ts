@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F4F4F4',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 30,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     gap: 4,
   },
   placeholderText: {
-    color: '#495E7C',
+    color: '#1F2937',
     fontSize: 14,
     flex: 1,
   },
