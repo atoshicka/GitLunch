@@ -1,5 +1,7 @@
+import Blini from '../../assets/images/blini.svg';
 import Brownie from '../../assets/images/brownie.svg';
 import Burger from '../../assets/images/burger.svg';
+import ChickenSoup from '../../assets/images/chikenSoup.svg';
 import Desserts from '../../assets/images/desserts.svg';
 import Hot from '../../assets/images/hot.svg';
 import Logo from '../../assets/images/logo.svg';
@@ -10,6 +12,7 @@ import Menu from '../../assets/images/navigation/menu.svg';
 import NavHome from '../../assets/images/navigation/navHome.svg';
 import Navigation from '../../assets/images/navigation/navigation.svg';
 import Nowin from '../../assets/images/nowin.svg';
+import Pasta from '../../assets/images/pasta.svg';
 import RestCezar from '../../assets/images/restCezar.svg';
 import Salads from '../../assets/images/salads.svg';
 import Search from '../../assets/images/search.svg';
@@ -46,6 +49,9 @@ export const Images = {
     brownie: Brownie,
     soup: Soup,
     burger: Burger,
+    pasta: Pasta,
+    chickenSoup: ChickenSoup,
+    blini: Blini,
   },
   navigation: {
     account: Account,
