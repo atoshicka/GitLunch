@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text, TextStyle } from 'react-native';
-import { TAB_ICONS } from '../constants/navigation';
+import { View } from 'react-native';
+import { TAB_NAMES } from '../constants/navigation';
+import { Images } from './images';
 
 interface TabBarIconProps {
   routeName: string;
@@ -10,13 +11,27 @@ interface TabBarIconProps {
 }
 
 export const TabBarIcon: React.FC<TabBarIconProps> = ({ routeName, focused, color, size }) => {
-  const iconText = TAB_ICONS[routeName as keyof typeof TAB_ICONS] || TAB_ICONS.default;
-
-  const textStyle: TextStyle = {
-    fontSize: size,
-    color,
-    fontWeight: focused ? 'bold' : 'normal',
+  const getIcon = () => {
+    switch (routeName) {
+      case TAB_NAMES.HOME:
+        return Images.navigation.home;
+      case TAB_NAMES.MENU:
+        return Images.navigation.menu;
+      case TAB_NAMES.BASKET:
+        return Images.navigation.basket;
+      case TAB_NAMES.ACCOUNT:
+        return Images.navigation.account;
+      default:
+        return Images.navigation.navigation;
+    }
   };
 
-  return <Text style={textStyle}>{iconText}</Text>;
+  const IconComponent = getIcon();
+  const iconSize = size * 1.2;
+
+  return (
+    <View style={{ opacity: focused ? 1 : 0.7 }}>
+      <IconComponent width={iconSize} height={iconSize} />
+    </View>
+  );
 };
