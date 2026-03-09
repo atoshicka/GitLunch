@@ -11,11 +11,3 @@ export const SCREEN_NAMES = {
 } as const;
 
 export type TabName = (typeof TAB_NAMES)[keyof typeof TAB_NAMES];
-
-export const TAB_ICONS = {
-  [TAB_NAMES.HOME]: '🏠',
-  [TAB_NAMES.MENU]: '📋',
-  [TAB_NAMES.BASKET]: '🛒',
-  [TAB_NAMES.ACCOUNT]: '👤',
-  default: '❓',
-} as const;

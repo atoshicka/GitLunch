@@ -27,6 +27,7 @@ export const TabNavigator: React.FC = () => {
             size={props.size}
           />
         ),
+        tabBarLabel: '',
       })}
     >
       <Tab.Screen
