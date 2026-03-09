@@ -54,18 +54,25 @@ export const styles = StyleSheet.create({
   resultItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
-  resultImageContainer: {
+  resultContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  imageContainer: {
     width: 50,
     height: 50,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: 'transparent',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    overflow: 'hidden',
   },
   resultImagePlaceholder: {
     fontSize: 24,
@@ -83,6 +90,45 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#22C55E',
+  },
+  addButton: {
+    backgroundColor: '#1BB910',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginLeft: 12,
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  quantityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginLeft: 12,
+  },
+  quantityButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#1BB910',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quantityButtonText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    lineHeight: 22,
+  },
+  quantityText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    minWidth: 20,
+    textAlign: 'center',
   },
   emptyText: {
     textAlign: 'center',
