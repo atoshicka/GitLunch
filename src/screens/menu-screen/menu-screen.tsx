@@ -26,8 +26,15 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
   const quantity = cartItem?.quantity || 0;
 
   const handleAddToCart = useCallback(() => {
-    dispatch(CartFeature.actions.addToCart({ id: item.id, name: item.name, price: item.price }));
-  }, [dispatch, item.id, item.name, item.price]);
+    dispatch(
+      CartFeature.actions.addToCart({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        imageSvg: item.imageSvg,
+      })
+    );
+  }, [dispatch, item.id, item.name, item.price, item.imageSvg]);
 
   const handleDecrease = useCallback(() => {
     dispatch(CartFeature.actions.decreaseQuantity(item.id));
