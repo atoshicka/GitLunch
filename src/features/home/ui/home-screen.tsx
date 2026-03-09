@@ -52,9 +52,10 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
         id: item.id,
         name: item.name,
         price: item.price,
+        imageSvg: item.imageSvg,
       })
     );
-  }, [dispatch, item.id, item.name, item.price]);
+  }, [dispatch, item.id, item.name, item.price, item.imageSvg]);
 
   const handleDecrease = useCallback(() => {
     dispatch(CartFeature.actions.decreaseQuantity(item.id));
