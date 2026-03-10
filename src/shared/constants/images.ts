@@ -16,6 +16,7 @@ import Pasta from '../../assets/images/pasta.svg';
 import RestCezar from '../../assets/images/restCezar.svg';
 import Salads from '../../assets/images/salads.svg';
 import Search from '../../assets/images/search.svg';
+import Setting from '../../assets/images/setting.svg';
 import Snacks from '../../assets/images/snacks.svg';
 import Soup from '../../assets/images/soup.svg';
 import Subtract from '../../assets/images/subtract.svg';
@@ -60,5 +61,8 @@ export const Images = {
     menu: Menu,
     navHome: NavHome,
     navigation: Navigation,
+  },
+  account: {
+    setting: Setting,
   },
 } as const;

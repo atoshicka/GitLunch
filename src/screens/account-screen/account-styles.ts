@@ -11,10 +11,7 @@ export const styles = StyleSheet.create({
     right: 16,
     zIndex: 1,
     padding: 8,
-    paddingTop: 30,
-  },
-  settingsIcon: {
-    fontSize: 28,
+    paddingTop: 35,
   },
   content: {
     flex: 1,
@@ -30,7 +27,7 @@ export const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#1BB910',
+    backgroundColor: '#DFFCEA',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 3,
@@ -38,11 +35,8 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
-  },
-  avatarText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#22C55E',
   },
   userName: {
     fontSize: 28,
@@ -52,10 +46,10 @@ export const styles = StyleSheet.create({
   },
   menuBlock: {
     width: '100%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#86EFAC',
     borderRadius: 20,
     paddingVertical: 8,
-    shadowColor: '#000',
+    shadowColor: '#1F2937',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,

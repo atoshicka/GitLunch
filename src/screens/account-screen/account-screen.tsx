@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { selectUserName } from '../../features/login/selectors';
+import { Images } from '../../shared/constants/images';
 import { styles } from './account-styles';
 
 const MENU_ITEMS = [
@@ -25,19 +26,20 @@ export const AccountScreen: React.FC = () => {
     console.log(`Нажат пункт: ${itemTitle}`);
   };
 
+  const SettingsIcon = Images.account.setting;
+  const AccountIcon = Images.navigation.account;
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
-        <Text style={styles.settingsIcon}>⚙️</Text>
+        <SettingsIcon width={28} height={28} fill="#1F2937" />
       </TouchableOpacity>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {userName ? userName.charAt(0).toUpperCase() : '?'}
-              </Text>
+              <AccountIcon width={80} height={80} />
             </View>
           </View>
 
