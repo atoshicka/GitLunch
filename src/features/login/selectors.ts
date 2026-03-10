@@ -1,7 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../../app/store';
+import { name } from './slice';
+import { LoginState } from './types';
 
-const selectLoginSlice = (state: RootState) => state.login;
+interface State {
+  [name]: LoginState
+}
+
+const root = (state: State) => state[name];
 
 export const selectLogin = createSelector(selectLoginSlice, (loginSlice) => loginSlice.login);
 
