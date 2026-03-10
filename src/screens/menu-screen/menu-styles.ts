@@ -98,10 +98,10 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   quantityButton: {
-    backgroundColor: '#1BB910',
+    backgroundColor: '#22C55E',
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },

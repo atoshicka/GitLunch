@@ -92,7 +92,7 @@ export const styles = StyleSheet.create({
   itemPrice: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#22C55E',
+    color: '#1F2937',
     marginBottom: 12,
   },
   quantityControls: {
@@ -102,9 +102,9 @@ export const styles = StyleSheet.create({
   },
   quantityButton: {
     width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#1BB910',
+    height: 30,
+    borderRadius: 10,
+    backgroundColor: '#22C55E',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -151,7 +151,7 @@ export const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#22C55E',
+    color: '#1F2937',
   },
   orderButton: {
     backgroundColor: '#1BB910',
