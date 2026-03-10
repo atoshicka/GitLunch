@@ -24,7 +24,7 @@ const initialState: LoginState = {
   token: null,
 };
 
-const loginSlice = createSlice({
+export const { name, actions, reducer } = createSlice({
   name: 'login',
   initialState,
   reducers: {
@@ -67,7 +67,3 @@ const loginSlice = createSlice({
     },
   },
 });
-
-export const LOGIN_SLICE_NAME = loginSlice.name;
-export const { actions, reducer } = loginSlice;
-export const { setLogin, setPassword, submitLogin, loginSuccess, loginFailure, logout } = actions;
