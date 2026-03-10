@@ -1,7 +1,7 @@
 export const getApiConfig = () => {
   if (__DEV__) {
     return {
-      BASE_URL: 'https://two-tools-boil.loca.lt/api/v1',
+      BASE_URL: 'https://gitlunch-backend-production.up.railway.app/api/v1',
       DEBUG: true,
     };
   }
