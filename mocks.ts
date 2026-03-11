@@ -4,10 +4,10 @@ import { Images } from './src/shared/constants/images';
 
 export const MOCK_DISHES: Dish[] = [
   {
-    id: '1',
-    name: 'Шоколадный пирог',
+    id: '1', //
+    name: 'Шоколадный пирог', //
     description: 'Нежный шоколадный десерт с орехами',
-    price: 550,
+    price: 550, //
     category: 'desserts',
     filterType: 'десерты',
     isPromo: true,

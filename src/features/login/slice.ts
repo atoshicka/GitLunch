@@ -1,23 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface LoginState {
-  login: string;
-  password: string;
-  userName: string;
-  errors: {
-    login?: string;
-    password?: string;
-    general?: string;
-  };
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  token: string | null;
-}
+import { LoginFormErrors, LoginState } from './types';
 
 const initialState: LoginState = {
   login: '',
   password: '',
-  userName: '',
+  userName: null,
   errors: {},
   isLoading: false,
   isAuthenticated: false,
@@ -53,17 +40,16 @@ export const { name, actions, reducer } = createSlice({
       state.password = '';
       state.errors = {};
     },
-    loginFailure: (
-      state,
-      action: PayloadAction<{ login?: string; password?: string; general?: string }>
-    ) => {
+    loginFailure: (state, action: PayloadAction<LoginFormErrors>) => {
       state.isLoading = false;
       state.errors = action.payload;
     },
     logout: (state) => {
       state.isAuthenticated = false;
-      state.userName = '';
+      state.userName = null;
       state.token = null;
     },
   },
 });
+
+export const LOGIN_SLICE_NAME = name;
