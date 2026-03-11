@@ -1,6 +1,6 @@
-import { put, takeLatest } from 'redux-saga/effects';
-import { MOCK_DISHES } from '../../../mocks';
+import { call, getContext, put, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api';
+import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
 import {
   fetchPromoDishesSuccess,
   fetchRestaurantsFailure,
@@ -8,31 +8,16 @@ import {
   fetchRestaurantsSuccess,
 } from './home-slice';
 
-const MOCK_RESTAURANTS = [
-  { id: '1', name: 'Цезарь' },
-  { id: '2', name: 'Ресторан 2' },
-];
-
-function* fetchRestaurantsSaga(apiService: ApiService) {
+function* fetchRestaurantsSaga() {
   try {
+    const apiService: ApiService = yield getContext('apiService');
+
     yield put(fetchRestaurantsStart());
 
-    // const { data } = yield call(apiService.getRestaurants);
-    // yield put(fetchRestaurantsSuccess(data));
+    const restaurants: Restaurant[] = yield call([apiService, apiService.getRestaurants]);
+    yield put(fetchRestaurantsSuccess(restaurants));
 
-    // const { data: promoData } = yield call(apiService.getPromoDishes);
-    // yield put(fetchPromoDishesSuccess(promoData));
-
-    // мок - временно
-    yield put(fetchRestaurantsSuccess(MOCK_RESTAURANTS));
-
-    const promoDishes = MOCK_DISHES.filter((dish) => dish.isPromo).map((dish) => ({
-      id: dish.id,
-      name: dish.name,
-      price: dish.price,
-      isPromo: true,
-    }));
-
+    const promoDishes: PromoDish[] = yield call([apiService, apiService.getPromoDishes]);
     yield put(fetchPromoDishesSuccess(promoDishes));
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Ошибка загрузки данных';
@@ -40,6 +25,6 @@ function* fetchRestaurantsSaga(apiService: ApiService) {
   }
 }
 
-export function* watchHome(apiService: ApiService) {
-  yield takeLatest('home/fetchRestaurants', fetchRestaurantsSaga, apiService);
+export function* watchHome() {
+  yield takeLatest('home/fetchRestaurants', fetchRestaurantsSaga);
 }

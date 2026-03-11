@@ -16,16 +16,15 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { MOCK_PROMO_DISHES, MOCK_RESTAURANTS } from '../../../../mocks';
 import { RootStackParamList, SubFilterType } from '../../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../../entities/api/types/home-types';
 import { Images } from '../../../shared/constants/images';
 import { SearchInput } from '../../../shared/search/ui/search-input';
 import { CartFeature } from '../../cart';
+import { HomeFeature } from '../index';
 import { styles } from './home-styles';
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width - 48) / 2;
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
@@ -44,7 +43,7 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
     [item.id]
   );
   const cartItem = useSelector(cartItemSelector);
-  const quantity = cartItem?.quantity || 0;
+  const quantity = cartItem?.quantity ?? 0;
 
   const handleAddToCart = useCallback(() => {
     dispatch(
@@ -66,7 +65,7 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
       const SvgImage = item.imageSvg;
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
     }
-    return <Text style={styles.imagePlaceholder}>🍽️</Text>;
+    return <Text style={styles.imagePlaceholder}>🍽</Text>;
   };
 
   return (
@@ -141,7 +140,6 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
         <HotIcon width={80} height={80} style={styles.filterIcon} />
         <Text style={styles.filterText}>Горячее</Text>
       </TouchableOpacity>
-
       <TouchableOpacity
         style={styles.filterBlock}
         onPress={() => onFilterPress('салаты')}
@@ -151,7 +149,6 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
         <Text style={styles.filterText}>Салаты</Text>
       </TouchableOpacity>
     </View>
-
     <View style={styles.row}>
       <TouchableOpacity
         style={styles.filterBlock}
@@ -161,7 +158,6 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
         <DessertsIcon width={80} height={80} style={styles.filterIcon} />
         <Text style={styles.filterText}>Десерты</Text>
       </TouchableOpacity>
-
       <TouchableOpacity
         style={styles.filterBlock}
         onPress={() => onFilterPress('закуски')}
@@ -171,7 +167,6 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
         <Text style={styles.filterText}>Закуски</Text>
       </TouchableOpacity>
     </View>
-
     <View style={styles.largeBlockContainer}>
       <TouchableOpacity
         style={styles.noveltyBlock}
@@ -191,18 +186,31 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const dispatch = useDispatch();
   const flatListRef = useRef<FlatList<Restaurant>>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  const restaurants = useSelector(HomeFeature.selectors.selectRestaurants);
+  const promoDishes = useSelector(HomeFeature.selectors.selectPromoDishes);
+
+  // Запрос данных при маунте
+  useEffect(() => {
+    dispatch({ type: 'home/fetchRestaurants' });
+  }, [dispatch]);
+
   const headerOpacity = scrollY.interpolate({
     inputRange: [0, 100],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
 
-  const restaurants = useMemo(() => MOCK_RESTAURANTS, []);
-  const promoDishes = useMemo(() => MOCK_PROMO_DISHES, []);
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [-120, 0],
+    extrapolate: 'clamp',
+  });
 
   const infiniteData = useMemo(() => {
     if (restaurants.length === 0) return [];
@@ -212,33 +220,22 @@ export const HomeScreen: React.FC = () => {
   useEffect(() => {
     if (restaurants.length > 0) {
       setCurrentIndex(0);
-      flatListRef.current?.scrollToIndex({
-        index: 1,
-        animated: false,
-      });
+      flatListRef.current?.scrollToIndex({ index: 1, animated: false });
     }
   }, [restaurants]);
 
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
   }, [navigation]);
-
   const handleFilterPress = useCallback(
     (filter: string) => {
       if (filter === 'акции') {
-        navigation.navigate('Tabs', {
-          screen: 'Меню',
-          params: { mainFilter: 'акции' },
-        });
+        navigation.navigate('Tabs', { screen: 'Меню', params: { mainFilter: 'акции' } });
         return;
       }
-
       navigation.navigate('Tabs', {
         screen: 'Меню',
-        params: {
-          mainFilter: 'Все',
-          subFilters: [filter as SubFilterType],
-        },
+        params: { mainFilter: 'Все', subFilters: [filter as SubFilterType] },
       });
     },
     [navigation]
@@ -249,10 +246,7 @@ export const HomeScreen: React.FC = () => {
       if (restaurant.name === 'Цезарь') {
         navigation.navigate('Tabs', {
           screen: 'Меню',
-          params: {
-            restaurantId: restaurant.id,
-            restaurantName: restaurant.name,
-          },
+          params: { restaurantId: restaurant.id, restaurantName: restaurant.name },
         });
       }
     },
@@ -261,28 +255,21 @@ export const HomeScreen: React.FC = () => {
 
   const onMomentumScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const contentOffset = event.nativeEvent.contentOffset;
-      const index = Math.round(contentOffset.x / width);
+      const index = Math.round(event.nativeEvent.contentOffset.x / width);
       const realIndex = (index - 1 + restaurants.length) % restaurants.length;
       setCurrentIndex(realIndex);
 
       if (index === 0) {
-        flatListRef.current?.scrollToIndex({
-          index: infiniteData.length - 2,
-          animated: false,
-        });
+        flatListRef.current?.scrollToIndex({ index: infiniteData.length - 2, animated: false });
       } else if (index === infiniteData.length - 1) {
-        flatListRef.current?.scrollToIndex({
-          index: 1,
-          animated: false,
-        });
+        flatListRef.current?.scrollToIndex({ index: 1, animated: false });
       }
     },
     [restaurants.length, infiniteData.length]
   );
 
   const getItemLayout = useCallback(
-    (data: ArrayLike<Restaurant> | null | undefined, index: number) => ({
+    (_: ArrayLike<Restaurant> | null | undefined, index: number) => ({
       length: width,
       offset: width * index,
       index,
@@ -310,12 +297,6 @@ export const HomeScreen: React.FC = () => {
     useNativeDriver: true,
   });
 
-  const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [-120, 0],
-    extrapolate: 'clamp',
-  });
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
@@ -323,10 +304,7 @@ export const HomeScreen: React.FC = () => {
       <Animated.View
         style={[
           styles.floatingHeader,
-          {
-            transform: [{ translateY: headerTranslateY }],
-            opacity: headerOpacity,
-          },
+          { transform: [{ translateY: headerTranslateY }], opacity: headerOpacity },
         ]}
       >
         <SafeAreaView edges={['top']} style={styles.floatingHeaderSafe}>
@@ -346,7 +324,6 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.waveBackground}>
             <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
           </View>
-
           <SafeAreaView edges={['top']} style={styles.searchContainer}>
             <View style={styles.searchWrapper}>
               <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
@@ -358,7 +335,6 @@ export const HomeScreen: React.FC = () => {
           <FilterGrid onFilterPress={handleFilterPress} />
 
           <Text style={styles.sectionTitle}>Рестораны</Text>
-
           <View>
             <FlatList
               ref={flatListRef}
@@ -366,7 +342,7 @@ export const HomeScreen: React.FC = () => {
               renderItem={renderRestaurantItem}
               keyExtractor={keyExtractor}
               horizontal
-              pagingEnabled
+              pagingEnabled={true}
               showsHorizontalScrollIndicator={false}
               onMomentumScrollEnd={onMomentumScrollEnd}
               decelerationRate="fast"
