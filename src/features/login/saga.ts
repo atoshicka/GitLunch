@@ -1,12 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError } from 'axios';
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { call, getContext, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api';
-import { loginFailure, loginSuccess, submitLogin } from './login-slice';
 import { selectLogin, selectPassword } from './selectors';
+import { actions } from './slice';
 
-function* handleSubmitLogin(apiService: ApiService) {
+const { loginFailure, loginSuccess, submitLogin } = actions;
+
+function* handleSubmitLogin() {
   try {
+    const apiService: ApiService = yield getContext('apiService');
     const login: string = yield select(selectLogin);
     const password: string = yield select(selectPassword);
 
@@ -16,7 +19,7 @@ function* handleSubmitLogin(apiService: ApiService) {
       password
     );
 
-    if (!result.token) {
+    if (!result.token || !result.success) {
       yield put(loginFailure({ general: 'Ошибка при выполнении запроса' }));
       return;
     }
@@ -24,12 +27,7 @@ function* handleSubmitLogin(apiService: ApiService) {
     yield call([AsyncStorage, 'setItem'], 'token', result.token);
     yield call([AsyncStorage, 'setItem'], 'user', JSON.stringify(result.user));
 
-    yield put(
-      loginSuccess({
-        token: result.token,
-        userName: result.user.full_name,
-      })
-    );
+    yield put(loginSuccess({ token: result.token, userName: result.user.full_name }));
   } catch (error: unknown) {
     const errorMessage =
       error instanceof AxiosError && error.response?.status === 401
@@ -40,6 +38,6 @@ function* handleSubmitLogin(apiService: ApiService) {
   }
 }
 
-export function* watchLogin(apiService: ApiService) {
-  yield takeLatest(submitLogin.type, handleSubmitLogin, apiService);
+export function* watchLogin() {
+  yield takeLatest(submitLogin, handleSubmitLogin);
 }
