@@ -1,22 +1,23 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { RootState } from '../../app/store';
+import { HOME_SLICE_NAME } from './home-slice';
+import { HomeState } from './types';
 
-const selectHomeSlice = (state: RootState) => state.home;
+interface State {
+  [HOME_SLICE_NAME]: HomeState;
+}
 
-export const selectRestaurants = createSelector([selectHomeSlice], (home) => home.restaurants);
+const root = (state: State) => state[HOME_SLICE_NAME];
 
-export const selectPromoDishes = createSelector([selectHomeSlice], (home) => home.promoDishes);
-
+export const selectRestaurants = createSelector(root, (home) => home.restaurants);
+export const selectPromoDishes = createSelector(root, (home) => home.promoDishes);
 export const selectCurrentRestaurantIndex = createSelector(
-  [selectHomeSlice],
+  root,
   (home) => home.currentRestaurantIndex
 );
-
-export const selectIsLoading = createSelector([selectHomeSlice], (home) => home.isLoading);
-
-export const selectError = createSelector([selectHomeSlice], (home) => home.error);
-
+export const selectIsLoading = createSelector(root, (home) => home.isLoading);
+export const selectError = createSelector(root, (home) => home.error);
 export const selectCurrentRestaurant = createSelector(
-  [selectRestaurants, selectCurrentRestaurantIndex],
+  selectRestaurants,
+  selectCurrentRestaurantIndex,
   (restaurants, index) => restaurants[index] || null
 );

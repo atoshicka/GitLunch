@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { FC } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -57,7 +58,13 @@ export const BasketScreen: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: CartItem }) => (
-    <View style={styles.cartItem}>
+    <LinearGradient
+      colors={['#F4F4F4', '#A8F0B5', '#86EFAC']}
+      locations={[0, 0.8, 1.3]}
+      start={{ x: 0.1, y: 0.1 }}
+      end={{ x: 1, y: 0.5 }}
+      style={styles.cartItem}
+    >
       <View style={styles.imageContainer}>{renderItemImage(item)}</View>
 
       <View style={styles.itemContent}>
@@ -87,7 +94,7 @@ export const BasketScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 
   if (items.length === 0) {
