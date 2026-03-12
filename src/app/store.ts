@@ -3,6 +3,7 @@ import createSagaMiddleware from 'redux-saga';
 import { createApiService } from '../entities/api/api-interface';
 import { api } from '../entities/api/axios-config';
 import { CartFeature, HomeFeature, LoginFeature } from '../features';
+import ordersReducer from '../features/orders/slice';
 import { MenuFeature } from '../screens/menu-screen';
 import { rootSaga } from './saga';
 
@@ -18,6 +19,7 @@ export const store = configureStore({
     ...CartFeature.reducer,
     ...HomeFeature.reducer,
     ...MenuFeature.reducer,
+    orders: ordersReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -51,4 +51,5 @@ export type RootStackParamList = {
     onSearch?: (query: string) => void;
   };
   Menu: MenuScreenParams;
+  Orders: undefined;
 };

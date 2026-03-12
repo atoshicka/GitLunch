@@ -5,6 +5,7 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoginForm } from '../../features/login/ui/login-form';
+import { OrdersScreen } from '../../features/orders/orders';
 import { SearchScreen } from '../../features/search/ui/search-screen';
 import { SCREEN_NAMES } from '../../shared/constants/navigation';
 import { TabNavigator } from '../../shared/constants/TabNavigator';
@@ -36,6 +37,11 @@ export const AppNavigator: React.FC = () => {
         <RootStack.Screen
           name={SCREEN_NAMES.SEARCH}
           component={SearchScreen}
+          options={{ presentation: 'card' }}
+        />
+        <RootStack.Screen
+          name={SCREEN_NAMES.ORDERS}
+          component={OrdersScreen}
           options={{ presentation: 'card' }}
         />
       </RootStack.Navigator>

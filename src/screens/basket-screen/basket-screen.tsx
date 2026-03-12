@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { FC } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
@@ -12,7 +12,13 @@ import {
   selectCartTotalItems,
   selectCartTotalPrice,
 } from '../../features/cart/store/cart-selectors';
-import { addToCart, decreaseQuantity, removeFromCart } from '../../features/cart/store/cart-slice';
+import {
+  addToCart,
+  clearCart,
+  decreaseQuantity,
+  removeFromCart,
+} from '../../features/cart/store/cart-slice';
+import { addOrder } from '../../features/orders/slice';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './basket-styles';
 
@@ -26,6 +32,29 @@ interface CartItem {
 }
 
 type BasketScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+
+const getCurrentDateInfo = () => {
+  const now = new Date();
+  const daysOfWeek = [
+    'Воскресенье',
+    'Понедельник',
+    'Вторник',
+    'Среда',
+    'Четверг',
+    'Пятница',
+    'Суббота',
+  ];
+
+  const date = now.toLocaleDateString('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
+  const dayOfWeek = daysOfWeek[now.getDay()];
+
+  return { date, dayOfWeek };
+};
 
 export const BasketScreen: React.FC = () => {
   const navigation = useNavigation<BasketScreenNavigationProp>();
@@ -55,6 +84,34 @@ export const BasketScreen: React.FC = () => {
         imageSvg: item.imageSvg,
       })
     );
+  };
+
+  const handlePlaceOrder = () => {
+    if (items.length === 0) {
+      Alert.alert('Корзина пуста', 'Добавьте блюда в корзину');
+      return;
+    }
+
+    const { date, dayOfWeek } = getCurrentDateInfo();
+
+    const newOrder = {
+      id: Date.now().toString(),
+      date,
+      dayOfWeek,
+      items: items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      totalPrice,
+      totalItems,
+    };
+
+    dispatch(addOrder(newOrder));
+    dispatch(clearCart());
+
+    Alert.alert('Успешно', 'Заказ оформлен!');
   };
 
   const renderItem = ({ item }: { item: CartItem }) => (
@@ -134,7 +191,7 @@ export const BasketScreen: React.FC = () => {
           <Text style={styles.totalLabel}>Итого:</Text>
           <Text style={styles.totalPrice}>{totalPrice} ₽</Text>
         </View>
-        <TouchableOpacity style={styles.orderButton}>
+        <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
           <Text style={styles.orderButtonText}>Оформить заказ</Text>
         </TouchableOpacity>
       </View>
