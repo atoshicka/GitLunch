@@ -8,6 +8,7 @@ import { MAIN_FILTERS, SUB_FILTERS } from '../../app/constants/filters';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Dish } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
+import { Images } from '../../shared/constants/images';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { FilterChips } from './filter-chips';
 import { MenuFeature } from './index';
@@ -15,6 +16,8 @@ import { styles } from './menu-styles';
 
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 type MenuScreenRouteProp = RouteProp<RootStackParamList, 'Menu'>;
+
+const SubtractIcon = Images.home.wave;
 
 const DishCard = React.memo(({ item }: { item: Dish }) => {
   const dispatch = useDispatch();
@@ -61,7 +64,6 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
         {item.name}
       </Text>
       <Text style={styles.dishPrice}>{item.price} ₽</Text>
-
       {quantity > 0 ? (
         <View style={styles.quantityControl}>
           <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
@@ -98,10 +100,10 @@ export const MenuScreen: React.FC = () => {
 
   const [mainFilter, setMainFilter] = useState<string>(initialMainFilter ?? 'Все');
   const [subFilters, setSubFilters] = useState<string[]>(initialSubFilters ?? []);
+
   useEffect(() => {
     dispatch({ type: 'menu/fetchDishes' });
   }, [dispatch]);
-
   useEffect(() => {
     if (initialMainFilter) {
       setMainFilter(initialMainFilter);
@@ -141,15 +143,24 @@ export const MenuScreen: React.FC = () => {
     return mainFilter === 'акции' ? 'Акции дня' : 'Меню';
   }, [mainFilter]);
 
+  const renderDishItem = useCallback(({ item }: { item: Dish }) => <DishCard item={item} />, []);
+
   const restaurantTitle = restaurantName ?? 'Кафе Цезарь';
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+      <View style={styles.waveSection}>
+        <View style={styles.waveBackground}>
+          <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
+        </View>
+        <View style={styles.searchContainer}>
+          <View style={styles.searchWrapper}>
+            <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+            <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
+          </View>
+        </View>
       </View>
 
-      <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
       <Text style={styles.sectionTitle}>{getTitle()}</Text>
 
       <View style={styles.filtersWrapper}>
@@ -180,12 +191,13 @@ export const MenuScreen: React.FC = () => {
           numColumns={2}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.dishesGrid}
-          renderItem={({ item }) => <DishCard item={item} />}
+          renderItem={renderDishItem}
           ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
           initialNumToRender={4}
-          maxToRenderPerBatch={6}
-          windowSize={5}
+          maxToRenderPerBatch={4}
+          windowSize={3}
           removeClippedSubviews={true}
+          updateCellsBatchingPeriod={50}
         />
       )}
     </View>

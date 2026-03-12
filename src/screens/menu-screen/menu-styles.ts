@@ -6,19 +6,39 @@ const cardWidth = (width - 48) / 2;
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F4F4F4',
+  },
+  waveSection: {
+    position: 'relative',
+    height: 220,
+    backgroundColor: 'transparent',
+    marginBottom: -40,
+    zIndex: 1,
+  },
+  waveBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   searchContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  searchWrapper: {
     paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 8,
+    paddingTop: 80,
   },
   cafeTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1F2937',
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    textAlign: 'center',
+    marginTop: 12,
   },
   sectionTitle: {
     fontSize: 18,
@@ -31,7 +51,7 @@ export const styles = StyleSheet.create({
   filtersWrapper: {
     marginBottom: 16,
     minHeight: 44,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F4F4F4',
   },
   dishesGrid: {
     paddingHorizontal: 16,
@@ -42,7 +62,7 @@ export const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 16,
     backgroundColor: '#DFFCEA',
-    borderRadius: 16,
+    borderRadius: 30,
     padding: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
