@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Animated, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { FilterChipsProps } from '../../app/navigation/navigation-types';
 import { styles } from './filter-chips-styles';
 
@@ -12,16 +12,6 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
   style,
   disableSort = false,
 }) => {
-  const getAnimatedStyle = useCallback(
-    (filter: string) => {
-      const isSelected = selectedFilters.includes(filter);
-      return {
-        transform: [{ scale: isSelected ? 1.05 : 1 }],
-      };
-    },
-    [selectedFilters]
-  );
-
   const handlePress = useCallback(
     (filter: string) => {
       onSelectFilter(filter);
@@ -65,9 +55,8 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
     >
       {displayedFilters.map((filter) => {
         const isSelected = selectedFilters.includes(filter);
-
         return (
-          <Animated.View key={filter} style={getAnimatedStyle(filter)}>
+          <View key={filter}>
             <TouchableOpacity
               style={[
                 styles.chip,
@@ -84,7 +73,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
                 {filter}
               </Text>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
         );
       })}
     </ScrollView>
