@@ -13,7 +13,6 @@ import NavHome from '../../assets/images/navigation/navHome.svg';
 import Navigation from '../../assets/images/navigation/navigation.svg';
 import Nowin from '../../assets/images/nowin.svg';
 import Pasta from '../../assets/images/pasta.svg';
-import QRCode from '../../assets/images/qrCode.svg';
 import MinQrCode from '../../assets/images/qrCodeMin.svg';
 import RestCezar from '../../assets/images/restCezar.svg';
 import Salads from '../../assets/images/salads.svg';
@@ -66,7 +65,6 @@ export const Images = {
   },
   account: {
     setting: Setting,
-    QRcode: QRCode,
     minQRCode: MinQrCode,
   },
 } as const;
