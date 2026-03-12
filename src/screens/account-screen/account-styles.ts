@@ -58,9 +58,12 @@ export const styles = StyleSheet.create({
   menuItem: {
     paddingVertical: 16,
     paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#A7F3D0',
   },
   menuItemText: {
     fontSize: 16,
     color: '#1F2937',
+    fontWeight: '500',
   },
 });
