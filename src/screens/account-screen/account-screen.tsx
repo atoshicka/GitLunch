@@ -1,6 +1,9 @@
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { selectUserName } from '../../features/login/selectors';
 import { Images } from '../../shared/constants/images';
 import { styles } from './account-styles';
@@ -13,17 +16,27 @@ const MENU_ITEMS = [
   { id: '5', title: 'Адреса' },
   { id: '6', title: 'О сервисе' },
   { id: '7', title: 'Способы оплаты' },
-];
+] as const;
+
+type MenuItemTitle = (typeof MENU_ITEMS)[number]['title'];
+type AccountScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
 export const AccountScreen: React.FC = () => {
+  const navigation = useNavigation<AccountScreenNavigationProp>();
   const userName = useSelector(selectUserName);
 
   const handleSettingsPress = () => {
     console.log('Настройки');
   };
 
-  const handleMenuItemPress = (itemTitle: string) => {
-    console.log(`Нажат пункт: ${itemTitle}`);
+  const handleMenuItemPress = (itemTitle: MenuItemTitle) => {
+    switch (itemTitle) {
+      case 'Мои заказы':
+        navigation.navigate('Orders');
+        break;
+      default:
+        console.log(`Нажат пункт: ${itemTitle}`);
+    }
   };
 
   const SettingsIcon = Images.account.setting;
