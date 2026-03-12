@@ -1,19 +1,18 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
   FlatList,
   ListRenderItem,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
   StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import PagerView from 'react-native-pager-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList, SubFilterType } from '../../../app/navigation/navigation-types';
@@ -38,11 +37,7 @@ const NowinIcon = Images.home.nowin;
 
 const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
   const dispatch = useDispatch();
-  const cartItemSelector = useMemo(
-    () => CartFeature.selectors.selectCartItemById(item.id),
-    [item.id]
-  );
-  const cartItem = useSelector(cartItemSelector);
+  const cartItem = useSelector(CartFeature.selectors.selectCartItemById(item.id));
   const quantity = cartItem?.quantity ?? 0;
 
   const handleAddToCart = useCallback(() => {
@@ -81,7 +76,6 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
         {item.name}
       </Text>
       <Text style={styles.dishPrice}>{item.price} ₽</Text>
-
       {quantity > 0 ? (
         <View style={styles.quantityControl}>
           <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
@@ -105,12 +99,14 @@ const PaginationDots = React.memo(
   ({ count, currentIndex }: { count: number; currentIndex: number }) => (
     <View style={styles.dotsContainer}>
       {Array.from({ length: count }).map((_, index) => (
-        <View key={index} style={[styles.dot, currentIndex === index && styles.activeDot]} />
+        <View
+          key={`dot-${index}`}
+          style={[styles.dot, currentIndex === index && styles.activeDot]}
+        />
       ))}
     </View>
   )
 );
-
 const RestaurantCarouselItem = React.memo(
   ({ item, onPress }: { item: Restaurant; onPress: (item: Restaurant) => void }) => (
     <TouchableOpacity style={styles.carouselItem} onPress={() => onPress(item)} activeOpacity={0.9}>
@@ -187,15 +183,13 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const dispatch = useDispatch();
-  const flatListRef = useRef<FlatList<Restaurant>>(null);
+  const pagerRef = useRef<PagerView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const restaurants = useSelector(HomeFeature.selectors.selectRestaurants);
   const promoDishes = useSelector(HomeFeature.selectors.selectPromoDishes);
 
-  // Запрос данных при маунте
   useEffect(() => {
     dispatch({ type: 'home/fetchRestaurants' });
   }, [dispatch]);
@@ -212,21 +206,10 @@ export const HomeScreen: React.FC = () => {
     extrapolate: 'clamp',
   });
 
-  const infiniteData = useMemo(() => {
-    if (restaurants.length === 0) return [];
-    return [restaurants[restaurants.length - 1], ...restaurants, restaurants[0]];
-  }, [restaurants]);
-
-  useEffect(() => {
-    if (restaurants.length > 0) {
-      setCurrentIndex(0);
-      flatListRef.current?.scrollToIndex({ index: 1, animated: false });
-    }
-  }, [restaurants]);
-
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
   }, [navigation]);
+
   const handleFilterPress = useCallback(
     (filter: string) => {
       if (filter === 'акции') {
@@ -252,36 +235,6 @@ export const HomeScreen: React.FC = () => {
     },
     [navigation]
   );
-
-  const onMomentumScrollEnd = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const index = Math.round(event.nativeEvent.contentOffset.x / width);
-      const realIndex = (index - 1 + restaurants.length) % restaurants.length;
-      setCurrentIndex(realIndex);
-
-      if (index === 0) {
-        flatListRef.current?.scrollToIndex({ index: infiniteData.length - 2, animated: false });
-      } else if (index === infiniteData.length - 1) {
-        flatListRef.current?.scrollToIndex({ index: 1, animated: false });
-      }
-    },
-    [restaurants.length, infiniteData.length]
-  );
-
-  const getItemLayout = useCallback(
-    (_: ArrayLike<Restaurant> | null | undefined, index: number) => ({
-      length: width,
-      offset: width * index,
-      index,
-    }),
-    []
-  );
-
-  const renderRestaurantItem: ListRenderItem<Restaurant> = useCallback(
-    ({ item }) => <RestaurantCarouselItem item={item} onPress={handleRestaurantPress} />,
-    [handleRestaurantPress]
-  );
-
   const renderPromoItem: ListRenderItem<PromoDish> = useCallback(
     ({ item }) => (
       <View style={styles.promoCardContainer}>
@@ -290,8 +243,6 @@ export const HomeScreen: React.FC = () => {
     ),
     []
   );
-
-  const keyExtractor = useCallback((item: Restaurant, index: number) => `${item.id}-${index}`, []);
 
   const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
     useNativeDriver: true,
@@ -336,22 +287,18 @@ export const HomeScreen: React.FC = () => {
 
           <Text style={styles.sectionTitle}>Рестораны</Text>
           <View>
-            <FlatList
-              ref={flatListRef}
-              data={infiniteData}
-              renderItem={renderRestaurantItem}
-              keyExtractor={keyExtractor}
-              horizontal
-              pagingEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={onMomentumScrollEnd}
-              decelerationRate="fast"
-              getItemLayout={getItemLayout}
-              initialScrollIndex={1}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={3}
-              windowSize={3}
-            />
+            <PagerView
+              ref={pagerRef}
+              style={{ width, height: 180 }}
+              initialPage={0}
+              onPageSelected={(e) => setCurrentIndex(e.nativeEvent.position)}
+            >
+              {restaurants.map((item) => (
+                <View key={item.id}>
+                  <RestaurantCarouselItem item={item} onPress={handleRestaurantPress} />
+                </View>
+              ))}
+            </PagerView>
             <PaginationDots count={restaurants.length} currentIndex={currentIndex} />
           </View>
 

@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
   },
   waveSection: {
     position: 'relative',
-    height: 250,
+    height: 220,
     backgroundColor: 'transparent',
     marginBottom: -70,
     zIndex: 1,
@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
   },
   searchWrapper: {
     paddingHorizontal: 16,
-    paddingTop: 50,
+    paddingTop: 42,
   },
   contentWrapper: {
     backgroundColor: 'transparent',
@@ -263,8 +263,8 @@ export const styles = StyleSheet.create({
   quantityButton: {
     backgroundColor: '#22C55E',
     width: 36,
-    height: 36,
-    borderRadius: 18,
+    height: 30,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
