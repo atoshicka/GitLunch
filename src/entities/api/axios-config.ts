@@ -12,7 +12,6 @@ export const api = axios.create({
   },
 });
 
-// ← добавляем токен в каждый запрос
 api.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem('token');
