@@ -1,10 +1,9 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
-import { MAIN_FILTERS, SUB_FILTERS } from '../../app/constants/filters';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Dish } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
@@ -17,12 +16,13 @@ import { styles } from './menu-styles';
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 type MenuScreenRouteProp = RouteProp<RootStackParamList, 'Menu'>;
 
+const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 const SubtractIcon = Images.home.wave;
 
 const DishCard = React.memo(({ item }: { item: Dish }) => {
   const dispatch = useDispatch();
   const cartItemSelector = useMemo(
-    () => CartFeature.selectors.selectCartItemById(item.id),
+    () => CartFeature.selectors.selectCartItemById(String(item.id)),
     [item.id]
   );
   const cartItem = useSelector(cartItemSelector);
@@ -31,19 +31,29 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
   const handleAddToCart = useCallback(() => {
     dispatch(
       CartFeature.actions.addToCart({
-        id: item.id,
+        id: String(item.id),
         name: item.name,
-        price: item.price,
+        price: parseFloat(item.price),
         imageSvg: item.imageSvg,
+        imageUrl: item.image_url ? `${BASE_URL}${item.image_url}` : undefined,
       })
     );
-  }, [dispatch, item.id, item.name, item.price, item.imageSvg]);
+  }, [dispatch, item.id, item.name, item.price, item.imageSvg, item.image_url]);
 
   const handleDecrease = useCallback(() => {
-    dispatch(CartFeature.actions.decreaseQuantity(item.id));
+    dispatch(CartFeature.actions.decreaseQuantity(String(item.id)));
   }, [dispatch, item.id]);
 
   const renderImage = () => {
+    if (item.image_url) {
+      return (
+        <Image
+          source={{ uri: `${BASE_URL}${item.image_url}` }}
+          style={{ width: '100%', height: '100%', borderRadius: 12 }}
+          resizeMode="contain"
+        />
+      );
+    }
     if (item.imageSvg) {
       const SvgImage = item.imageSvg;
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
@@ -88,64 +98,77 @@ export const MenuScreen: React.FC = () => {
   const route = useRoute<MenuScreenRouteProp>();
   const dispatch = useDispatch();
 
-  const {
-    restaurantName,
-    mainFilter: initialMainFilter,
-    subFilters: initialSubFilters,
-  } = route.params ?? {};
+  const { restaurantName, mainFilter: initialMainFilter } = route.params ?? {};
 
   const dishes = useSelector(MenuFeature.selectors.selectDishes);
+  const categories = useSelector(MenuFeature.selectors.selectCategories);
   const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
   const error = useSelector(MenuFeature.selectors.selectMenuError);
 
-  const [mainFilter, setMainFilter] = useState<string>(initialMainFilter ?? 'Все');
-  const [subFilters, setSubFilters] = useState<string[]>(initialSubFilters ?? []);
+  const [selectedFilter, setSelectedFilter] = useState<string>('');
+
+  const filters = useMemo(() => {
+    const categoryNames = [...new Set(categories.map((cat) => cat.name))];
+
+    const allDishesFilter = 'Все блюда';
+
+    let allFilters = [allDishesFilter, ...categoryNames];
+
+    allFilters = [...new Set(allFilters)];
+
+    return allFilters.sort((a, b) => {
+      if (a === allDishesFilter) return -1;
+      if (b === allDishesFilter) return 1;
+      return a.localeCompare(b, 'ru');
+    });
+  }, [categories]);
+
+  const hasSetInitialFilter = useRef(false);
+
+  useEffect(() => {
+    if (filters.length > 0 && !hasSetInitialFilter.current) {
+      setSelectedFilter('Все блюда');
+      hasSetInitialFilter.current = true;
+    }
+  }, [filters]);
 
   useEffect(() => {
     dispatch({ type: 'menu/fetchDishes' });
   }, [dispatch]);
-  useEffect(() => {
-    if (initialMainFilter) {
-      setMainFilter(initialMainFilter);
-      if (initialMainFilter === 'акции') setSubFilters([]);
-    }
-  }, [initialMainFilter]);
 
   useEffect(() => {
-    if (initialSubFilters) setSubFilters(initialSubFilters);
-  }, [initialSubFilters]);
+    if (initialMainFilter && filters.includes(initialMainFilter)) {
+      setSelectedFilter(initialMainFilter);
+    }
+  }, [initialMainFilter, filters]);
 
   const filteredDishes = useMemo(() => {
-    const subFiltersSet = new Set(subFilters);
-    if (mainFilter === 'акции') return dishes.filter((dish) => dish.isPromo);
-    if (subFilters.length === 0) return dishes;
-    return dishes.filter((dish) => dish.filterType && subFiltersSet.has(dish.filterType));
-  }, [mainFilter, subFilters, dishes]);
-
-  const handleMainFilterPress = useCallback((filter: string) => {
-    if (filter === 'Все' || filter === 'акции') {
-      setMainFilter(filter);
-      if (filter === 'акции') setSubFilters([]);
+    if (!selectedFilter || selectedFilter === 'Все блюда') {
+      return dishes;
     }
-  }, []);
 
-  const handleSubFilterPress = useCallback((filter: string) => {
-    setSubFilters((prev) =>
-      prev.includes(filter) ? prev.filter((f) => f !== filter) : [...prev, filter]
-    );
+    return dishes.filter((dish) => dish.category.name === selectedFilter);
+  }, [selectedFilter, dishes]);
+
+  const handleFilterPress = useCallback((filter: string) => {
+    setSelectedFilter(filter);
   }, []);
 
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
   }, [navigation]);
 
-  const getTitle = useCallback(() => {
-    return mainFilter === 'акции' ? 'Акции дня' : 'Меню';
-  }, [mainFilter]);
-
   const renderDishItem = useCallback(({ item }: { item: Dish }) => <DishCard item={item} />, []);
 
   const restaurantTitle = restaurantName ?? 'Кафе Цезарь';
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -161,35 +184,25 @@ export const MenuScreen: React.FC = () => {
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>{getTitle()}</Text>
+      <Text style={styles.sectionTitle}>Меню</Text>
 
-      <View style={styles.filtersWrapper}>
-        <FilterChips
-          filters={MAIN_FILTERS as unknown as string[]}
-          selectedFilters={[mainFilter]}
-          onSelectFilter={handleMainFilterPress}
-        />
-      </View>
-
-      {mainFilter === 'Все' && (
+      {filters.length > 0 && (
         <View style={styles.filtersWrapper}>
           <FilterChips
-            filters={SUB_FILTERS as unknown as string[]}
-            selectedFilters={subFilters}
-            onSelectFilter={handleSubFilterPress}
+            filters={filters}
+            selectedFilters={[selectedFilter]}
+            onSelectFilter={handleFilterPress}
           />
         </View>
       )}
 
       {isLoading && <ActivityIndicator size="large" color="#86EFAC" style={{ marginTop: 40 }} />}
 
-      {!!error && !isLoading && <Text style={styles.emptyText}>{error}</Text>}
-
-      {!isLoading && !error && (
+      {!isLoading && (
         <FlatList
           data={filteredDishes}
           numColumns={2}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           contentContainerStyle={styles.dishesGrid}
           renderItem={renderDishItem}
           ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}

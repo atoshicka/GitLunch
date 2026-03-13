@@ -15,7 +15,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import PagerView from 'react-native-pager-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootStackParamList, SubFilterType } from '../../../app/navigation/navigation-types';
+import { RootStackParamList } from '../../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../../entities/api/types/home-types';
 import { Images } from '../../../shared/constants/images';
 import { SearchInput } from '../../../shared/search/ui/search-input';
@@ -107,6 +107,7 @@ const PaginationDots = React.memo(
     </View>
   )
 );
+
 const RestaurantCarouselItem = React.memo(
   ({ item, onPress }: { item: Restaurant; onPress: (item: Restaurant) => void }) => (
     <TouchableOpacity style={styles.carouselItem} onPress={() => onPress(item)} activeOpacity={0.9}>
@@ -213,13 +214,16 @@ export const HomeScreen: React.FC = () => {
   const handleFilterPress = useCallback(
     (filter: string) => {
       if (filter === 'акции') {
-        navigation.navigate('Tabs', { screen: 'Меню', params: { mainFilter: 'акции' } });
-        return;
+        navigation.navigate('Tabs', {
+          screen: 'Меню',
+          params: { mainFilter: 'акции' },
+        });
+      } else {
+        navigation.navigate('Tabs', {
+          screen: 'Меню',
+          params: { mainFilter: filter },
+        });
       }
-      navigation.navigate('Tabs', {
-        screen: 'Меню',
-        params: { mainFilter: 'Все', subFilters: [filter as SubFilterType] },
-      });
     },
     [navigation]
   );
@@ -235,6 +239,7 @@ export const HomeScreen: React.FC = () => {
     },
     [navigation]
   );
+
   const renderPromoItem: ListRenderItem<PromoDish> = useCallback(
     ({ item }) => (
       <View style={styles.promoCardContainer}>
