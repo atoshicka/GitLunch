@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { FC } from 'react';
-import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
@@ -64,11 +64,20 @@ export const BasketScreen: React.FC = () => {
   const totalItems = useSelector(selectCartTotalItems);
 
   const renderItemImage = (item: CartItem) => {
+    if (item.imageUrl) {
+      return (
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={{ width: '100%', height: '100%', borderRadius: 12 }}
+          resizeMode="contain"
+        />
+      );
+    }
     if (item.imageSvg) {
       const SvgImage = item.imageSvg;
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
     }
-    return <Text style={styles.imagePlaceholder}>🍽️</Text>;
+    return <Text style={styles.imagePlaceholder}>🍽</Text>;
   };
 
   const handleSearchPress = () => {
@@ -82,6 +91,7 @@ export const BasketScreen: React.FC = () => {
         name: item.name,
         price: item.price,
         imageSvg: item.imageSvg,
+        imageUrl: item.imageUrl,
       })
     );
   };
