@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios';
-import { MOCK_CATEGORIES, MOCK_DISHES } from '../../../mocks';
+import { MOCK_DISHES } from '../../../mocks';
 import { API_ENDPOINTS } from './api';
 import { PromoDish, Restaurant } from './types/home-types';
 import { Category, Dish } from './types/menu-types';
@@ -18,7 +18,8 @@ const extractArray = <T>(data: unknown, ...keys: string[]): T[] => {
 export const createApiService = (api: AxiosInstance) => ({
   async getDishes(): Promise<Dish[]> {
     try {
-      return MOCK_DISHES;
+      const response = await api.get(API_ENDPOINTS.DISHES);
+      return extractArray<Dish>(response.data, 'menu_items', 'dishes', 'data', 'items');
     } catch (error) {
       console.error('Error fetching dishes:', error);
       throw error;
@@ -27,7 +28,7 @@ export const createApiService = (api: AxiosInstance) => ({
 
   async getDishesByCategory(categoryId: string): Promise<Dish[]> {
     try {
-      return MOCK_DISHES.filter((dish) => dish.category === categoryId);
+      return MOCK_DISHES.filter((dish) => String(dish.id) === categoryId);
     } catch (error) {
       console.error(`Error fetching dishes for category ${categoryId}:`, error);
       throw error;
@@ -36,7 +37,11 @@ export const createApiService = (api: AxiosInstance) => ({
 
   async getCategories(): Promise<Category[]> {
     try {
-      return MOCK_CATEGORIES;
+      const response = await api.get(API_ENDPOINTS.CATEGORIES);
+      if (Array.isArray(response.data)) {
+        return response.data;
+      }
+      return extractArray<Category>(response.data, 'categories', 'data', 'items');
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;
@@ -45,7 +50,7 @@ export const createApiService = (api: AxiosInstance) => ({
 
   async getDishById(id: string): Promise<Dish> {
     try {
-      const dish = MOCK_DISHES.find((d) => d.id === id);
+      const dish = MOCK_DISHES.find((d) => String(d.id) === id);
       if (!dish) throw new Error(`Dish with id ${id} not found`);
       return dish;
     } catch (error) {
@@ -82,10 +87,10 @@ export const createApiService = (api: AxiosInstance) => ({
   async getPromoDishes(): Promise<PromoDish[]> {
     try {
       return MOCK_DISHES.filter((dish) => dish.isPromo).map((dish) => ({
-        id: dish.id,
+        id: String(dish.id),
         name: dish.name,
-        price: dish.price,
-        imageUrl: dish.imageUrl,
+        price: parseFloat(dish.price),
+        imageUrl: dish.image_url,
         imageSvg: dish.imageSvg,
         isPromo: true,
       }));
