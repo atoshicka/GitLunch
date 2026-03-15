@@ -5,6 +5,19 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    zIndex: 1,
+    padding: 8,
+    paddingTop: 35,
+  },
+  backButtonText: {
+    fontSize: 40,
+    color: '#1F2937',
+    lineHeight: 44,
+  },
   settingsButton: {
     position: 'absolute',
     top: 16,
