@@ -5,6 +5,7 @@ import {
   Animated,
   Dimensions,
   FlatList,
+  Image,
   ListRenderItem,
   StatusBar,
   Text,
@@ -47,15 +48,21 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
         name: item.name,
         price: item.price,
         imageSvg: item.imageSvg,
+        imageUrl: item.imageUrl,
       })
     );
-  }, [dispatch, item.id, item.name, item.price, item.imageSvg]);
+  }, [dispatch, item.id, item.name, item.price, item.imageSvg, item.imageUrl]);
 
   const handleDecrease = useCallback(() => {
     dispatch(CartFeature.actions.decreaseQuantity(item.id));
   }, [dispatch, item.id]);
 
   const renderImage = () => {
+    if (item.imageUrl) {
+      return (
+        <Image source={{ uri: item.imageUrl }} style={styles.dishImage} resizeMode="contain" />
+      );
+    }
     if (item.imageSvg) {
       const SvgImage = item.imageSvg;
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
@@ -107,7 +114,6 @@ const PaginationDots = React.memo(
     </View>
   )
 );
-
 const RestaurantCarouselItem = React.memo(
   ({ item, onPress }: { item: Restaurant; onPress: (item: Restaurant) => void }) => (
     <TouchableOpacity style={styles.carouselItem} onPress={() => onPress(item)} activeOpacity={0.9}>
@@ -161,7 +167,7 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
         activeOpacity={0.7}
       >
         <SnacksIcon width={80} height={80} style={styles.filterIcon} />
-        <Text style={styles.filterText}>Закуски</Text>
+        <Text style={styles.filterText}>Бизнес-ланч</Text>
       </TouchableOpacity>
     </View>
     <View style={styles.largeBlockContainer}>
@@ -193,6 +199,7 @@ export const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch({ type: 'home/fetchRestaurants' });
+    dispatch({ type: 'home/fetchPromoDishes' });
   }, [dispatch]);
 
   const headerOpacity = scrollY.interpolate({
@@ -213,27 +220,32 @@ export const HomeScreen: React.FC = () => {
 
   const handleFilterPress = useCallback(
     (filter: string) => {
-      if (filter === 'акции') {
-        navigation.navigate('Tabs', {
-          screen: 'Меню',
-          params: { mainFilter: 'акции' },
-        });
-      } else {
-        navigation.navigate('Tabs', {
-          screen: 'Меню',
-          params: { mainFilter: filter },
-        });
-      }
+      const filterMapping: Record<string, string> = {
+        горячее: 'Горячее',
+        салаты: 'Салаты',
+        десерты: 'Десерты',
+        закуски: 'Бизнес-ланч',
+        новинки: 'Новинки',
+      };
+      const menuFilter = filterMapping[filter] ?? filter;
+
+      navigation.navigate('Tabs', {
+        screen: 'Меню',
+        params: { mainFilter: menuFilter, filterTimestamp: Date.now() },
+      });
     },
     [navigation]
   );
-
   const handleRestaurantPress = useCallback(
     (restaurant: Restaurant) => {
       if (restaurant.name === 'Цезарь') {
         navigation.navigate('Tabs', {
           screen: 'Меню',
-          params: { restaurantId: restaurant.id, restaurantName: restaurant.name },
+          params: {
+            restaurantId: restaurant.id,
+            restaurantName: restaurant.name,
+            filterTimestamp: Date.now(),
+          },
         });
       }
     },
@@ -252,6 +264,31 @@ export const HomeScreen: React.FC = () => {
   const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
     useNativeDriver: true,
   });
+
+  const renderPromoSection = () => {
+    if (promoDishes.length === 0) {
+      return (
+        <View style={styles.emptyPromoContainer}>
+          <Text style={styles.emptyPromoText}>Нет акционных блюд</Text>
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        data={promoDishes}
+        renderItem={renderPromoItem}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.promoList}
+        decelerationRate="fast"
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={3}
+        windowSize={3}
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -309,18 +346,7 @@ export const HomeScreen: React.FC = () => {
 
           <View style={styles.promoSection}>
             <Text style={styles.sectionTitle}>Акции дня</Text>
-            <FlatList
-              data={promoDishes}
-              renderItem={renderPromoItem}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.promoList}
-              decelerationRate="fast"
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={3}
-              windowSize={3}
-            />
+            {renderPromoSection()}
           </View>
 
           <View style={{ height: 30 }} />
