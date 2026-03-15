@@ -9,6 +9,7 @@ import { Dish } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
 import { Images } from '../../shared/constants/images';
 import { SearchInput } from '../../shared/search/ui/search-input';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { FilterChips } from './filter-chips';
 import { MenuFeature } from './index';
 import { styles } from './menu-styles';
@@ -18,6 +19,7 @@ type MenuScreenRouteProp = RouteProp<RootStackParamList, 'Menu'>;
 
 const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 const SubtractIcon = Images.home.wave;
+const AccountIcon = Images.navigation.account;
 
 const DishCard = React.memo(({ item }: { item: Dish }) => {
   const dispatch = useDispatch();
@@ -97,6 +99,7 @@ export const MenuScreen: React.FC = () => {
   const navigation = useNavigation<MenuScreenNavigationProp>();
   const route = useRoute<MenuScreenRouteProp>();
   const dispatch = useDispatch();
+
   const dishes = useSelector(MenuFeature.selectors.selectDishes);
   const categories = useSelector(MenuFeature.selectors.selectCategories);
   const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
@@ -104,7 +107,6 @@ export const MenuScreen: React.FC = () => {
 
   const [selectedFilter, setSelectedFilter] = useState<string>('Все');
   const [restaurantTitle, setRestaurantTitle] = useState<string>('Кафе Цезарь');
-
   const lastAppliedTimestamp = useRef<number | null>(null);
 
   const filters = useMemo(() => {
@@ -129,19 +131,12 @@ export const MenuScreen: React.FC = () => {
         filterTimestamp?: number;
       };
 
-      if (filterTimestamp && filterTimestamp === lastAppliedTimestamp.current) {
-        return;
-      }
-
+      if (filterTimestamp && filterTimestamp === lastAppliedTimestamp.current) return;
       if (!filterTimestamp) return;
 
       lastAppliedTimestamp.current = filterTimestamp;
 
-      if (restaurantName) {
-        setRestaurantTitle(restaurantName);
-      } else {
-        setRestaurantTitle('Кафе Цезарь');
-      }
+      setRestaurantTitle(restaurantName ?? 'Кафе Цезарь');
 
       if (mainFilter && filters.includes(mainFilter)) {
         setSelectedFilter(mainFilter);
@@ -152,9 +147,7 @@ export const MenuScreen: React.FC = () => {
   );
 
   const filteredDishes = useMemo(() => {
-    if (!selectedFilter || selectedFilter === 'Все') {
-      return dishes;
-    }
+    if (!selectedFilter || selectedFilter === 'Все') return dishes;
     return dishes.filter((dish) => dish.category.name === selectedFilter);
   }, [selectedFilter, dishes]);
 
@@ -166,7 +159,17 @@ export const MenuScreen: React.FC = () => {
     navigation.navigate('Search', {});
   }, [navigation]);
 
+  const handleAccountPress = useCallback(() => {
+    navigation.navigate('Tabs', { screen: 'Аккаунт' });
+  }, [navigation]);
+
   const renderDishItem = useCallback(({ item }: { item: Dish }) => <DishCard item={item} />, []);
+
+  const accountButton = (
+    <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
+      <AccountIcon width={36} height={36} />
+    </TouchableOpacity>
+  );
 
   if (error) {
     return (
@@ -184,7 +187,11 @@ export const MenuScreen: React.FC = () => {
         </View>
         <View style={styles.searchContainer}>
           <View style={styles.searchWrapper}>
-            <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+            <SearchInput
+              onPress={handleSearchPress}
+              placeholder="Поиск блюд..."
+              rightElement={accountButton}
+            />
             <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
           </View>
         </View>
@@ -209,13 +216,16 @@ export const MenuScreen: React.FC = () => {
           data={filteredDishes}
           numColumns={2}
           keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.dishesGrid}
+          contentContainerStyle={[
+            styles.dishesGrid,
+            { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
+          ]}
           renderItem={renderDishItem}
           ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
           initialNumToRender={4}
           maxToRenderPerBatch={4}
           windowSize={3}
-          removeClippedSubviews={true}
+          removeClippedSubviews
           updateCellsBatchingPeriod={50}
         />
       )}

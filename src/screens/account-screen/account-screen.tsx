@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { selectUserName } from '../../features/login/selectors';
 import { Images } from '../../shared/constants/images';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './account-styles';
 
 const MENU_ITEMS = [
@@ -29,6 +30,10 @@ export const AccountScreen: React.FC = () => {
     console.log('Настройки');
   };
 
+  const handleBackPress = () => {
+    navigation.goBack();
+  };
+
   const handleMenuItemPress = (itemTitle: MenuItemTitle) => {
     switch (itemTitle) {
       case 'Мои заказы':
@@ -44,20 +49,25 @@ export const AccountScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+        <Text style={styles.backButtonText}>‹</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
         <SettingsIcon width={28} height={28} fill="#1F2937" />
       </TouchableOpacity>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW }}
+      >
         <View style={styles.content}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
               <AccountIcon width={80} height={80} />
             </View>
           </View>
-
           <Text style={styles.userName}>{userName || 'Гость'}</Text>
-
           <View style={styles.menuBlock}>
             {MENU_ITEMS.map((item) => (
               <TouchableOpacity
