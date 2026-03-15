@@ -1,7 +1,13 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
+  wrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   container: {
+    flex: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 30,
     paddingHorizontal: 12,
@@ -12,7 +18,6 @@ export const styles = StyleSheet.create({
     borderColor: '#1F2937',
   },
   placeholderContainer: {
-    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -37,5 +42,11 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
     flex: 1,
     marginLeft: 4,
+  },
+  rightElementContainer: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

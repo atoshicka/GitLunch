@@ -20,6 +20,7 @@ import { RootStackParamList } from '../../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../../entities/api/types/home-types';
 import { Images } from '../../../shared/constants/images';
 import { SearchInput } from '../../../shared/search/ui/search-input';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar';
 import { CartFeature } from '../../cart';
 import { HomeFeature } from '../index';
 import { styles } from './home-styles';
@@ -35,6 +36,7 @@ const DessertsIcon = Images.filters.desserts;
 const SubtractIcon = Images.home.wave;
 const RestCezarIcon = Images.home.restCezar;
 const NowinIcon = Images.home.nowin;
+const AccountIcon = Images.navigation.account;
 
 const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
   const dispatch = useDispatch();
@@ -114,6 +116,7 @@ const PaginationDots = React.memo(
     </View>
   )
 );
+
 const RestaurantCarouselItem = React.memo(
   ({ item, onPress }: { item: Restaurant; onPress: (item: Restaurant) => void }) => (
     <TouchableOpacity style={styles.carouselItem} onPress={() => onPress(item)} activeOpacity={0.9}>
@@ -218,6 +221,10 @@ export const HomeScreen: React.FC = () => {
     navigation.navigate('Search', {});
   }, [navigation]);
 
+  const handleAccountPress = useCallback(() => {
+    navigation.navigate('Tabs', { screen: 'Аккаунт' });
+  }, [navigation]);
+
   const handleFilterPress = useCallback(
     (filter: string) => {
       const filterMapping: Record<string, string> = {
@@ -228,7 +235,6 @@ export const HomeScreen: React.FC = () => {
         новинки: 'Новинки',
       };
       const menuFilter = filterMapping[filter] ?? filter;
-
       navigation.navigate('Tabs', {
         screen: 'Меню',
         params: { mainFilter: menuFilter, filterTimestamp: Date.now() },
@@ -236,6 +242,7 @@ export const HomeScreen: React.FC = () => {
     },
     [navigation]
   );
+
   const handleRestaurantPress = useCallback(
     (restaurant: Restaurant) => {
       if (restaurant.name === 'Цезарь') {
@@ -265,6 +272,12 @@ export const HomeScreen: React.FC = () => {
     useNativeDriver: true,
   });
 
+  const accountButton = (
+    <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
+      <AccountIcon width={36} height={36} />
+    </TouchableOpacity>
+  );
+
   const renderPromoSection = () => {
     if (promoDishes.length === 0) {
       return (
@@ -273,7 +286,6 @@ export const HomeScreen: React.FC = () => {
         </View>
       );
     }
-
     return (
       <FlatList
         data={promoDishes}
@@ -283,7 +295,7 @@ export const HomeScreen: React.FC = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.promoList}
         decelerationRate="fast"
-        removeClippedSubviews={true}
+        removeClippedSubviews
         maxToRenderPerBatch={3}
         windowSize={3}
       />
@@ -302,7 +314,11 @@ export const HomeScreen: React.FC = () => {
       >
         <SafeAreaView edges={['top']} style={styles.floatingHeaderSafe}>
           <View style={styles.floatingHeaderContent}>
-            <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+            <SearchInput
+              onPress={handleSearchPress}
+              placeholder="Поиск блюд..."
+              rightElement={accountButton}
+            />
           </View>
         </SafeAreaView>
       </Animated.View>
@@ -312,6 +328,7 @@ export const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW }}
       >
         <View style={styles.waveSection}>
           <View style={styles.waveBackground}>
@@ -319,7 +336,11 @@ export const HomeScreen: React.FC = () => {
           </View>
           <SafeAreaView edges={['top']} style={styles.searchContainer}>
             <View style={styles.searchWrapper}>
-              <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+              <SearchInput
+                onPress={handleSearchPress}
+                placeholder="Поиск блюд..."
+                rightElement={accountButton}
+              />
             </View>
           </SafeAreaView>
         </View>
@@ -348,8 +369,6 @@ export const HomeScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Акции дня</Text>
             {renderPromoSection()}
           </View>
-
-          <View style={{ height: 30 }} />
         </View>
       </Animated.ScrollView>
     </View>
