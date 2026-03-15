@@ -3,8 +3,8 @@ import createSagaMiddleware from 'redux-saga';
 import { createApiService } from '../entities/api/api-interface';
 import { api } from '../entities/api/axios-config';
 import { CartFeature, HomeFeature, LoginFeature } from '../features';
+import { MenuFeature } from '../features/menu';
 import ordersReducer from '../features/orders/slice';
-import { MenuFeature } from '../screens/menu-screen';
 import { rootSaga } from './saga';
 
 const apiService = createApiService(api);

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { FilterChipsProps } from '../../app/navigation/navigation-types';
+import { FilterChipsProps } from '../../../app/navigation/navigation-types';
 import { styles } from './filter-chips-styles';
 
 export const FilterChips: React.FC<FilterChipsProps> = ({
