@@ -1,7 +1,7 @@
 import { all, fork } from 'redux-saga/effects';
 import { HomeFeature } from '../features/home';
 import { LoginFeature } from '../features/login';
-import { MenuFeature } from '../screens/menu-screen';
+import { MenuFeature } from '../features/menu';
 
 export function* rootSaga() {
   yield all([

@@ -30,6 +30,28 @@ export const styles = StyleSheet.create({
   searchContainer: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#94A3B8',
+  },
+  hintContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  hintText: {
+    fontSize: 15,
+    color: '#94A3B8',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
   recentContainer: {
     flex: 1,
     paddingHorizontal: 16,
@@ -43,6 +65,8 @@ export const styles = StyleSheet.create({
   },
   recentItem: {
     paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
   },
   recentText: {
     fontSize: 16,
@@ -65,10 +89,10 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageContainer: {
-    width: 50,
-    height: 50,
-    backgroundColor: 'transparent',
-    borderRadius: 8,
+    width: 56,
+    height: 56,
+    backgroundColor: '#DFFCEA',
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -81,15 +105,20 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   resultName: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
     color: '#0F172A',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   resultPrice: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#22C55E',
+    marginBottom: 2,
+  },
+  resultCategory: {
+    fontSize: 12,
+    color: '#94A3B8',
   },
   addButton: {
     backgroundColor: '#1BB910',
