@@ -19,7 +19,9 @@ import {
   removeFromCart,
 } from '../../features/cart/store/cart-slice';
 import { addOrder } from '../../features/orders/slice';
+import { Images } from '../../shared/constants/images';
 import { SearchInput } from '../../shared/search/ui/search-input';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './basket-styles';
 
 interface CartItem {
@@ -33,6 +35,8 @@ interface CartItem {
 
 type BasketScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
+const AccountIcon = Images.navigation.account;
+
 const getCurrentDateInfo = () => {
   const now = new Date();
   const daysOfWeek = [
@@ -44,15 +48,12 @@ const getCurrentDateInfo = () => {
     'Пятница',
     'Суббота',
   ];
-
   const date = now.toLocaleDateString('ru-RU', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   });
-
   const dayOfWeek = daysOfWeek[now.getDay()];
-
   return { date, dayOfWeek };
 };
 
@@ -63,25 +64,12 @@ export const BasketScreen: React.FC = () => {
   const totalPrice = useSelector(selectCartTotalPrice);
   const totalItems = useSelector(selectCartTotalItems);
 
-  const renderItemImage = (item: CartItem) => {
-    if (item.imageUrl) {
-      return (
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={{ width: '100%', height: '100%', borderRadius: 12 }}
-          resizeMode="contain"
-        />
-      );
-    }
-    if (item.imageSvg) {
-      const SvgImage = item.imageSvg;
-      return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
-    }
-    return <Text style={styles.imagePlaceholder}>🍽</Text>;
-  };
-
   const handleSearchPress = () => {
     navigation.navigate('Search', {});
+  };
+
+  const handleAccountPress = () => {
+    navigation.navigate('Tabs', { screen: 'Аккаунт' });
   };
 
   const handleAddToCart = (item: CartItem) => {
@@ -101,9 +89,7 @@ export const BasketScreen: React.FC = () => {
       Alert.alert('Корзина пуста', 'Добавьте блюда в корзину');
       return;
     }
-
     const { date, dayOfWeek } = getCurrentDateInfo();
-
     const newOrder = {
       id: Date.now().toString(),
       date,
@@ -117,11 +103,26 @@ export const BasketScreen: React.FC = () => {
       totalPrice,
       totalItems,
     };
-
     dispatch(addOrder(newOrder));
     dispatch(clearCart());
-
     Alert.alert('Успешно', 'Заказ оформлен!');
+  };
+
+  const renderItemImage = (item: CartItem) => {
+    if (item.imageUrl) {
+      return (
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={{ width: '100%', height: '100%', borderRadius: 12 }}
+          resizeMode="contain"
+        />
+      );
+    }
+    if (item.imageSvg) {
+      const SvgImage = item.imageSvg;
+      return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
+    }
+    return <Text style={styles.imagePlaceholder}>🍽</Text>;
   };
 
   const renderItem = ({ item }: { item: CartItem }) => (
@@ -133,7 +134,6 @@ export const BasketScreen: React.FC = () => {
       style={styles.cartItem}
     >
       <View style={styles.imageContainer}>{renderItemImage(item)}</View>
-
       <View style={styles.itemContent}>
         <View style={styles.itemHeader}>
           <Text style={styles.itemName} numberOfLines={2}>
@@ -143,9 +143,7 @@ export const BasketScreen: React.FC = () => {
             <Text style={styles.removeButton}>✕</Text>
           </TouchableOpacity>
         </View>
-
         <Text style={styles.itemPrice}>{item.price * item.quantity} ₽</Text>
-
         <View style={styles.quantityControls}>
           <TouchableOpacity
             style={styles.quantityButton}
@@ -153,9 +151,7 @@ export const BasketScreen: React.FC = () => {
           >
             <Text style={styles.quantityButtonText}>−</Text>
           </TouchableOpacity>
-
           <Text style={styles.quantityText}>{item.quantity}</Text>
-
           <TouchableOpacity style={styles.quantityButton} onPress={() => handleAddToCart(item)}>
             <Text style={styles.quantityButtonText}>+</Text>
           </TouchableOpacity>
@@ -164,11 +160,21 @@ export const BasketScreen: React.FC = () => {
     </LinearGradient>
   );
 
+  const accountButton = (
+    <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
+      <AccountIcon width={36} height={36} />
+    </TouchableOpacity>
+  );
+
   if (items.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.searchContainer}>
-          <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+          <SearchInput
+            onPress={handleSearchPress}
+            placeholder="Поиск блюд..."
+            rightElement={accountButton}
+          />
         </View>
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Корзина пуста</Text>
@@ -180,7 +186,11 @@ export const BasketScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchContainer}>
-        <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+        <SearchInput
+          onPress={handleSearchPress}
+          placeholder="Поиск блюд..."
+          rightElement={accountButton}
+        />
       </View>
 
       <View style={styles.header}>
@@ -192,7 +202,10 @@ export const BasketScreen: React.FC = () => {
         data={items}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[
+          styles.list,
+          { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
+        ]}
         showsVerticalScrollIndicator={false}
       />
 
