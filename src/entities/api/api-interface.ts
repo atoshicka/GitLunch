@@ -1,8 +1,9 @@
 import { AxiosInstance } from 'axios';
-import { MOCK_DISHES } from '../../../mocks';
-import { API_ENDPOINTS } from './api';
-import { PromoDish, Restaurant } from './types/home-types';
-import { Category, Dish } from './types/menu-types';
+import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
+import { Dish } from '../../entities/api/types/menu-types';
+import { API_ENDPOINTS } from '../api';
+
+const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 
 const extractArray = <T>(data: unknown, ...keys: string[]): T[] => {
   if (Array.isArray(data)) return data as T[];
@@ -28,20 +29,21 @@ export const createApiService = (api: AxiosInstance) => ({
 
   async getDishesByCategory(categoryId: string): Promise<Dish[]> {
     try {
-      return MOCK_DISHES.filter((dish) => String(dish.id) === categoryId);
+      const response = await api.get(API_ENDPOINTS.DISHES_BY_CATEGORY(categoryId));
+      return extractArray<Dish>(response.data, 'menu_items', 'dishes', 'data', 'items');
     } catch (error) {
       console.error(`Error fetching dishes for category ${categoryId}:`, error);
       throw error;
     }
   },
 
-  async getCategories(): Promise<Category[]> {
+  async getCategories() {
     try {
       const response = await api.get(API_ENDPOINTS.CATEGORIES);
       if (Array.isArray(response.data)) {
         return response.data;
       }
-      return extractArray<Category>(response.data, 'categories', 'data', 'items');
+      return extractArray(response.data, 'categories', 'data', 'items');
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;
@@ -50,9 +52,8 @@ export const createApiService = (api: AxiosInstance) => ({
 
   async getDishById(id: string): Promise<Dish> {
     try {
-      const dish = MOCK_DISHES.find((d) => String(d.id) === id);
-      if (!dish) throw new Error(`Dish with id ${id} not found`);
-      return dish;
+      const response = await api.get(API_ENDPOINTS.DISH_DETAIL(id));
+      return response.data as Dish;
     } catch (error) {
       console.error(`Error fetching dish ${id}:`, error);
       throw error;
@@ -61,11 +62,8 @@ export const createApiService = (api: AxiosInstance) => ({
 
   async searchDishes(query: string): Promise<Dish[]> {
     try {
-      return MOCK_DISHES.filter(
-        (dish) =>
-          dish.name.toLowerCase().includes(query.toLowerCase()) ||
-          dish.description.toLowerCase().includes(query.toLowerCase())
-      );
+      const response = await api.get(`${API_ENDPOINTS.DISHES}?search=${query}`);
+      return extractArray<Dish>(response.data, 'menu_items', 'dishes', 'data', 'items');
     } catch (error) {
       console.error(`Error searching dishes with query "${query}":`, error);
       throw error;
@@ -73,30 +71,38 @@ export const createApiService = (api: AxiosInstance) => ({
   },
 
   async getRestaurants(): Promise<Restaurant[]> {
-    try {
-      return [
-        { id: '1', name: 'Цезарь' },
-        { id: '2', name: 'Ресторан 2' },
-      ];
-    } catch (error) {
-      console.error('Error fetching restaurants:', error);
-      throw error;
-    }
+    // Пока заглушка
+    return [
+      { id: '1', name: 'Цезарь' },
+      { id: '2', name: 'Ресторан 2' },
+    ];
   },
 
+  // Только этот метод меняем
   async getPromoDishes(): Promise<PromoDish[]> {
     try {
-      return MOCK_DISHES.filter((dish) => dish.isPromo).map((dish) => ({
-        id: String(dish.id),
-        name: dish.name,
-        price: parseFloat(dish.price),
-        imageUrl: dish.image_url,
-        imageSvg: dish.imageSvg,
-        isPromo: true,
-      }));
+      const response = await api.get(API_ENDPOINTS.DISHES);
+      const allDishes = extractArray<Dish>(response.data, 'menu_items', 'dishes', 'data', 'items');
+
+      // Фильтруем блюда из категории "Акции"
+      const promoDishes = allDishes
+        .filter((dish) => {
+          const categoryName = dish.category?.name?.toLowerCase() || '';
+          return categoryName === 'акции' || categoryName === 'promo' || categoryName === 'акция';
+        })
+        .map((dish) => ({
+          id: String(dish.id),
+          name: dish.name,
+          price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
+          imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
+          imageSvg: dish.imageSvg,
+          isPromo: true,
+        }));
+
+      return promoDishes;
     } catch (error) {
       console.error('Error fetching promo dishes:', error);
-      throw error;
+      return [];
     }
   },
 

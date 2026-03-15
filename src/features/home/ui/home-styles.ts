@@ -224,6 +224,11 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     overflow: 'hidden',
   },
+  dishImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
+  },
   imagePlaceholder: {
     fontSize: 32,
   },
@@ -280,5 +285,19 @@ export const styles = StyleSheet.create({
     minWidth: 30,
     textAlign: 'center',
     fontSize: 16,
+  },
+  emptyPromoContainer: {
+    width: '100%',
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: 'transparent',
+  },
+  emptyPromoText: {
+    ...Typography.bodyRegular,
+    color: '#9CA3AF',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });

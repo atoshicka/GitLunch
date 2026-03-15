@@ -20,6 +20,7 @@ export type MenuScreenParams = {
   restaurantId?: string;
   restaurantName?: string;
   dishId?: string;
+  filterTimestamp?: number;
 };
 
 export type RootStackParamList = {
