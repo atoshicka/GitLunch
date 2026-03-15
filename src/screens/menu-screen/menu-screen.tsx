@@ -1,4 +1,4 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
@@ -97,56 +97,64 @@ export const MenuScreen: React.FC = () => {
   const navigation = useNavigation<MenuScreenNavigationProp>();
   const route = useRoute<MenuScreenRouteProp>();
   const dispatch = useDispatch();
-
-  const { restaurantName, mainFilter: initialMainFilter } = route.params ?? {};
-
   const dishes = useSelector(MenuFeature.selectors.selectDishes);
   const categories = useSelector(MenuFeature.selectors.selectCategories);
   const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
   const error = useSelector(MenuFeature.selectors.selectMenuError);
 
-  const [selectedFilter, setSelectedFilter] = useState<string>('');
+  const [selectedFilter, setSelectedFilter] = useState<string>('Все');
+  const [restaurantTitle, setRestaurantTitle] = useState<string>('Кафе Цезарь');
+
+  const lastAppliedTimestamp = useRef<number | null>(null);
 
   const filters = useMemo(() => {
     const categoryNames = [...new Set(categories.map((cat) => cat.name))];
-
-    const allDishesFilter = 'Все блюда';
-
-    let allFilters = [allDishesFilter, ...categoryNames];
-
-    allFilters = [...new Set(allFilters)];
-
-    return allFilters.sort((a, b) => {
-      if (a === allDishesFilter) return -1;
-      if (b === allDishesFilter) return 1;
+    return categoryNames.sort((a, b) => {
+      if (a === 'Все') return -1;
+      if (b === 'Все') return 1;
       return a.localeCompare(b, 'ru');
     });
   }, [categories]);
-
-  const hasSetInitialFilter = useRef(false);
-
-  useEffect(() => {
-    if (filters.length > 0 && !hasSetInitialFilter.current) {
-      setSelectedFilter('Все блюда');
-      hasSetInitialFilter.current = true;
-    }
-  }, [filters]);
 
   useEffect(() => {
     dispatch({ type: 'menu/fetchDishes' });
   }, [dispatch]);
 
-  useEffect(() => {
-    if (initialMainFilter && filters.includes(initialMainFilter)) {
-      setSelectedFilter(initialMainFilter);
-    }
-  }, [initialMainFilter, filters]);
+  useFocusEffect(
+    useCallback(() => {
+      const params = route.params ?? {};
+      const { mainFilter, restaurantName, filterTimestamp } = params as {
+        mainFilter?: string;
+        restaurantName?: string;
+        filterTimestamp?: number;
+      };
+
+      if (filterTimestamp && filterTimestamp === lastAppliedTimestamp.current) {
+        return;
+      }
+
+      if (!filterTimestamp) return;
+
+      lastAppliedTimestamp.current = filterTimestamp;
+
+      if (restaurantName) {
+        setRestaurantTitle(restaurantName);
+      } else {
+        setRestaurantTitle('Кафе Цезарь');
+      }
+
+      if (mainFilter && filters.includes(mainFilter)) {
+        setSelectedFilter(mainFilter);
+      } else if (filters.length > 0) {
+        setSelectedFilter('Все');
+      }
+    }, [route.params, filters])
+  );
 
   const filteredDishes = useMemo(() => {
-    if (!selectedFilter || selectedFilter === 'Все блюда') {
+    if (!selectedFilter || selectedFilter === 'Все') {
       return dishes;
     }
-
     return dishes.filter((dish) => dish.category.name === selectedFilter);
   }, [selectedFilter, dishes]);
 
@@ -159,8 +167,6 @@ export const MenuScreen: React.FC = () => {
   }, [navigation]);
 
   const renderDishItem = useCallback(({ item }: { item: Dish }) => <DishCard item={item} />, []);
-
-  const restaurantTitle = restaurantName ?? 'Кафе Цезарь';
 
   if (error) {
     return (
