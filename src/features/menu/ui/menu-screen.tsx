@@ -4,14 +4,15 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootStackParamList } from '../../app/navigation/navigation-types';
-import { Dish } from '../../entities/api/types/menu-types';
-import { CartFeature } from '../../features/cart';
-import { Images } from '../../shared/constants/images';
-import { SearchInput } from '../../shared/search/ui/search-input';
-import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
-import { FilterChips } from './filter-chips';
-import { MenuFeature } from './index';
+import { RootStackParamList } from '../../../app/navigation/navigation-types';
+import { Dish } from '../../../entities/api/types/menu-types';
+import { Images } from '../../../shared/constants/images';
+import { DishModal } from '../../../shared/dish-modal/dish-modal';
+import { SearchInput } from '../../../shared/search/ui/search-input';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar';
+import { CartFeature } from '../../cart';
+import { FilterChips } from '../filter/filter-chips';
+import { MenuFeature } from '../index';
 import { styles } from './menu-styles';
 
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
@@ -107,6 +108,7 @@ export const MenuScreen: React.FC = () => {
 
   const [selectedFilter, setSelectedFilter] = useState<string>('Все');
   const [restaurantTitle, setRestaurantTitle] = useState<string>('Кафе Цезарь');
+  const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
   const lastAppliedTimestamp = useRef<number | null>(null);
 
   const filters = useMemo(() => {
@@ -135,7 +137,6 @@ export const MenuScreen: React.FC = () => {
       if (!filterTimestamp) return;
 
       lastAppliedTimestamp.current = filterTimestamp;
-
       setRestaurantTitle(restaurantName ?? 'Кафе Цезарь');
 
       if (mainFilter && filters.includes(mainFilter)) {
@@ -163,7 +164,22 @@ export const MenuScreen: React.FC = () => {
     navigation.navigate('Tabs', { screen: 'Аккаунт' });
   }, [navigation]);
 
-  const renderDishItem = useCallback(({ item }: { item: Dish }) => <DishCard item={item} />, []);
+  const handleDishPress = useCallback((id: number) => {
+    setSelectedDishId(id);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setSelectedDishId(null);
+  }, []);
+
+  const renderDishItem = useCallback(
+    ({ item }: { item: Dish }) => (
+      <TouchableOpacity activeOpacity={0.85} onPress={() => handleDishPress(item.id)}>
+        <DishCard item={item} />
+      </TouchableOpacity>
+    ),
+    [handleDishPress]
+  );
 
   const accountButton = (
     <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
@@ -229,6 +245,12 @@ export const MenuScreen: React.FC = () => {
           updateCellsBatchingPeriod={50}
         />
       )}
+
+      <DishModal
+        dishId={selectedDishId}
+        visible={selectedDishId !== null}
+        onClose={handleModalClose}
+      />
     </View>
   );
 };

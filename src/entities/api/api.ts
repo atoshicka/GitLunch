@@ -18,22 +18,18 @@ export const API_CONFIG = {
 } as const;
 
 export const API_ENDPOINTS = {
-  // Меню — реальные пути бэка
-  DISHES: `/menu_items`,
+  DISHES: '/menu_items',
   DISHES_BY_CATEGORY: (categoryId: string) => `/menu_items?category_id=${categoryId}`,
   CATEGORIES: '/categories',
   DISH_DETAIL: (id: string) => `/menu_items/${id}`,
 
-  // Заказы
   ORDERS: '/orders',
   ORDER_DETAIL: (id: string) => `/orders/${id}`,
 
-  // Пользователи
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   PROFILE: '/users/profile',
 
-  // Корзина
   CART: '/cart',
   CART_ITEM: (id: string) => `/cart/${id}`,
 } as const;

@@ -1,7 +1,14 @@
 import { useMemo, useState } from 'react';
 import { Dish } from '../../../entities/api/types/menu-types';
 
-const AVAILABLE_FILTERS = ['горячее', 'салаты', 'десерты', 'закуски', 'новинки', 'акции'];
+const FILTER_MAPPING: Record<string, string> = {
+  горячее: 'Горячее',
+  салаты: 'Салаты',
+  десерты: 'Десерты',
+  закуски: 'Бизнес-ланч',
+  новинки: 'Новинки',
+  акции: 'Акции',
+};
 
 export const useSearch = (items: Dish[]) => {
   const [query, setQuery] = useState('');
@@ -10,19 +17,27 @@ export const useSearch = (items: Dish[]) => {
     const trimmedQuery = query.trim().toLowerCase();
     if (!trimmedQuery) return [];
 
-    const matchedFilter = AVAILABLE_FILTERS.find(
-      (filter) => filter.includes(trimmedQuery) || filter.startsWith(trimmedQuery)
+    const matchedFilterKey = Object.keys(FILTER_MAPPING).find(
+      (filter) => filter.startsWith(trimmedQuery) || filter.includes(trimmedQuery)
     );
 
-    if (matchedFilter) {
-      if (matchedFilter === 'акции') {
-        return items.filter((item) => item.isPromo === true);
-      } else {
-        return items.filter((item) => item.filterType === matchedFilter);
-      }
-    } else {
-      return items.filter((item) => item.name.toLowerCase().includes(trimmedQuery));
+    if (matchedFilterKey) {
+      const categoryName = FILTER_MAPPING[matchedFilterKey];
+      return items.filter(
+        (item) => item.category?.name?.toLowerCase() === categoryName.toLowerCase()
+      );
     }
+
+    return items.filter((item) => {
+      const name = item.name?.toLowerCase() ?? '';
+      const description = item.description?.toLowerCase() ?? '';
+      const ingredients = item.ingredients?.toLowerCase() ?? '';
+      return (
+        name.includes(trimmedQuery) ||
+        description.includes(trimmedQuery) ||
+        ingredients.includes(trimmedQuery)
+      );
+    });
   }, [query, items]);
 
   return {

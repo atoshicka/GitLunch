@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 
 export const styles = StyleSheet.create({
   container: {
@@ -135,7 +136,7 @@ export const styles = StyleSheet.create({
   footer: {
     padding: 20,
     paddingTop: 24,
-    paddingBottom: 20,
+    paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW + 20,
     backgroundColor: '#22C55E',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
