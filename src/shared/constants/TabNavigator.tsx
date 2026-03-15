@@ -2,9 +2,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 
 import { HomeScreen } from '../../features/home/ui/home-screen';
+import { MenuScreen } from '../../features/menu/ui/menu-screen';
 import { AccountScreen } from '../../screens/account-screen/account-screen';
 import { BasketScreen } from '../../screens/basket-screen/basket-screen';
-import { MenuScreen } from '../../screens/menu-screen/menu-screen';
 import { CustomTabBar } from '../TabBar/TabBar';
 import { TAB_NAMES } from './navigation';
 

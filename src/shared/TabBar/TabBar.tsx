@@ -96,12 +96,10 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
       style={[styles.wrapper, { height: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW + insets.bottom }]}
       pointerEvents="box-none"
     >
-      {/* Волна — всегда видна */}
       <View style={[styles.waveContainer, { bottom: insets.bottom, height: WAVE_HEIGHT }]}>
         <NavWaveIcon width={width} height={WAVE_HEIGHT} preserveAspectRatio="none" />
       </View>
 
-      {/* Боковые кнопки и кружок — только НЕ на аккаунте */}
       {!isAccountScreen && (
         <>
           <View style={[styles.sideButtonsRow, { bottom: insets.bottom + WAVE_HEIGHT / 2 - 22 }]}>

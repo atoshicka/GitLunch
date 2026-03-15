@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../../entities/api/types/home-types';
 import { Images } from '../../../shared/constants/images';
+import { DishModal } from '../../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../../shared/search/ui/search-input';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar';
 import { CartFeature } from '../../cart';
@@ -38,7 +39,12 @@ const RestCezarIcon = Images.home.restCezar;
 const NowinIcon = Images.home.nowin;
 const AccountIcon = Images.navigation.account;
 
-const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
+interface PromoDishCardProps {
+  item: PromoDish;
+  onPress: () => void;
+}
+
+const PromoDishCard = React.memo(({ item, onPress }: PromoDishCardProps) => {
   const dispatch = useDispatch();
   const cartItem = useSelector(CartFeature.selectors.selectCartItemById(item.id));
   const quantity = cartItem?.quantity ?? 0;
@@ -73,34 +79,36 @@ const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
   };
 
   return (
-    <LinearGradient
-      colors={['#86EFAC', '#A8F0B5', '#F4F4F4']}
-      locations={[0, 0.2, 0.6]}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 0, y: 0 }}
-      style={styles.dishCard}
-    >
-      <View style={styles.imageContainer}>{renderImage()}</View>
-      <Text style={styles.dishName} numberOfLines={2}>
-        {item.name}
-      </Text>
-      <Text style={styles.dishPrice}>{item.price} ₽</Text>
-      {quantity > 0 ? (
-        <View style={styles.quantityControl}>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
-            <Text style={styles.quantityButtonText}>-</Text>
+    <TouchableOpacity activeOpacity={0.85} onPress={onPress}>
+      <LinearGradient
+        colors={['#86EFAC', '#A8F0B5', '#F4F4F4']}
+        locations={[0, 0.2, 0.6]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.dishCard}
+      >
+        <View style={styles.imageContainer}>{renderImage()}</View>
+        <Text style={styles.dishName} numberOfLines={2}>
+          {item.name}
+        </Text>
+        <Text style={styles.dishPrice}>{item.price} ₽</Text>
+        {quantity > 0 ? (
+          <View style={styles.quantityControl}>
+            <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
+              <Text style={styles.quantityButtonText}>-</Text>
+            </TouchableOpacity>
+            <Text style={styles.quantityText}>{quantity}</Text>
+            <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
+              <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+            <Text style={styles.addToCartButtonText}>В корзину</Text>
           </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-          <Text style={styles.addToCartButtonText}>В корзину</Text>
-        </TouchableOpacity>
-      )}
-    </LinearGradient>
+        )}
+      </LinearGradient>
+    </TouchableOpacity>
   );
 });
 
@@ -195,6 +203,7 @@ export const HomeScreen: React.FC = () => {
   const dispatch = useDispatch();
   const pagerRef = useRef<PagerView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const restaurants = useSelector(HomeFeature.selectors.selectRestaurants);
@@ -259,13 +268,21 @@ export const HomeScreen: React.FC = () => {
     [navigation]
   );
 
+  const handleDishPress = useCallback((id: number) => {
+    setSelectedDishId(id);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setSelectedDishId(null);
+  }, []);
+
   const renderPromoItem: ListRenderItem<PromoDish> = useCallback(
     ({ item }) => (
       <View style={styles.promoCardContainer}>
-        <PromoDishCard item={item} />
+        <PromoDishCard item={item} onPress={() => handleDishPress(Number(item.id))} />
       </View>
     ),
-    []
+    [handleDishPress]
   );
 
   const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
@@ -371,6 +388,12 @@ export const HomeScreen: React.FC = () => {
           </View>
         </View>
       </Animated.ScrollView>
+
+      <DishModal
+        dishId={selectedDishId}
+        visible={selectedDishId !== null}
+        onClose={handleModalClose}
+      />
     </View>
   );
 };

@@ -15,7 +15,6 @@ export const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem('token');
-    console.log('token:', token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -27,7 +26,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  (error: unknown) => {
     console.error('Request Error:', error);
     return Promise.reject(error);
   }
@@ -40,11 +39,12 @@ api.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
-    const status = error.response?.status;
-    const message = error.response?.data?.message ?? error.message;
-    console.error(`API Error [${status}]:`, message);
-    error.customMessage = message;
+  (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const message = (error.response?.data as { message?: string })?.message ?? error.message;
+      console.error(`API Error [${status}]:`, message);
+    }
     return Promise.reject(error);
   }
 );

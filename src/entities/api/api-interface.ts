@@ -37,13 +37,18 @@ export const createApiService = (api: AxiosInstance) => ({
     }
   },
 
-  async getCategories() {
+  async getCategories(): Promise<{ id: number; name: string }[]> {
     try {
       const response = await api.get(API_ENDPOINTS.CATEGORIES);
       if (Array.isArray(response.data)) {
-        return response.data;
+        return response.data as { id: number; name: string }[];
       }
-      return extractArray(response.data, 'categories', 'data', 'items');
+      return extractArray<{ id: number; name: string }>(
+        response.data,
+        'categories',
+        'data',
+        'items'
+      );
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;
@@ -71,23 +76,20 @@ export const createApiService = (api: AxiosInstance) => ({
   },
 
   async getRestaurants(): Promise<Restaurant[]> {
-    // Пока заглушка
     return [
       { id: '1', name: 'Цезарь' },
       { id: '2', name: 'Ресторан 2' },
     ];
   },
 
-  // Только этот метод меняем
   async getPromoDishes(): Promise<PromoDish[]> {
     try {
       const response = await api.get(API_ENDPOINTS.DISHES);
       const allDishes = extractArray<Dish>(response.data, 'menu_items', 'dishes', 'data', 'items');
 
-      // Фильтруем блюда из категории "Акции"
-      const promoDishes = allDishes
+      return allDishes
         .filter((dish) => {
-          const categoryName = dish.category?.name?.toLowerCase() || '';
+          const categoryName = dish.category?.name?.toLowerCase() ?? '';
           return categoryName === 'акции' || categoryName === 'promo' || categoryName === 'акция';
         })
         .map((dish) => ({
@@ -98,19 +100,20 @@ export const createApiService = (api: AxiosInstance) => ({
           imageSvg: dish.imageSvg,
           isPromo: true,
         }));
-
-      return promoDishes;
     } catch (error) {
       console.error('Error fetching promo dishes:', error);
       return [];
     }
   },
 
-  async login(login: string, password: string) {
+  async login(
+    login: string,
+    password: string
+  ): Promise<{ success: boolean; token: string; user: unknown }> {
     const { data } = await api.post(API_ENDPOINTS.LOGIN, { login, password });
     return {
       success: true,
-      token: data.token,
+      token: data.token as string,
       user: data.user,
     };
   },
