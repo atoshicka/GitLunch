@@ -36,6 +36,7 @@ interface CartItem {
 type BasketScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
 const AccountIcon = Images.navigation.account;
+const SubtractIcon = Images.home.wave;
 
 const getCurrentDateInfo = () => {
   const now = new Date();
@@ -184,32 +185,37 @@ export const BasketScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
-  if (items.length === 0) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.searchContainer}>
+  const waveHeader = (
+    <View style={styles.waveSection}>
+      <View style={styles.waveBackground}>
+        <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
+      </View>
+      <SafeAreaView edges={['top']} style={styles.searchContainer}>
+        <View style={styles.searchWrapper}>
           <SearchInput
             onPress={handleSearchPress}
             placeholder="Поиск блюд..."
             rightElement={accountButton}
           />
         </View>
+      </SafeAreaView>
+    </View>
+  );
+
+  if (items.length === 0) {
+    return (
+      <View style={styles.container}>
+        {waveHeader}
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Корзина пуста</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.searchContainer}>
-        <SearchInput
-          onPress={handleSearchPress}
-          placeholder="Поиск блюд..."
-          rightElement={accountButton}
-        />
-      </View>
+    <View style={styles.container}>
+      {waveHeader}
 
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Корзина</Text>
@@ -239,6 +245,6 @@ export const BasketScreen: React.FC = () => {
         visible={selectedDishId !== null}
         onClose={handleModalClose}
       />
-    </SafeAreaView>
+    </View>
   );
 };

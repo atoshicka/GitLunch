@@ -1,17 +1,22 @@
 import { FC } from 'react';
 import { SvgProps } from 'react-native-svg';
 
+export interface DishCategory {
+  id: number;
+  name: string;
+}
+
 export interface Dish {
   id: number;
   name: string;
   description: string;
   price: string;
   image_url?: string;
-  category: {
-    id: number;
-    name: string;
-  };
-  meal_category: string;
+  // Новая структура — массив категорий
+  categories?: DishCategory[];
+  // Старое поле оставляем для совместимости — будем заполнять сами
+  category: DishCategory;
+  meal_category?: number;
   calories?: number;
   weight?: number;
   ingredients?: string;
