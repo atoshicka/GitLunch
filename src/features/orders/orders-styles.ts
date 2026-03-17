@@ -3,26 +3,66 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F4F4F4',
   },
-  header: {
+  waveSection: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 220,
+    zIndex: 0,
+  },
+  waveBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  waveContent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    paddingTop: 16,
+    height: 64,
   },
-  backButton: {
-    fontSize: 24,
-    color: '#1F2937',
+  topBarButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
+  backButtonText: {
+    fontSize: 40,
     color: '#1F2937',
+    lineHeight: 44,
+  },
+  brandTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    letterSpacing: 0.5,
+  },
+  screenTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    textAlign: 'center',
+    marginTop: 20,
+    paddingBottom: 8,
+  },
+  flatList: {
+    flex: 1,
+    marginTop: 220,
   },
   list: {
     padding: 16,
@@ -31,7 +71,6 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    backgroundColor: '#FFFFFF',
     shadowColor: '#1F2937',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -115,6 +154,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 220,
   },
   emptyText: {
     fontSize: 16,

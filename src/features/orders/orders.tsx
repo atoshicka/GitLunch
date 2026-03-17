@@ -7,11 +7,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Images } from '../../shared/constants/images';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './orders-styles';
 import { selectOrders } from './selectors';
 import { Order } from './slice';
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
+
+const SubtractIcon = Images.home.wave;
 
 export const OrdersScreen: React.FC = () => {
   const navigation = useNavigation<OrdersScreenNavigationProp>();
@@ -65,14 +68,23 @@ export const OrdersScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Мои заказы</Text>
-        <View style={{ width: 40 }} />
+    <View style={styles.container}>
+      <View style={styles.waveSection} pointerEvents="none">
+        <View style={styles.waveBackground}>
+          <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
+        </View>
       </View>
+
+      <SafeAreaView edges={['top']} style={styles.waveContent}>
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.topBarButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.backButtonText}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.brandTitle}>GitLunch</Text>
+          <View style={styles.topBarButton} />
+        </View>
+        <Text style={styles.screenTitle}>Мои заказы</Text>
+      </SafeAreaView>
 
       {orders.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -83,8 +95,12 @@ export const OrdersScreen: React.FC = () => {
           data={orders}
           renderItem={renderOrderItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[
+            styles.list,
+            { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
+          ]}
           showsVerticalScrollIndicator={false}
+          style={styles.flatList}
         />
       )}
 
@@ -110,6 +126,6 @@ export const OrdersScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
