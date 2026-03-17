@@ -1,4 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
+import { Typography } from '../../../shared/fontsFile/fonts';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2;
@@ -34,15 +35,13 @@ export const styles = StyleSheet.create({
     paddingTop: 80,
   },
   cafeTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    ...Typography.decorativeMedium,
     color: '#1F2937',
     textAlign: 'center',
     marginTop: 12,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...Typography.titleSmall,
     color: '#1F2937',
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -81,21 +80,20 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   imagePlaceholder: {
+    ...Typography.titleMedium,
     fontSize: 40,
   },
   dishName: {
-    fontSize: 16,
+    ...Typography.bodyRegular,
     fontWeight: '600',
     color: '#1F2937',
     marginBottom: 4,
-    textAlign: 'left',
   },
   dishPrice: {
-    fontSize: 18,
+    ...Typography.buttonRegular,
     fontWeight: 'bold',
     color: '#1F2937',
     marginBottom: 12,
-    textAlign: 'left',
   },
   addToCartButton: {
     backgroundColor: '#22C55E',
@@ -106,8 +104,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addToCartButtonText: {
+    ...Typography.buttonSmall,
     color: '#1F2937',
-    fontSize: 14,
     fontWeight: '600',
   },
   quantityControl: {
@@ -120,27 +118,27 @@ export const styles = StyleSheet.create({
   quantityButton: {
     backgroundColor: '#22C55E',
     width: 36,
-    height: 36,
-    borderRadius: 20,
+    height: 30,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   quantityButtonText: {
+    ...Typography.buttonRegular,
+    fontWeight: 'bold',
     color: '#1F2937',
     fontSize: 20,
-    fontWeight: 'bold',
   },
   quantityText: {
-    fontSize: 16,
-    fontWeight: '500',
+    ...Typography.bodyRegular,
     color: '#1F2937',
     minWidth: 30,
     textAlign: 'center',
   },
   emptyText: {
+    ...Typography.bodyRegular,
     textAlign: 'center',
     color: '#94A3B8',
-    fontSize: 16,
     marginTop: 32,
   },
 });

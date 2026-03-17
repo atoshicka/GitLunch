@@ -1,4 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
+import { Typography } from '../fontsFile/fonts';
 
 const { height } = Dimensions.get('window');
 
@@ -40,7 +41,7 @@ export const styles = StyleSheet.create({
     zIndex: 10,
   },
   closeButtonText: {
-    fontSize: 14,
+    ...Typography.buttonSmall,
     color: '#64748B',
     fontWeight: '600',
   },
@@ -50,7 +51,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   errorText: {
-    fontSize: 16,
+    ...Typography.bodyRegular,
     color: '#EF4444',
     marginBottom: 12,
   },
@@ -61,9 +62,9 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
   },
   retryButtonText: {
+    ...Typography.buttonSmall,
     color: '#1F2937',
     fontWeight: '600',
-    fontSize: 14,
   },
   scrollContent: {
     paddingBottom: 8,
@@ -87,8 +88,7 @@ export const styles = StyleSheet.create({
     paddingTop: 16,
   },
   name: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    ...Typography.titleMedium,
     color: '#1F2937',
     marginBottom: 12,
   },
@@ -108,29 +108,27 @@ export const styles = StyleSheet.create({
     backgroundColor: '#DFFCEA',
   },
   metaBadgeText: {
-    fontSize: 13,
+    ...Typography.label,
     color: '#1F2937',
     fontWeight: '500',
   },
   description: {
-    fontSize: 15,
+    ...Typography.bodyRegular,
     color: '#475569',
-    lineHeight: 22,
     marginBottom: 16,
   },
   section: {
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 16,
+    ...Typography.buttonRegular,
     fontWeight: '700',
     color: '#1F2937',
     marginBottom: 8,
   },
   ingredients: {
-    fontSize: 14,
+    ...Typography.bodySmall,
     color: '#64748B',
-    lineHeight: 20,
   },
   nutritionBlock: {
     backgroundColor: '#F1F5F9',
@@ -146,12 +144,12 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#E2E8F0',
   },
   nutritionLabel: {
-    fontSize: 14,
+    ...Typography.bodySmall,
     color: '#475569',
     fontWeight: '500',
   },
   nutritionValue: {
-    fontSize: 14,
+    ...Typography.bodySmall,
     color: '#1F2937',
     fontWeight: '600',
   },
@@ -167,8 +165,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   price: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    ...Typography.decorativeMedium,
     color: '#1F2937',
   },
   addButton: {
@@ -178,8 +175,8 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
   },
   addButtonText: {
+    ...Typography.buttonRegular,
     color: '#1F2937',
-    fontSize: 16,
     fontWeight: '600',
   },
   quantityControl: {
@@ -196,12 +193,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quantityButtonText: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    ...Typography.titleMedium,
     color: '#1F2937',
   },
   quantityText: {
-    fontSize: 18,
+    ...Typography.bodyLarge,
     fontWeight: '600',
     color: '#1F2937',
     minWidth: 32,
