@@ -22,6 +22,14 @@ const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 const SubtractIcon = Images.home.wave;
 const AccountIcon = Images.navigation.account;
 
+// Проверяет входит ли блюдо в категорию — поддерживает и массив categories и одиночное category
+const dishMatchesCategory = (dish: Dish, categoryName: string): boolean => {
+  if (dish.categories && dish.categories.length > 0) {
+    return dish.categories.some((cat) => cat.name.toLowerCase() === categoryName.toLowerCase());
+  }
+  return dish.category?.name?.toLowerCase() === categoryName.toLowerCase();
+};
+
 const DishCard = React.memo(({ item }: { item: Dish }) => {
   const dispatch = useDispatch();
   const cartItemSelector = useMemo(
@@ -149,7 +157,7 @@ export const MenuScreen: React.FC = () => {
 
   const filteredDishes = useMemo(() => {
     if (!selectedFilter || selectedFilter === 'Все') return dishes;
-    return dishes.filter((dish) => dish.category.name === selectedFilter);
+    return dishes.filter((dish) => dishMatchesCategory(dish, selectedFilter));
   }, [selectedFilter, dishes]);
 
   const handleFilterPress = useCallback((filter: string) => {

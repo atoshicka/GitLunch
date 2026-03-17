@@ -4,13 +4,32 @@ import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/Tab
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F4F4F4',
+  },
+  waveSection: {
+    position: 'relative',
+    height: 220,
+    backgroundColor: 'transparent',
+    marginBottom: -40,
+    zIndex: 1,
+  },
+  waveBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   searchContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  searchWrapper: {
     paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
-    backgroundColor: '#F8FAFC',
+    paddingTop: 42,
   },
   emptyContainer: {
     flex: 1,

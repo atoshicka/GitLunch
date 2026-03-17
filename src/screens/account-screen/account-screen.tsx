@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { selectUserName } from '../../features/login/selectors';
@@ -21,6 +22,8 @@ const MENU_ITEMS = [
 
 type MenuItemTitle = (typeof MENU_ITEMS)[number]['title'];
 type AccountScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+
+const SubtractIcon = Images.home.wave;
 
 export const AccountScreen: React.FC = () => {
   const navigation = useNavigation<AccountScreenNavigationProp>();
@@ -49,15 +52,26 @@ export const AccountScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-        <Text style={styles.backButtonText}>‹</Text>
-      </TouchableOpacity>
+      <View style={styles.waveSection} pointerEvents="none">
+        <View style={styles.waveBackground}>
+          <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
+        </View>
+      </View>
 
-      <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
-        <SettingsIcon width={28} height={28} fill="#1F2937" />
-      </TouchableOpacity>
+      <SafeAreaView edges={['top']} style={styles.waveContent}>
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.topBarButton} onPress={handleBackPress}>
+            <Text style={styles.backButtonText}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.brandTitle}>GitLunch</Text>
+          <TouchableOpacity style={styles.topBarButton} onPress={handleSettingsPress}>
+            <SettingsIcon width={26} height={26} fill="#1F2937" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
 
       <ScrollView
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW }}
       >
