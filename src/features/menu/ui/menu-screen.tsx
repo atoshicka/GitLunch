@@ -5,7 +5,7 @@ import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from
 import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../../app/navigation/navigation-types';
-import { Dish } from '../../../entities/api/types/menu-types';
+import { Category, Dish } from '../../../entities/api/types/menu-types';
 import { Images } from '../../../shared/constants/images';
 import { DishModal } from '../../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../../shared/search/ui/search-input';
@@ -13,6 +13,7 @@ import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/
 import { CartFeature } from '../../cart';
 import { FilterChips } from '../filter/filter-chips';
 import { MenuFeature } from '../index';
+import { MENU_SLICE_NAME } from '../menu-slice';
 import { styles } from './menu-styles';
 
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
@@ -22,55 +23,94 @@ const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 const SubtractIcon = Images.home.wave;
 const AccountIcon = Images.navigation.account;
 
-// Проверяет входит ли блюдо в категорию — поддерживает и массив categories и одиночное category
-const dishMatchesCategory = (dish: Dish, categoryName: string): boolean => {
-  if (dish.categories && dish.categories.length > 0) {
-    return dish.categories.some((cat) => cat.name.toLowerCase() === categoryName.toLowerCase());
-  }
-  return dish.category?.name?.toLowerCase() === categoryName.toLowerCase();
-};
-
-const DishCard = React.memo(({ item }: { item: Dish }) => {
+const useDishCart = (dishId: string, dish: Dish) => {
   const dispatch = useDispatch();
   const cartItemSelector = useMemo(
-    () => CartFeature.selectors.selectCartItemById(String(item.id)),
-    [item.id]
+    () => CartFeature.selectors.selectCartItemById(dishId),
+    [dishId]
   );
   const cartItem = useSelector(cartItemSelector);
   const quantity = cartItem?.quantity ?? 0;
 
-  const handleAddToCart = useCallback(() => {
+  const handleAdd = useCallback(() => {
     dispatch(
       CartFeature.actions.addToCart({
-        id: String(item.id),
-        name: item.name,
-        price: parseFloat(item.price),
-        imageSvg: item.imageSvg,
-        imageUrl: item.image_url ? `${BASE_URL}${item.image_url}` : undefined,
+        id: dishId,
+        name: dish.name,
+        price: parseFloat(dish.price),
+        imageSvg: dish.imageSvg,
+        imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
       })
     );
-  }, [dispatch, item.id, item.name, item.price, item.imageSvg, item.image_url]);
+  }, [dispatch, dishId, dish]);
 
   const handleDecrease = useCallback(() => {
-    dispatch(CartFeature.actions.decreaseQuantity(String(item.id)));
-  }, [dispatch, item.id]);
+    dispatch(CartFeature.actions.decreaseQuantity(dishId));
+  }, [dispatch, dishId]);
 
-  const renderImage = () => {
-    if (item.image_url) {
+  return { quantity, handleAdd, handleDecrease };
+};
+
+const DishImage = React.memo(
+  ({
+    imageUrl,
+    imageSvg,
+  }: {
+    imageUrl?: string;
+    imageSvg?: React.ComponentType<{ width: string; height: string; preserveAspectRatio: string }>;
+  }) => {
+    if (imageUrl) {
       return (
         <Image
-          source={{ uri: `${BASE_URL}${item.image_url}` }}
+          source={{ uri: `${BASE_URL}${imageUrl}` }}
           style={{ width: '100%', height: '100%', borderRadius: 12 }}
           resizeMode="contain"
         />
       );
     }
-    if (item.imageSvg) {
-      const SvgImage = item.imageSvg;
+    if (imageSvg) {
+      const SvgImage = imageSvg;
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
     }
     return <Text style={styles.imagePlaceholder}>🍽</Text>;
-  };
+  }
+);
+
+const QuantityControls = React.memo(
+  ({
+    quantity,
+    onIncrease,
+    onDecrease,
+  }: {
+    quantity: number;
+    onIncrease: () => void;
+    onDecrease: () => void;
+  }) => {
+    if (quantity === 0) {
+      return (
+        <TouchableOpacity style={styles.addToCartButton} onPress={onIncrease}>
+          <Text style={styles.addToCartButtonText}>В корзину</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    return (
+      <View style={styles.quantityControl}>
+        <TouchableOpacity style={styles.quantityButton} onPress={onDecrease}>
+          <Text style={styles.quantityButtonText}>-</Text>
+        </TouchableOpacity>
+        <Text style={styles.quantityText}>{quantity}</Text>
+        <TouchableOpacity style={styles.quantityButton} onPress={onIncrease}>
+          <Text style={styles.quantityButtonText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+);
+
+const DishCard = React.memo(({ item }: { item: Dish }) => {
+  const dishId = String(item.id);
+  const { quantity, handleAdd, handleDecrease } = useDishCart(dishId, item);
 
   return (
     <LinearGradient
@@ -80,26 +120,14 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
       end={{ x: 0, y: 0 }}
       style={styles.dishCard}
     >
-      <View style={styles.imageContainer}>{renderImage()}</View>
+      <View style={styles.imageContainer}>
+        <DishImage imageUrl={item.image_url} imageSvg={item.imageSvg} />
+      </View>
       <Text style={styles.dishName} numberOfLines={2}>
         {item.name}
       </Text>
       <Text style={styles.dishPrice}>{item.price} ₽</Text>
-      {quantity > 0 ? (
-        <View style={styles.quantityControl}>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
-            <Text style={styles.quantityButtonText}>-</Text>
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-          <Text style={styles.addToCartButtonText}>В корзину</Text>
-        </TouchableOpacity>
-      )}
+      <QuantityControls quantity={quantity} onIncrease={handleAdd} onDecrease={handleDecrease} />
     </LinearGradient>
   );
 });
@@ -109,27 +137,22 @@ export const MenuScreen: React.FC = () => {
   const route = useRoute<MenuScreenRouteProp>();
   const dispatch = useDispatch();
 
-  const dishes = useSelector(MenuFeature.selectors.selectDishes);
+  const filteredDishes = useSelector(MenuFeature.selectors.selectFilteredDishes);
   const categories = useSelector(MenuFeature.selectors.selectCategories);
+  const selectedFilter = useSelector(MenuFeature.selectors.selectSelectedFilter);
   const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
   const error = useSelector(MenuFeature.selectors.selectMenuError);
 
-  const [selectedFilter, setSelectedFilter] = useState<string>('Все');
   const [restaurantTitle, setRestaurantTitle] = useState<string>('Кафе Цезарь');
   const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
   const lastAppliedTimestamp = useRef<number | null>(null);
 
   const filters = useMemo(() => {
-    const categoryNames = [...new Set(categories.map((cat) => cat.name))];
-    return categoryNames.sort((a, b) => {
-      if (a === 'Все') return -1;
-      if (b === 'Все') return 1;
-      return a.localeCompare(b, 'ru');
-    });
+    return [...new Set(categories.map((cat: Category) => cat.name))];
   }, [categories]);
 
   useEffect(() => {
-    dispatch({ type: 'menu/fetchDishes' });
+    dispatch({ type: `${MENU_SLICE_NAME}/fetchDishes` });
   }, [dispatch]);
 
   useFocusEffect(
@@ -148,21 +171,17 @@ export const MenuScreen: React.FC = () => {
       setRestaurantTitle(restaurantName ?? 'Кафе Цезарь');
 
       if (mainFilter && filters.includes(mainFilter)) {
-        setSelectedFilter(mainFilter);
-      } else if (filters.length > 0) {
-        setSelectedFilter('Все');
+        dispatch({ type: `${MENU_SLICE_NAME}/changeFilter`, payload: mainFilter });
       }
-    }, [route.params, filters])
+    }, [route.params, filters, dispatch])
   );
 
-  const filteredDishes = useMemo(() => {
-    if (!selectedFilter || selectedFilter === 'Все') return dishes;
-    return dishes.filter((dish) => dishMatchesCategory(dish, selectedFilter));
-  }, [selectedFilter, dishes]);
-
-  const handleFilterPress = useCallback((filter: string) => {
-    setSelectedFilter(filter);
-  }, []);
+  const handleFilterPress = useCallback(
+    (filter: string) => {
+      dispatch({ type: `${MENU_SLICE_NAME}/changeFilter`, payload: filter });
+    },
+    [dispatch]
+  );
 
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});

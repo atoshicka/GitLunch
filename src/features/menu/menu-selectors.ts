@@ -9,6 +9,8 @@ interface State {
 const root = (state: State) => state[MENU_SLICE_NAME];
 
 export const selectDishes = createSelector(root, (menu) => menu.dishes);
+export const selectFilteredDishes = createSelector(root, (menu) => menu.filteredDishes);
 export const selectCategories = createSelector(root, (menu) => menu.categories);
+export const selectSelectedFilter = createSelector(root, (menu) => menu.selectedFilter);
 export const selectMenuIsLoading = createSelector(root, (menu) => menu.isLoading);
 export const selectMenuError = createSelector(root, (menu) => menu.error);
