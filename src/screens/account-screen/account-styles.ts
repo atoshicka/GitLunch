@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native';
+import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
+import { Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
   container: {
@@ -47,8 +49,7 @@ export const styles = StyleSheet.create({
     lineHeight: 44,
   },
   brandTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    ...AgbalumoTypography.agbalumoSmall,
     color: '#1F2937',
     letterSpacing: 0.5,
   },
@@ -81,9 +82,9 @@ export const styles = StyleSheet.create({
     borderColor: '#22C55E',
   },
   userName: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    ...AgbalumoTypography.agbalumoMedium,
     color: '#1F2937',
+    fontSize: 28,
     marginBottom: 32,
   },
   menuBlock: {
@@ -104,8 +105,8 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#A7F3D0',
   },
   menuItemText: {
-    fontSize: 16,
-    color: '#1F2937',
+    ...Typography.buttonRegular,
     fontWeight: '500',
+    color: '#1F2937',
   },
 });

@@ -213,14 +213,14 @@ export const SearchScreen: React.FC = () => {
             style={styles.backButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={styles.backButtonText}>←</Text>
+            <Text style={styles.backButtonText}>‹</Text>
           </TouchableOpacity>
           <View style={styles.searchContainer}>
             <SearchInput
               value={query}
               onChangeText={setQuery}
               onSubmitEditing={handleSubmit}
-              placeholder="Поиск блюд..."
+              placeholder="Поиск"
             />
           </View>
         </View>
