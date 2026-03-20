@@ -16,14 +16,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import PagerView from 'react-native-pager-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootStackParamList } from '../../../app/navigation/navigation-types';
-import { PromoDish, Restaurant } from '../../../entities/api/types/home-types';
-import { Images } from '../../../shared/constants/images';
-import { DishModal } from '../../../shared/dish-modal/dish-modal';
-import { SearchInput } from '../../../shared/search/ui/search-input';
-import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar';
-import { CartFeature } from '../../cart';
-import { HomeFeature } from '../index';
+import { RootStackParamList } from '../../app/navigation/navigation-types';
+import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
+import { CartFeature } from '../../features/cart';
+import { HomeFeature } from '../../features/home/index';
+import { Images } from '../../shared/constants/images';
+import { DishModal } from '../../shared/dish-modal/dish-modal';
+import { SearchInput } from '../../shared/search/ui/search-input';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './home-styles';
 
 const { width } = Dimensions.get('window');
@@ -333,7 +333,7 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.floatingHeaderContent}>
             <SearchInput
               onPress={handleSearchPress}
-              placeholder="Поиск блюд..."
+              placeholder="Поиск"
               rightElement={accountButton}
             />
           </View>
@@ -355,7 +355,7 @@ export const HomeScreen: React.FC = () => {
             <View style={styles.searchWrapper}>
               <SearchInput
                 onPress={handleSearchPress}
-                placeholder="Поиск блюд..."
+                placeholder="Поиск"
                 rightElement={accountButton}
               />
             </View>

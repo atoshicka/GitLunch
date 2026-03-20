@@ -19,7 +19,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChangeText,
   onSubmitEditing,
-  placeholder = 'Поиск блюд...',
+  placeholder = 'Поиск',
   editable = true,
   style,
   rightElement,
