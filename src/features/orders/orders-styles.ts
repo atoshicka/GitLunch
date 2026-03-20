@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native';
+import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
+import { Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
   container: {
@@ -47,14 +49,13 @@ export const styles = StyleSheet.create({
     lineHeight: 44,
   },
   brandTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    ...AgbalumoTypography.agbalumoSmall,
     color: '#1F2937',
     letterSpacing: 0.5,
   },
   screenTitle: {
+    ...AgbalumoTypography.agbalumoMedium,
     fontSize: 28,
-    fontWeight: 'bold',
     color: '#1F2937',
     textAlign: 'center',
     marginTop: 20,
@@ -69,8 +70,8 @@ export const styles = StyleSheet.create({
   },
   orderCard: {
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    padding: 12,
+    marginBottom: 12,
     shadowColor: '#1F2937',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -81,26 +82,26 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   dateContainer: {
     flex: 1,
     alignItems: 'center',
   },
   dateText: {
-    fontSize: 16,
+    ...Typography.buttonSmall,
     fontWeight: '600',
     color: '#1F2937',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   dayOfWeekText: {
-    fontSize: 14,
+    ...Typography.caption,
     color: '#666666',
   },
   qrCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#22C55E',
     justifyContent: 'center',
     alignItems: 'center',
@@ -111,16 +112,16 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   itemsContainer: {
-    marginBottom: 12,
+    marginBottom: 8,
   },
   orderItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 4,
   },
   itemName: {
-    fontSize: 14,
+    ...Typography.caption,
     color: '#1F2937',
     flex: 1,
     marginRight: 8,
@@ -128,25 +129,25 @@ export const styles = StyleSheet.create({
   itemDetails: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   itemQuantity: {
-    fontSize: 14,
+    ...Typography.caption,
     color: '#666666',
   },
   itemPrice: {
-    fontSize: 14,
+    ...Typography.caption,
     fontWeight: '500',
     color: '#1F2937',
-    minWidth: 70,
+    minWidth: 60,
     textAlign: 'right',
   },
   totalContainer: {
-    paddingTop: 12,
+    paddingTop: 8,
     alignItems: 'flex-end',
   },
   totalText: {
-    fontSize: 16,
+    ...Typography.buttonSmall,
     fontWeight: '700',
     color: '#1F2937',
   },
@@ -157,7 +158,7 @@ export const styles = StyleSheet.create({
     marginTop: 220,
   },
   emptyText: {
-    fontSize: 16,
+    ...Typography.bodySmall,
     color: '#999999',
   },
   modalOverlay: {
@@ -169,42 +170,43 @@ export const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: 32,
-    paddingTop: 40,
+    padding: 24,
+    paddingTop: 32,
     alignItems: 'center',
     position: 'relative',
-    minWidth: 280,
+    minWidth: 260,
   },
   modalCloseButton: {
     position: 'absolute',
     top: 8,
     right: 8,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
   },
   modalCloseText: {
-    fontSize: 16,
+    ...Typography.buttonSmall,
+    fontSize: 14,
     color: '#1F2937',
     fontWeight: '600',
   },
   modalCodeText: {
-    fontSize: 18,
+    ...Typography.buttonSmall,
     fontWeight: '600',
     color: '#1F2937',
-    marginTop: 16,
+    marginTop: 12,
     marginBottom: 4,
   },
   modalQrText: {
-    fontSize: 14,
+    ...Typography.caption,
     color: '#666666',
   },
   qrContainer: {
-    marginTop: 10,
-    marginBottom: 16,
+    marginTop: 8,
+    marginBottom: 12,
   },
 });

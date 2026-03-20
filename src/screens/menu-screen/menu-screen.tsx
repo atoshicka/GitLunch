@@ -4,16 +4,16 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootStackParamList } from '../../../app/navigation/navigation-types';
-import { Category, Dish } from '../../../entities/api/types/menu-types';
-import { Images } from '../../../shared/constants/images';
-import { DishModal } from '../../../shared/dish-modal/dish-modal';
-import { SearchInput } from '../../../shared/search/ui/search-input';
-import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar';
-import { CartFeature } from '../../cart';
-import { FilterChips } from '../filter/filter-chips';
-import { MenuFeature } from '../index';
-import { MENU_SLICE_NAME } from '../menu-slice';
+import { RootStackParamList } from '../../app/navigation/navigation-types';
+import { Category, Dish } from '../../entities/api/types/menu-types';
+import { CartFeature } from '../../features/cart';
+import { FilterChips } from '../../features/menu/filter/filter-chips';
+import { MenuFeature } from '../../features/menu/index';
+import { MENU_SLICE_NAME } from '../../features/menu/menu-slice';
+import { Images } from '../../shared/constants/images';
+import { DishModal } from '../../shared/dish-modal/dish-modal';
+import { SearchInput } from '../../shared/search/ui/search-input';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './menu-styles';
 
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
@@ -232,7 +232,7 @@ export const MenuScreen: React.FC = () => {
           <View style={styles.searchWrapper}>
             <SearchInput
               onPress={handleSearchPress}
-              placeholder="Поиск блюд..."
+              placeholder="Поиск"
               rightElement={accountButton}
             />
             <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
