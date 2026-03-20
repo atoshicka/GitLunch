@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
+import { Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
   container: {
@@ -31,41 +32,25 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 42,
   },
+  cafeTitle: {
+    ...Typography.decorativeMedium,
+    color: '#1F2937',
+    textAlign: 'center',
+    marginTop: 12,
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 18,
+    ...Typography.bodyRegular,
     color: '#94A3B8',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  headerCount: {
-    fontSize: 16,
-    color: '#64748B',
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 16,
+    textAlign: 'center',
   },
   list: {
     padding: 16,
-    paddingTop: 8,
+    paddingTop: 60,
   },
   cartItem: {
     flexDirection: 'row',
@@ -88,6 +73,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   imagePlaceholder: {
+    ...Typography.titleMedium,
     fontSize: 40,
   },
   itemContent: {
@@ -101,14 +87,20 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   itemName: {
-    fontSize: 18,
+    ...Typography.bodyRegular,
     fontWeight: '600',
     color: '#1F2937',
     flex: 1,
     marginRight: 8,
   },
+  removeButton: {
+    ...Typography.bodyRegular,
+    fontSize: 20,
+    color: '#EF4444',
+    padding: 4,
+  },
   itemPrice: {
-    fontSize: 16,
+    ...Typography.buttonRegular,
     fontWeight: '700',
     color: '#1F2937',
     marginBottom: 12,
@@ -127,14 +119,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quantityButtonText: {
+    ...Typography.buttonRegular,
     fontSize: 24,
     fontWeight: '700',
     color: '#FFFFFF',
     lineHeight: 28,
   },
   quantityText: {
-    fontSize: 18,
-    fontWeight: '600',
+    ...Typography.bodyRegular,
     color: '#1F2937',
     minWidth: 40,
     textAlign: 'center',
@@ -146,11 +138,6 @@ export const styles = StyleSheet.create({
     marginHorizontal: 4,
     paddingHorizontal: 12,
     paddingVertical: 4,
-  },
-  removeButton: {
-    fontSize: 20,
-    color: '#EF4444',
-    padding: 4,
   },
   footer: {
     padding: 20,
@@ -172,12 +159,12 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   totalLabel: {
-    fontSize: 18,
+    ...Typography.buttonRegular,
     fontWeight: '600',
     color: '#1F2937',
   },
   totalPrice: {
-    fontSize: 22,
+    ...Typography.titleSmall,
     fontWeight: '700',
     color: '#1F2937',
   },
@@ -188,8 +175,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   orderButtonText: {
-    color: '#DFFCEA',
-    fontSize: 18,
+    ...Typography.buttonRegular,
     fontWeight: '600',
+    color: '#DFFCEA',
   },
 });

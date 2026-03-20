@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
-import { Typography } from '../../../shared/fontsFile/fonts';
+import { Typography } from '../../shared/fontsFile/fonts';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2;

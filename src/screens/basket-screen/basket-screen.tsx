@@ -194,9 +194,10 @@ export const BasketScreen: React.FC = () => {
         <View style={styles.searchWrapper}>
           <SearchInput
             onPress={handleSearchPress}
-            placeholder="Поиск блюд..."
+            placeholder="Поиск"
             rightElement={accountButton}
           />
+          <Text style={styles.cafeTitle}>Корзина</Text>
         </View>
       </SafeAreaView>
     </View>
@@ -216,11 +217,6 @@ export const BasketScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {waveHeader}
-
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Корзина</Text>
-        <Text style={styles.headerCount}>{totalItems} шт.</Text>
-      </View>
 
       <FlatList
         data={items}

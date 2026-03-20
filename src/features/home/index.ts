@@ -1,3 +1,4 @@
+import { HomeScreen } from '../../screens/home-screen/home-screen';
 import { watchHome } from './home-saga';
 import {
   selectCurrentRestaurant,
@@ -15,7 +16,6 @@ import homeReducer, {
   HOME_SLICE_NAME,
   setCurrentRestaurant,
 } from './home-slice';
-import { HomeScreen } from './ui/home-screen';
 
 export { watchHome } from './home-saga';
 export {
