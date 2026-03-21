@@ -1,7 +1,14 @@
 import { AxiosInstance } from 'axios';
-import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
-import { Dish, DishCategory } from '../../entities/api/types/menu-types';
-import { API_ENDPOINTS } from '../api';
+import { API_ENDPOINTS } from './api';
+import {
+  AddCartItemPayload,
+  BackendCart,
+  BackendCartItem,
+  BackendCartResponse,
+  UpdateCartItemPayload,
+} from './types/cart-types';
+import { PromoDish, Restaurant } from './types/home-types';
+import { Dish, DishCategory } from './types/menu-types';
 
 const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 
@@ -18,6 +25,8 @@ const normalizeDish = (dish: Dish): Dish => {
 };
 
 export const createApiService = (api: AxiosInstance) => ({
+  // ─── Блюда ───────────────────────────────────────────────────────────────
+
   async getDishes(): Promise<Dish[]> {
     try {
       const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
@@ -103,12 +112,16 @@ export const createApiService = (api: AxiosInstance) => ({
     }
   },
 
+  // ─── Рестораны ────────────────────────────────────────────────────────────
+
   async getRestaurants(): Promise<Restaurant[]> {
     return [
       { id: '1', name: 'Цезарь' },
       { id: '2', name: 'Ресторан 2' },
     ];
   },
+
+  // ─── Промо ────────────────────────────────────────────────────────────────
 
   async getPromoDishes(): Promise<PromoDish[]> {
     try {
@@ -119,7 +132,6 @@ export const createApiService = (api: AxiosInstance) => ({
         : (response.data.menu_items ?? []);
 
       const allDishes = dishes.map(normalizeDish);
-
       return allDishes
         .filter((dish: Dish) => {
           const cats: DishCategory[] = dish.categories ?? [];
@@ -142,6 +154,8 @@ export const createApiService = (api: AxiosInstance) => ({
     }
   },
 
+  // ─── Авторизация ──────────────────────────────────────────────────────────
+
   async login(
     login: string,
     password: string
@@ -152,6 +166,34 @@ export const createApiService = (api: AxiosInstance) => ({
       token: response.data.token as string,
       user: response.data.user,
     };
+  },
+
+  // ─── Корзина ──────────────────────────────────────────────────────────────
+
+  async getCart(): Promise<BackendCart> {
+    const response = await api.get<BackendCart>(API_ENDPOINTS.CART);
+    console.log('CART RESPONSE:', JSON.stringify(response.data)); // ← добавь
+    return response.data;
+  },
+
+  async addCartItem(menuItemId: number, quantity: number): Promise<BackendCartResponse> {
+    const payload: AddCartItemPayload = { menu_item_id: menuItemId, quantity };
+    const response = await api.post<BackendCartResponse>(API_ENDPOINTS.CART_ITEMS, payload);
+    console.log('ADD CART ITEM RESPONSE:', JSON.stringify(response.data));
+    return response.data;
+  },
+
+  async updateCartItem(cartItemId: number, quantity: number): Promise<BackendCartItem> {
+    const payload: UpdateCartItemPayload = { quantity };
+    const response = await api.patch<BackendCartItem>(
+      API_ENDPOINTS.CART_ITEM(String(cartItemId)),
+      payload
+    );
+    return response.data;
+  },
+
+  async deleteCartItem(cartItemId: number): Promise<void> {
+    await api.delete(API_ENDPOINTS.CART_ITEM(String(cartItemId)));
   },
 });
 

@@ -2,7 +2,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import { createApiService } from '../entities/api/api-interface';
 import { api } from '../entities/api/axios-config';
-import { CartFeature, HomeFeature, LoginFeature } from '../features';
+import { HomeFeature, LoginFeature } from '../features';
+import cartReducer from '../features/cart/cart-slice';
 import { MenuFeature } from '../features/menu';
 import ordersReducer from '../features/orders/slice';
 import { rootSaga } from './saga';
@@ -16,7 +17,7 @@ const sagaMiddleware = createSagaMiddleware({
 export const store = configureStore({
   reducer: {
     ...LoginFeature.reducer,
-    ...CartFeature.reducer,
+    cart: cartReducer,
     ...HomeFeature.reducer,
     ...MenuFeature.reducer,
     orders: ordersReducer,
