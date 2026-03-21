@@ -1,37 +1,30 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { FC, useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SvgProps } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import {
+  selectCartError,
   selectCartItems,
+  selectCartLoading,
   selectCartTotalItems,
   selectCartTotalPrice,
-} from '../../features/cart/store/cart-selectors';
+} from '../../features/cart/cart-selectors';
 import {
   addToCart,
   clearCart,
   decreaseQuantity,
   removeFromCart,
-} from '../../features/cart/store/cart-slice';
+} from '../../features/cart/cart-slice';
+import { CartItem } from '../../features/cart/types';
 import { addOrder } from '../../features/orders/slice';
 import { Images } from '../../shared/constants/images';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './basket-styles';
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  imageSvg?: FC<SvgProps>;
-  imageUrl?: string;
-}
 
 type BasketScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
@@ -61,11 +54,18 @@ const getCurrentDateInfo = () => {
 export const BasketScreen: React.FC = () => {
   const navigation = useNavigation<BasketScreenNavigationProp>();
   const dispatch = useDispatch();
-  const items = useSelector(selectCartItems) as CartItem[];
+
+  const items = useSelector(selectCartItems);
   const totalPrice = useSelector(selectCartTotalPrice);
   const totalItems = useSelector(selectCartTotalItems);
+  const loading = useSelector(selectCartLoading);
+  const error = useSelector(selectCartError);
 
   const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
+
+  useEffect(() => {
+    dispatch({ type: 'FETCH_CART' });
+  }, [dispatch]);
 
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
@@ -88,12 +88,27 @@ export const BasketScreen: React.FC = () => {
       dispatch(
         addToCart({
           id: item.id,
+          cartItemId: item.cartItemId,
           name: item.name,
           price: item.price,
           imageSvg: item.imageSvg,
           imageUrl: item.imageUrl,
         })
       );
+    },
+    [dispatch]
+  );
+
+  const handleDecrease = useCallback(
+    (item: CartItem) => {
+      dispatch(decreaseQuantity({ id: item.id, cartItemId: item.cartItemId }));
+    },
+    [dispatch]
+  );
+
+  const handleRemove = useCallback(
+    (item: CartItem) => {
+      dispatch(removeFromCart({ id: item.id, cartItemId: item.cartItemId }));
     },
     [dispatch]
   );
@@ -155,16 +170,13 @@ export const BasketScreen: React.FC = () => {
               <Text style={styles.itemName} numberOfLines={2}>
                 {item.name}
               </Text>
-              <TouchableOpacity onPress={() => dispatch(removeFromCart(item.id))}>
+              <TouchableOpacity onPress={() => handleRemove(item)}>
                 <Text style={styles.removeButton}>✕</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.itemPrice}>{item.price * item.quantity} ₽</Text>
             <View style={styles.quantityControls}>
-              <TouchableOpacity
-                style={styles.quantityButton}
-                onPress={() => dispatch(decreaseQuantity(item.id))}
-              >
+              <TouchableOpacity style={styles.quantityButton} onPress={() => handleDecrease(item)}>
                 <Text style={styles.quantityButtonText}>−</Text>
               </TouchableOpacity>
               <Text style={styles.quantityText}>{item.quantity}</Text>
@@ -176,13 +188,7 @@ export const BasketScreen: React.FC = () => {
         </LinearGradient>
       </TouchableOpacity>
     ),
-    [dispatch, handleAddToCart, handleDishPress]
-  );
-
-  const accountButton = (
-    <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
-      <AccountIcon width={36} height={36} />
-    </TouchableOpacity>
+    [handleAddToCart, handleDecrease, handleDishPress, handleRemove]
   );
 
   const waveHeader = (
@@ -195,13 +201,42 @@ export const BasketScreen: React.FC = () => {
           <SearchInput
             onPress={handleSearchPress}
             placeholder="Поиск"
-            rightElement={accountButton}
+            rightElement={
+              <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
+                <AccountIcon width={36} height={36} />
+              </TouchableOpacity>
+            }
           />
           <Text style={styles.cafeTitle}>Корзина</Text>
         </View>
       </SafeAreaView>
     </View>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        {waveHeader}
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Загрузка...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        {waveHeader}
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>{error}</Text>
+          <TouchableOpacity onPress={() => dispatch({ type: 'FETCH_CART' })}>
+            <Text style={{ color: '#86EFAC', marginTop: 12 }}>Повторить</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   if (items.length === 0) {
     return (
