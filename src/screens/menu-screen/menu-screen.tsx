@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Category, Dish } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
+import { CartItem } from '../../features/cart/types';
 import { FilterChips } from '../../features/menu/filter/filter-chips';
 import { MenuFeature } from '../../features/menu/index';
 import { MENU_SLICE_NAME } from '../../features/menu/menu-slice';
@@ -25,28 +26,36 @@ const AccountIcon = Images.navigation.account;
 
 const useDishCart = (dishId: string, dish: Dish) => {
   const dispatch = useDispatch();
+
   const cartItemSelector = useMemo(
     () => CartFeature.selectors.selectCartItemById(dishId),
     [dishId]
   );
-  const cartItem = useSelector(cartItemSelector);
+
+  const cartItem = useSelector(cartItemSelector) as CartItem | null;
   const quantity = cartItem?.quantity ?? 0;
 
   const handleAdd = useCallback(() => {
     dispatch(
       CartFeature.actions.addToCart({
         id: dishId,
+        cartItemId: cartItem?.cartItemId,
         name: dish.name,
-        price: parseFloat(dish.price),
+        price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
         imageSvg: dish.imageSvg,
         imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
       })
     );
-  }, [dispatch, dishId, dish]);
+  }, [dispatch, dishId, dish, cartItem?.cartItemId]);
 
   const handleDecrease = useCallback(() => {
-    dispatch(CartFeature.actions.decreaseQuantity(dishId));
-  }, [dispatch, dishId]);
+    dispatch(
+      CartFeature.actions.decreaseQuantity({
+        id: dishId,
+        cartItemId: cartItem?.cartItemId,
+      })
+    );
+  }, [dispatch, dishId, cartItem?.cartItemId]);
 
   return { quantity, handleAdd, handleDecrease };
 };
@@ -57,7 +66,11 @@ const DishImage = React.memo(
     imageSvg,
   }: {
     imageUrl?: string;
-    imageSvg?: React.ComponentType<{ width: string; height: string; preserveAspectRatio: string }>;
+    imageSvg?: React.ComponentType<{
+      width: string;
+      height: string;
+      preserveAspectRatio: string;
+    }>;
   }) => {
     if (imageUrl) {
       return (
@@ -126,7 +139,9 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
       <Text style={styles.dishName} numberOfLines={2}>
         {item.name}
       </Text>
-      <Text style={styles.dishPrice}>{item.price} ₽</Text>
+      <Text style={styles.dishPrice}>
+        {typeof item.price === 'string' ? parseFloat(item.price) : item.price} ₽
+      </Text>
       <QuantityControls quantity={quantity} onIncrease={handleAdd} onDecrease={handleDecrease} />
     </LinearGradient>
   );
@@ -208,12 +223,6 @@ export const MenuScreen: React.FC = () => {
     [handleDishPress]
   );
 
-  const accountButton = (
-    <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
-      <AccountIcon width={36} height={36} />
-    </TouchableOpacity>
-  );
-
   if (error) {
     return (
       <View style={styles.container}>
@@ -233,7 +242,11 @@ export const MenuScreen: React.FC = () => {
             <SearchInput
               onPress={handleSearchPress}
               placeholder="Поиск"
-              rightElement={accountButton}
+              rightElement={
+                <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
+                  <AccountIcon width={36} height={36} />
+                </TouchableOpacity>
+              }
             />
             <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
           </View>

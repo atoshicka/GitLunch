@@ -31,7 +31,8 @@ export const API_ENDPOINTS = {
   PROFILE: '/users/profile',
 
   CART: '/cart',
-  CART_ITEM: (id: string) => `/cart/${id}`,
+  CART_ITEMS: '/cart/items',
+  CART_ITEM: (id: string) => `/cart/items/${id}`,
 } as const;
 
 export const DEFAULT_HEADERS = {
