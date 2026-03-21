@@ -1,15 +1,35 @@
-import { FC } from 'react';
-import { SvgProps } from 'react-native-svg';
-
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
+export interface BackendCartItem {
+  id: number;
+  cart_id?: number;
+  menu_item_id: number;
   quantity: number;
-  imageSvg?: FC<SvgProps>;
-  imageUrl?: string;
+  name?: string;
+  price?: string | number;
+  image_url?: string;
+  total?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export interface CartState {
-  items: CartItem[];
+export interface BackendCart {
+  id: number;
+  items: BackendCartItem[];
+  total_items?: number;
+  total_price?: string;
+}
+
+export interface BackendCartResponse {
+  id: number;
+  items: BackendCartItem[];
+  total_items: number;
+  total_price: string;
+}
+
+export interface AddCartItemPayload {
+  menu_item_id: number;
+  quantity: number;
+}
+
+export interface UpdateCartItemPayload {
+  quantity: number;
 }
