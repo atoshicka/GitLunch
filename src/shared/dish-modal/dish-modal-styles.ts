@@ -106,6 +106,8 @@ export const styles = StyleSheet.create({
   },
   metaBadgeGreen: {
     backgroundColor: '#DFFCEA',
+    borderWidth: 1,
+    borderColor: '#22C55E',
   },
   metaBadgeText: {
     ...Typography.label,
@@ -131,17 +133,19 @@ export const styles = StyleSheet.create({
     color: '#64748B',
   },
   nutritionBlock: {
-    backgroundColor: '#F1F5F9',
-    borderRadius: 16,
+    backgroundColor: '#DFFCEA',
+    borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#22C55E',
   },
   nutritionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: '#22C55E',
   },
   nutritionLabel: {
     ...Typography.bodySmall,
@@ -202,5 +206,10 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
     minWidth: 32,
     textAlign: 'center',
+  },
+  dragArea: {
+    width: '100%',
+    alignItems: 'center',
+    paddingBottom: 4,
   },
 });
