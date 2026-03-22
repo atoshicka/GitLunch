@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
 import { CartFeature } from '../../features/cart';
+import { CartItem } from '../../features/cart/types';
 import { HomeFeature } from '../../features/home/index';
 import { Images } from '../../shared/constants/images';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
@@ -46,24 +47,33 @@ interface PromoDishCardProps {
 
 const PromoDishCard = React.memo(({ item, onPress }: PromoDishCardProps) => {
   const dispatch = useDispatch();
-  const cartItem = useSelector(CartFeature.selectors.selectCartItemById(item.id));
+
+  const cartItem = useSelector(
+    CartFeature.selectors.selectCartItemById(item.id)
+  ) as CartItem | null;
   const quantity = cartItem?.quantity ?? 0;
 
   const handleAddToCart = useCallback(() => {
     dispatch(
       CartFeature.actions.addToCart({
         id: item.id,
+        cartItemId: cartItem?.cartItemId,
         name: item.name,
         price: item.price,
         imageSvg: item.imageSvg,
         imageUrl: item.imageUrl,
       })
     );
-  }, [dispatch, item.id, item.name, item.price, item.imageSvg, item.imageUrl]);
+  }, [dispatch, item, cartItem?.cartItemId]);
 
   const handleDecrease = useCallback(() => {
-    dispatch(CartFeature.actions.decreaseQuantity(item.id));
-  }, [dispatch, item.id]);
+    dispatch(
+      CartFeature.actions.decreaseQuantity({
+        id: item.id,
+        cartItemId: cartItem?.cartItemId,
+      })
+    );
+  }, [dispatch, item.id, cartItem?.cartItemId]);
 
   const renderImage = () => {
     if (item.imageUrl) {
