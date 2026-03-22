@@ -67,6 +67,10 @@ export const BasketScreen: React.FC = () => {
     dispatch({ type: 'FETCH_CART' });
   }, [dispatch]);
 
+  const handleBackPress = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
   }, [navigation]);
@@ -198,15 +202,17 @@ export const BasketScreen: React.FC = () => {
       </View>
       <SafeAreaView edges={['top']} style={styles.searchContainer}>
         <View style={styles.searchWrapper}>
-          <SearchInput
-            onPress={handleSearchPress}
-            placeholder="Поиск"
-            rightElement={
-              <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
-                <AccountIcon width={36} height={36} />
-              </TouchableOpacity>
-            }
-          />
+          <View style={styles.topBar}>
+            <TouchableOpacity style={styles.topBarButton} onPress={handleBackPress}>
+              <Text style={styles.backButtonText}>‹</Text>
+            </TouchableOpacity>
+            <View style={styles.searchInputWrapper}>
+              <SearchInput onPress={handleSearchPress} placeholder="Поиск" />
+            </View>
+            <TouchableOpacity style={styles.topBarButton} onPress={handleAccountPress}>
+              <AccountIcon width={36} height={36} />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.cafeTitle}>Корзина</Text>
         </View>
       </SafeAreaView>
