@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
+import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
 import { Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
@@ -30,11 +31,32 @@ export const styles = StyleSheet.create({
   },
   searchWrapper: {
     paddingHorizontal: 16,
-    paddingTop: 42,
+    paddingTop: 40,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 8,
+  },
+  topBarButton: {
+    width: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  backButtonText: {
+    fontSize: 40,
+    color: '#1F2937',
+    lineHeight: 44,
+  },
+  searchInputWrapper: {
+    flex: 1,
+    minWidth: 0,
   },
   cafeTitle: {
-    ...Typography.decorativeMedium,
+    ...AgbalumoTypography.agbalumoSmall,
     color: '#1F2937',
+    letterSpacing: 0.5,
     textAlign: 'center',
     marginTop: 12,
   },
@@ -122,7 +144,7 @@ export const styles = StyleSheet.create({
     ...Typography.buttonRegular,
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1F2937',
     lineHeight: 28,
   },
   quantityText: {
