@@ -2,7 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { call, getContext, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api/api-interface';
 import { Dish } from '../../entities/api/types/menu-types';
-import { selectDishes, selectSelectedFilter } from './menu-selectors';
+import { selectDishes, selectSelectedFilter } from './selectors';
 import {
   fetchCategoriesSuccess,
   fetchDishesFailure,
@@ -11,7 +11,7 @@ import {
   MENU_SLICE_NAME,
   setFilteredDishes,
   setSelectedFilter,
-} from './menu-slice';
+} from './slice';
 
 interface Category {
   id: number;

@@ -12,13 +12,8 @@ import {
   selectCartLoading,
   selectCartTotalItems,
   selectCartTotalPrice,
-} from '../../features/cart/cart-selectors';
-import {
-  addToCart,
-  clearCart,
-  decreaseQuantity,
-  removeFromCart,
-} from '../../features/cart/cart-slice';
+} from '../../features/cart/selectors';
+import { addToCart, clearCart, decreaseQuantity, removeFromCart } from '../../features/cart/slice';
 import { CartItem } from '../../features/cart/types';
 import { addOrder } from '../../features/orders/slice';
 import { Images } from '../../shared/constants/images';
@@ -123,10 +118,12 @@ export const BasketScreen: React.FC = () => {
       return;
     }
     const { date, dayOfWeek } = getCurrentDateInfo();
+    const code = Math.floor(10000 + Math.random() * 90000).toString();
     const newOrder = {
       id: Date.now().toString(),
       date,
       dayOfWeek,
+      code,
       items: items.map((item) => ({
         id: item.id,
         name: item.name,

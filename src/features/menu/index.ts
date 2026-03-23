@@ -1,4 +1,4 @@
-import { watchMenu } from './menu-saga';
+import { watchMenu } from './saga';
 import {
   selectCategories,
   selectDishes,
@@ -6,7 +6,7 @@ import {
   selectMenuError,
   selectMenuIsLoading,
   selectSelectedFilter,
-} from './menu-selectors';
+} from './selectors';
 import menuReducer, {
   fetchCategoriesSuccess,
   fetchDishesFailure,
@@ -14,7 +14,7 @@ import menuReducer, {
   fetchDishesSuccess,
   setFilteredDishes,
   setSelectedFilter,
-} from './menu-slice';
+} from './slice';
 
 export const MenuFeature = {
   reducer: { menu: menuReducer },

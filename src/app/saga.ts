@@ -1,5 +1,5 @@
 import { all, fork } from 'redux-saga/effects';
-import { watchCart } from '../features/cart/cart-saga';
+import { watchCart } from '../features/cart/saga';
 import { HomeFeature } from '../features/home';
 import { LoginFeature } from '../features/login';
 import { MenuFeature } from '../features/menu';

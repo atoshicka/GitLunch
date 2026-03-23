@@ -209,4 +209,10 @@ export const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 12,
   },
+  orderCodeText: {
+    fontSize: 13,
+    color: '#555',
+    marginTop: 2,
+    fontWeight: '500',
+  },
 });
