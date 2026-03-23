@@ -5,7 +5,7 @@ import {
   selectCartLoading,
   selectCartTotalItems,
   selectCartTotalPrice,
-} from './cart-selectors';
+} from './selectors';
 import cartReducer, {
   addToCart,
   clearCart,
@@ -15,7 +15,7 @@ import cartReducer, {
   setCartFromBackend,
   setCartItemBackendId,
   setCartLoading,
-} from './cart-slice';
+} from './slice';
 
 export const CART_SLICE_NAME = 'cart';
 

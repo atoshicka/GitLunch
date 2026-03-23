@@ -14,6 +14,7 @@ export interface Order {
   items: OrderItem[];
   totalPrice: number;
   totalItems: number;
+  code: string;
 }
 
 interface OrdersState {

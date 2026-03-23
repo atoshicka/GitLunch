@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { MENU_SLICE_NAME } from './menu-slice';
+import { MENU_SLICE_NAME } from './slice';
 import { MenuState } from './types';
 
 interface State {
