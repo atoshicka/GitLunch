@@ -161,7 +161,6 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
       </TouchableWithoutFeedback>
 
       <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
-        {/* Зона свайпа — handle + верхняя часть */}
         <View {...panResponder.panHandlers} style={styles.dragArea}>
           <View style={styles.handle} />
         </View>
