@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { HOME_SLICE_NAME } from './home-slice';
+import { HOME_SLICE_NAME } from './slice';
 import { HomeState } from './types';
 
 interface State {

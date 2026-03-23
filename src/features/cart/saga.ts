@@ -1,7 +1,7 @@
 import { call, getContext, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api/api-interface';
 import { BackendCartItem } from '../../entities/api/types/cart-types';
-import { selectCartItems } from './cart-selectors';
+import { selectCartItems } from './selectors';
 import {
   addToCart,
   clearCart,
@@ -11,7 +11,7 @@ import {
   setCartFromBackend,
   setCartItemBackendId,
   setCartLoading,
-} from './cart-slice';
+} from './slice';
 import { CartItem } from './types';
 
 const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';

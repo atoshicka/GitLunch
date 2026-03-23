@@ -43,7 +43,7 @@ export const OrdersScreen: React.FC = () => {
           <Text style={styles.dayOfWeekText}>{item.dayOfWeek}</Text>
         </View>
         <TouchableOpacity onPress={() => handleQrPress(item.id)} style={styles.qrCircle}>
-          <MinQRCode width={24} height={24} />
+          <MinQRCode width={20} height={20} />
         </TouchableOpacity>
       </View>
 
@@ -121,7 +121,9 @@ export const OrdersScreen: React.FC = () => {
 
             <MinQRCode width={180} height={180} />
 
-            <Text style={styles.modalCodeText}>код 12345</Text>
+            <Text style={styles.modalCodeText}>
+              код {orders.find((o) => o.id === selectedOrderId)?.code ?? '—'}
+            </Text>
             <Text style={styles.modalQrText}>или этот QR</Text>
           </View>
         </View>

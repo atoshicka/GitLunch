@@ -6,7 +6,7 @@ import {
   fetchRestaurantsFailure,
   fetchRestaurantsStart,
   fetchRestaurantsSuccess,
-} from './home-slice';
+} from './slice';
 
 function* fetchRestaurantsSaga() {
   try {

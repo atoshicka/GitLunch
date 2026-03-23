@@ -12,9 +12,7 @@ export interface Dish {
   description: string;
   price: string;
   image_url?: string;
-  // Новая структура — массив категорий
   categories?: DishCategory[];
-  // Старое поле оставляем для совместимости — будем заполнять сами
   category: DishCategory;
   meal_category?: number;
   calories?: number;

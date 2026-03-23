@@ -25,7 +25,7 @@ const normalizeDish = (dish: Dish): Dish => {
 };
 
 export const createApiService = (api: AxiosInstance) => ({
-  // ─── Блюда ───────────────────────────────────────────────────────────────
+  //Блюда
 
   async getDishes(): Promise<Dish[]> {
     try {
@@ -112,7 +112,7 @@ export const createApiService = (api: AxiosInstance) => ({
     }
   },
 
-  // ─── Рестораны ────────────────────────────────────────────────────────────
+  //Рестораны
 
   async getRestaurants(): Promise<Restaurant[]> {
     return [
@@ -121,7 +121,7 @@ export const createApiService = (api: AxiosInstance) => ({
     ];
   },
 
-  // ─── Промо ────────────────────────────────────────────────────────────────
+  //Промо
 
   async getPromoDishes(): Promise<PromoDish[]> {
     try {
@@ -154,7 +154,7 @@ export const createApiService = (api: AxiosInstance) => ({
     }
   },
 
-  // ─── Авторизация ──────────────────────────────────────────────────────────
+  //Авторизация
 
   async login(
     login: string,
@@ -168,11 +168,11 @@ export const createApiService = (api: AxiosInstance) => ({
     };
   },
 
-  // ─── Корзина ──────────────────────────────────────────────────────────────
+  //Корзина
 
   async getCart(): Promise<BackendCart> {
     const response = await api.get<BackendCart>(API_ENDPOINTS.CART);
-    console.log('CART RESPONSE:', JSON.stringify(response.data)); // ← добавь
+    console.log('CART RESPONSE:', JSON.stringify(response.data));
     return response.data;
   },
 
