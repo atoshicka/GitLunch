@@ -160,7 +160,7 @@ export const createApiService = (api: AxiosInstance) => ({
     login: string,
     password: string
   ): Promise<{ success: boolean; token: string; user: unknown }> {
-    const response = await api.post(API_ENDPOINTS.LOGIN, { login, password });
+    const response = await api.post<{ success: boolean; token: string; user: { full_name: string } }>(API_ENDPOINTS.LOGIN, { login, password });
     return {
       success: true,
       token: response.data.token as string,
