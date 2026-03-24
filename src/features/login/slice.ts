@@ -51,5 +51,3 @@ export const { name, actions, reducer } = createSlice({
     },
   },
 });
-
-export const LOGIN_SLICE_NAME = name;
