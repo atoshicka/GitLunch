@@ -11,18 +11,20 @@ const initialState: MenuState = {
   error: null,
 };
 
-const menuSlice = createSlice({
+export const { name, actions, reducer } = createSlice({
   name: 'menu',
   initialState,
   reducers: {
+    fetchDishes: () => {},
+    changeFilter: (_state, _action: PayloadAction<string>) => {},
     fetchDishesStart: (state) => {
       state.isLoading = true;
       state.error = null;
     },
     fetchDishesSuccess: (state, action: PayloadAction<Dish[]>) => {
+      state.isLoading = false;
       state.dishes = action.payload;
       state.filteredDishes = action.payload;
-      state.isLoading = false;
     },
     fetchDishesFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
@@ -39,16 +41,3 @@ const menuSlice = createSlice({
     },
   },
 });
-
-export const MENU_SLICE_NAME = menuSlice.name;
-
-export const {
-  fetchDishesStart,
-  fetchDishesSuccess,
-  fetchDishesFailure,
-  fetchCategoriesSuccess,
-  setFilteredDishes,
-  setSelectedFilter,
-} = menuSlice.actions;
-
-export default menuSlice.reducer;

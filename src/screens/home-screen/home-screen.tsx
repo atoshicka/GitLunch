@@ -20,7 +20,7 @@ import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
 import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
-import { HomeFeature } from '../../features/home/index';
+import { HomeFeature } from '../../features/home';
 import { Images } from '../../shared/constants/images';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
@@ -220,8 +220,7 @@ export const HomeScreen: React.FC = () => {
   const promoDishes = useSelector(HomeFeature.selectors.selectPromoDishes);
 
   useEffect(() => {
-    dispatch({ type: 'home/fetchRestaurants' });
-    dispatch({ type: 'home/fetchPromoDishes' });
+    dispatch(HomeFeature.actions.fetchRestaurants());
   }, [dispatch]);
 
   const headerOpacity = scrollY.interpolate({

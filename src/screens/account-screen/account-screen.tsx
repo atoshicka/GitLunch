@@ -5,7 +5,7 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
-import { selectUserName } from '../../features/login/selectors';
+import { LoginFeature } from '../../features/login';
 import { Images } from '../../shared/constants/images';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './account-styles';
@@ -27,7 +27,7 @@ const SubtractIcon = Images.home.wave;
 
 export const AccountScreen: React.FC = () => {
   const navigation = useNavigation<AccountScreenNavigationProp>();
-  const userName = useSelector(selectUserName);
+  const userName = useSelector(LoginFeature.selectors.selectUserName);
 
   const handleSettingsPress = () => {
     console.log('Настройки');

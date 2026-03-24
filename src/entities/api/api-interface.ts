@@ -1,4 +1,5 @@
 import { AxiosInstance } from 'axios';
+import { LoginResponse } from '../../entities/api/types/login-types';
 import { API_ENDPOINTS } from './api';
 import {
   AddCartItemPayload,
@@ -124,48 +125,36 @@ export const createApiService = (api: AxiosInstance) => ({
   //Промо
 
   async getPromoDishes(): Promise<PromoDish[]> {
-    try {
-      const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
+    const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
 
-      const dishes: Dish[] = Array.isArray(response.data)
-        ? response.data
-        : (response.data.menu_items ?? []);
+    const dishes: Dish[] = Array.isArray(response.data)
+      ? response.data
+      : (response.data.menu_items ?? []);
 
-      const allDishes = dishes.map(normalizeDish);
-      return allDishes
-        .filter((dish: Dish) => {
-          const cats: DishCategory[] = dish.categories ?? [];
-          return cats.some((c) => {
-            const name = c.name?.toLowerCase() ?? '';
-            return name === 'акции' || name === 'promo' || name === 'акция';
-          });
-        })
-        .map((dish: Dish) => ({
-          id: String(dish.id),
-          name: dish.name,
-          price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
-          imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
-          imageSvg: dish.imageSvg,
-          isPromo: true,
-        }));
-    } catch (error) {
-      console.error('Error fetching promo dishes:', error);
-      return [];
-    }
+    const allDishes = dishes.map(normalizeDish);
+    return allDishes
+      .filter((dish: Dish) => {
+        const cats: DishCategory[] = dish.categories ?? [];
+        return cats.some((c) => {
+          const name = c.name?.toLowerCase() ?? '';
+          return name === 'акции' || name === 'promo' || name === 'акция';
+        });
+      })
+      .map((dish: Dish) => ({
+        id: String(dish.id),
+        name: dish.name,
+        price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
+        imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
+        imageSvg: dish.imageSvg,
+        isPromo: true,
+      }));
   },
 
   //Авторизация
 
-  async login(
-    login: string,
-    password: string
-  ): Promise<{ success: boolean; token: string; user: unknown }> {
-    const response = await api.post<{ success: boolean; token: string; user: { full_name: string } }>(API_ENDPOINTS.LOGIN, { login, password });
-    return {
-      success: true,
-      token: response.data.token as string,
-      user: response.data.user,
-    };
+  async login(login: string, password: string): Promise<LoginResponse> {
+    const response = await api.post<LoginResponse>(API_ENDPOINTS.LOGIN, { login, password });
+    return response.data;
   },
 
   //Корзина

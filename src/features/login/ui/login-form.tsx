@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
   Keyboard,
   Text,
@@ -14,11 +14,7 @@ import { Typography } from '../../../shared/fontsFile/fonts';
 import { LoginFormData } from '../types';
 import { styles } from './login-styles';
 
-interface LoginFormProps {
-  onLoginSuccess: () => void;
-}
-
-export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
+export const LoginForm: React.FC = () => {
   const dispatch = useDispatch();
 
   const loginValue = useSelector(LoginFeature.selectors.selectLogin);
@@ -56,12 +52,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     Keyboard.dismiss();
     dispatch(LoginFeature.actions.submitLogin());
   }, [dispatch, loginValue, passwordValue]);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      onLoginSuccess();
-    }
-  }, [isLoggedIn, onLoginSuccess]);
 
   const Vector1Svg = Images.auth.vector1;
   const Vector2Svg = Images.auth.vector2;

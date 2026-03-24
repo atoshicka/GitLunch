@@ -13,16 +13,12 @@ import { authStyles } from './navigation-styles';
 
 const RootStack = createNativeStackNavigator();
 
-interface AuthScreenProps {
-  onLogin: () => void;
-}
-
-export const AuthScreen: React.FC<AuthScreenProps> = ({ onLogin }) => {
+export const AuthScreen: React.FC = () => {
   return (
     <SafeAreaView style={authStyles.container}>
       <ScrollView contentContainerStyle={authStyles.scrollContainer}>
         <View style={authStyles.content}>
-          <LoginForm onLoginSuccess={onLogin} />
+          <LoginForm />
         </View>
       </ScrollView>
     </SafeAreaView>
