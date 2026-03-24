@@ -38,5 +38,7 @@ function* handleSubmitLogin() {
 }
 
 export function* watchLogin() {
-  yield takeLatest(submitLogin, handleSubmitLogin);
+  yield all([
+    takeLatest(submitLogin, handleSubmitLogin)
+  ]);
 }
