@@ -1,56 +1,16 @@
-import { HomeScreen } from '../../screens/home-screen/home-screen';
 import { watchHome } from './saga';
-import {
-  selectCurrentRestaurant,
-  selectCurrentRestaurantIndex,
-  selectError,
-  selectIsLoading,
-  selectPromoDishes,
-  selectRestaurants,
-} from './selectors';
-import homeReducer, {
-  fetchPromoDishesSuccess,
-  fetchRestaurantsFailure,
-  fetchRestaurantsStart,
-  fetchRestaurantsSuccess,
-  HOME_SLICE_NAME,
-  setCurrentRestaurant,
-} from './slice';
+import { selectors } from './selectors';
+import { actions, name, reducer } from './slice';
 
-export { watchHome } from './saga';
-export {
-  selectCurrentRestaurant,
-  selectCurrentRestaurantIndex,
-  selectError,
-  selectIsLoading,
-  selectPromoDishes,
-  selectRestaurants,
-} from './selectors';
-export { HOME_SLICE_NAME } from './slice';
+export const HOME_SLICE_NAME = name;
 
 export const HomeFeature = {
-  actions: {
-    setCurrentRestaurant,
-    fetchRestaurantsStart,
-    fetchRestaurantsSuccess,
-    fetchRestaurantsFailure,
-    fetchPromoDishesSuccess,
-  },
+  actions,
   sagas: {
     watchHome,
   },
   reducer: {
-    [HOME_SLICE_NAME]: homeReducer,
+    [name]: reducer,
   },
-  selectors: {
-    selectRestaurants,
-    selectPromoDishes,
-    selectCurrentRestaurantIndex,
-    selectIsLoading,
-    selectError,
-    selectCurrentRestaurant,
-  },
-  ui: {
-    HomeScreen,
-  },
+  selectors,
 };

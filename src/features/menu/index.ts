@@ -1,38 +1,16 @@
 import { watchMenu } from './saga';
-import {
-  selectCategories,
-  selectDishes,
-  selectFilteredDishes,
-  selectMenuError,
-  selectMenuIsLoading,
-  selectSelectedFilter,
-} from './selectors';
-import menuReducer, {
-  fetchCategoriesSuccess,
-  fetchDishesFailure,
-  fetchDishesStart,
-  fetchDishesSuccess,
-  setFilteredDishes,
-  setSelectedFilter,
-} from './slice';
+import { selectors } from './selectors';
+import { actions, name, reducer } from './slice';
+
+export const MENU_SLICE_NAME = name;
 
 export const MenuFeature = {
-  reducer: { menu: menuReducer },
-  sagas: { watchMenu },
-  selectors: {
-    selectDishes,
-    selectFilteredDishes,
-    selectCategories,
-    selectSelectedFilter,
-    selectMenuIsLoading,
-    selectMenuError,
+  actions,
+  sagas: {
+    watchMenu,
   },
-  actions: {
-    fetchDishes: fetchDishesStart,
-    fetchDishesSuccess,
-    fetchDishesFailure,
-    fetchCategoriesSuccess,
-    setFilteredDishes,
-    setSelectedFilter,
+  reducer: {
+    [name]: reducer,
   },
+  selectors,
 };

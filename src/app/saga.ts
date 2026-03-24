@@ -1,5 +1,5 @@
 import { all, fork } from 'redux-saga/effects';
-import { watchCart } from '../features/cart/saga';
+import { CartFeature } from '../features/cart';
 import { HomeFeature } from '../features/home';
 import { LoginFeature } from '../features/login';
 import { MenuFeature } from '../features/menu';
@@ -9,6 +9,6 @@ export function* rootSaga() {
     fork(LoginFeature.sagas.watchLogin),
     fork(HomeFeature.sagas.watchHome),
     fork(MenuFeature.sagas.watchMenu),
-    fork(watchCart),
+    fork(CartFeature.sagas.watchCart),
   ]);
 }

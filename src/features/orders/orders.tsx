@@ -6,11 +6,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
+import { OrdersFeature } from '../../features/orders';
+import { Order } from '../../features/orders/types';
 import { Images } from '../../shared/constants/images';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './orders-styles';
-import { selectOrders } from './selectors';
-import { Order } from './slice';
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
 
@@ -18,7 +18,7 @@ const SubtractIcon = Images.home.wave;
 
 export const OrdersScreen: React.FC = () => {
   const navigation = useNavigation<OrdersScreenNavigationProp>();
-  const orders = useSelector(selectOrders);
+  const orders = useSelector(OrdersFeature.selectors.selectOrders);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 

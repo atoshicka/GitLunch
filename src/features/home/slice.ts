@@ -10,20 +10,18 @@ const initialState: HomeState = {
   error: null,
 };
 
-const homeSlice = createSlice({
+export const { name, actions, reducer } = createSlice({
   name: 'home',
   initialState,
   reducers: {
-    setCurrentRestaurant: (state, action: PayloadAction<number>) => {
-      state.currentRestaurantIndex = action.payload;
-    },
+    fetchRestaurants: () => {},
     fetchRestaurantsStart: (state) => {
       state.isLoading = true;
       state.error = null;
     },
     fetchRestaurantsSuccess: (state, action: PayloadAction<Restaurant[]>) => {
-      state.restaurants = action.payload;
       state.isLoading = false;
+      state.restaurants = action.payload;
     },
     fetchRestaurantsFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
@@ -32,17 +30,8 @@ const homeSlice = createSlice({
     fetchPromoDishesSuccess: (state, action: PayloadAction<PromoDish[]>) => {
       state.promoDishes = action.payload;
     },
+    setCurrentRestaurant: (state, action: PayloadAction<number>) => {
+      state.currentRestaurantIndex = action.payload;
+    },
   },
 });
-
-export const HOME_SLICE_NAME = homeSlice.name;
-
-export const {
-  setCurrentRestaurant,
-  fetchRestaurantsStart,
-  fetchRestaurantsSuccess,
-  fetchRestaurantsFailure,
-  fetchPromoDishesSuccess,
-} = homeSlice.actions;
-
-export default homeSlice.reducer;

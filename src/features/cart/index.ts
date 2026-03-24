@@ -1,64 +1,16 @@
-import {
-  selectCartError,
-  selectCartItemById,
-  selectCartItems,
-  selectCartLoading,
-  selectCartTotalItems,
-  selectCartTotalPrice,
-} from './selectors';
-import cartReducer, {
-  addToCart,
-  clearCart,
-  decreaseQuantity,
-  removeFromCart,
-  setCartError,
-  setCartFromBackend,
-  setCartItemBackendId,
-  setCartLoading,
-} from './slice';
+import { watchCart } from './saga';
+import { selectors } from './selectors';
+import { actions, name, reducer } from './slice';
 
-export const CART_SLICE_NAME = 'cart';
+export const CART_SLICE_NAME = name;
 
 export const CartFeature = {
-  actions: {
-    addToCart,
-    clearCart,
-    decreaseQuantity,
-    removeFromCart,
-    setCartError,
-    setCartFromBackend,
-    setCartItemBackendId,
-    setCartLoading,
+  actions,
+  sagas: {
+    watchCart,
   },
   reducer: {
-    [CART_SLICE_NAME]: cartReducer,
+    [name]: reducer,
   },
-  selectors: {
-    selectCartError,
-    selectCartItemById,
-    selectCartItems,
-    selectCartLoading,
-    selectCartTotalItems,
-    selectCartTotalPrice,
-  },
+  selectors,
 };
-
-export {
-  addToCart,
-  cartReducer,
-  clearCart,
-  decreaseQuantity,
-  removeFromCart,
-  selectCartError,
-  selectCartItemById,
-  selectCartItems,
-  selectCartLoading,
-  selectCartTotalItems,
-  selectCartTotalPrice,
-  setCartError,
-  setCartFromBackend,
-  setCartItemBackendId,
-  setCartLoading,
-};
-
-export * from './types';

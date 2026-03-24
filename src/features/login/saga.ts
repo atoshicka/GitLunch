@@ -1,44 +1,39 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError } from 'axios';
-import { call, getContext, put, select, takeLatest } from 'redux-saga/effects';
-import { call } from 'typed-redux-saga';
+import { getContext, put } from 'redux-saga/effects';
+import { call, select, takeLatest } from 'typed-redux-saga';
 
 import { ApiService } from '../../entities/api';
 import { LoginFeature } from './';
+import { actions } from './slice';
 
 function* handleSubmitLogin() {
   try {
     const apiService: ApiService = yield getContext('apiService');
-    const login: string = yield select(LoginFeature.selectors.selectLogin);
-    const password: string = yield select(selectPassword);
+    const login = yield* select(LoginFeature.selectors.selectLogin);
+    const password = yield* select(LoginFeature.selectors.selectPassword);
 
-    const result = yield* call(
-      apiService.login,
-      login,
-      password
-    );
+    const result = yield* call(apiService.login, login, password);
 
-    if (!result.token || !result.success) {
-      yield put(loginFailure({ general: 'Ошибка при выполнении запроса' }));
+    if (!result.token) {
+      yield put(actions.loginFailure({ general: 'Ошибка при выполнении запроса' }));
       return;
     }
 
-    yield call([AsyncStorage, 'setItem'], 'token', result.token);
-    yield call([AsyncStorage, 'setItem'], 'user', JSON.stringify(result.user));
+    yield* call([AsyncStorage, 'setItem'], 'token', result.token);
+    yield* call([AsyncStorage, 'setItem'], 'user', JSON.stringify(result.user));
 
-    yield put(loginSuccess({ token: result.token, userName: result.user.full_name }));
+    yield put(actions.loginSuccess({ token: result.token, userName: result.user.full_name }));
   } catch (error: unknown) {
     const errorMessage =
       error instanceof AxiosError && error.response?.status === 401
         ? 'Неправильный логин или пароль'
         : 'Ошибка при выполнении запроса';
 
-    yield put(loginFailure({ general: errorMessage }));
+    yield put(actions.loginFailure({ general: errorMessage }));
   }
 }
 
 export function* watchLogin() {
-  yield all([
-    takeLatest(submitLogin, handleSubmitLogin)
-  ]);
+  yield* takeLatest(actions.submitLogin.type, handleSubmitLogin);
 }

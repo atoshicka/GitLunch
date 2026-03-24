@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { CartItem } from '../../../entities/api/types/cart-types';
 import { Dish } from '../../../entities/api/types/menu-types';
 import { CartFeature } from '../../../features/cart';
+import { CartItem } from '../../../features/cart/types';
 import { MenuFeature } from '../../../features/menu';
 import { Images } from '../../../shared/constants/images';
 import { DishModal } from '../../../shared/dish-modal/dish-modal';
@@ -30,24 +30,21 @@ export const SearchScreen: React.FC = () => {
 
   const dishes = useSelector(MenuFeature.selectors.selectDishes);
   const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
+  const cartItems = useSelector(CartFeature.selectors.selectCartItems);
 
   const { query, setQuery, searchResults } = useSearch(dishes);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
 
-  const cartItems = useSelector(CartFeature.selectors.selectCartItems) as CartItem[];
-
-  // Загружаем блюда если ещё не загружены
   useEffect(() => {
     if (dishes.length === 0 && !isLoading) {
-      dispatch({ type: 'menu/fetchDishes' });
+      dispatch(MenuFeature.actions.fetchDishes());
     }
   }, [dishes.length, isLoading, dispatch]);
 
-  const getItemQuantity = useCallback(
-    (itemId: string): number => {
-      const cartItem = cartItems.find((item: CartItem) => item.id === itemId);
-      return cartItem?.quantity ?? 0;
+  const getCartItem = useCallback(
+    (itemId: string): CartItem | undefined => {
+      return cartItems.find((item) => item.id === itemId);
     },
     [cartItems]
   );
@@ -60,24 +57,33 @@ export const SearchScreen: React.FC = () => {
 
   const handleAddToCart = useCallback(
     (item: Dish) => {
+      const dishId = String(item.id);
+      const cartItem = cartItems.find((i) => i.id === dishId);
       dispatch(
         CartFeature.actions.addToCart({
-          id: String(item.id),
+          id: dishId,
+          cartItemId: cartItem?.cartItemId,
           name: item.name,
-          price: parseFloat(item.price),
+          price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
           imageSvg: item.imageSvg,
           imageUrl: item.image_url ? `${BASE_URL}${item.image_url}` : undefined,
         })
       );
     },
-    [dispatch]
+    [dispatch, cartItems]
   );
 
   const handleDecreaseQuantity = useCallback(
     (itemId: string) => {
-      dispatch(CartFeature.actions.decreaseQuantity(itemId));
+      const cartItem = cartItems.find((i) => i.id === itemId);
+      dispatch(
+        CartFeature.actions.decreaseQuantity({
+          id: itemId,
+          cartItemId: cartItem?.cartItemId,
+        })
+      );
     },
-    [dispatch]
+    [dispatch, cartItems]
   );
 
   const handleDishPress = useCallback((id: number) => {
@@ -107,7 +113,9 @@ export const SearchScreen: React.FC = () => {
 
   const renderSearchResult = useCallback(
     ({ item }: { item: Dish }) => {
-      const quantity = getItemQuantity(String(item.id));
+      const dishId = String(item.id);
+      const cartItem = getCartItem(dishId);
+      const quantity = cartItem?.quantity ?? 0;
 
       return (
         <View style={styles.resultItem}>
@@ -130,7 +138,7 @@ export const SearchScreen: React.FC = () => {
             <View style={styles.quantityControls}>
               <TouchableOpacity
                 style={styles.quantityButton}
-                onPress={() => handleDecreaseQuantity(String(item.id))}
+                onPress={() => handleDecreaseQuantity(dishId)}
               >
                 <Text style={styles.quantityButtonText}>−</Text>
               </TouchableOpacity>
@@ -147,7 +155,7 @@ export const SearchScreen: React.FC = () => {
         </View>
       );
     },
-    [getItemQuantity, handleDishPress, handleDecreaseQuantity, handleAddToCart]
+    [getCartItem, handleDishPress, handleDecreaseQuantity, handleAddToCart]
   );
 
   const renderRecentItem = useCallback(

@@ -1,17 +1,33 @@
-import { RootState } from '../../app/store';
-import { CartItem } from './types';
+import { createSelector } from '@reduxjs/toolkit';
+import { name } from './slice';
+import { CartItem, CartState } from './types';
 
-export const selectCartItems = (state: RootState) => state.cart.items;
-export const selectCartLoading = (state: RootState) => state.cart.loading;
-export const selectCartError = (state: RootState) => state.cart.error;
+interface State {
+  [name]: CartState;
+}
 
-export const selectCartTotalItems = (state: RootState) =>
-  state.cart.items.reduce((sum, item) => sum + item.quantity, 0);
+const root = (state: State) => state[name];
 
-export const selectCartTotalPrice = (state: RootState) =>
-  state.cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+const selectCartItems = createSelector(root, (cart) => cart.items);
+const selectCartLoading = createSelector(root, (cart) => cart.loading);
+const selectCartError = createSelector(root, (cart) => cart.error);
+const selectCartTotalItems = createSelector(root, (cart) =>
+  cart.items.reduce((sum, item) => sum + item.quantity, 0)
+);
+const selectCartTotalPrice = createSelector(root, (cart) =>
+  cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+);
+const selectCartItemById = (id: string) =>
+  createSelector(
+    selectCartItems,
+    (items): CartItem | null => items.find((i) => i.id === id) ?? null
+  );
 
-export const selectCartItemById =
-  (id: string) =>
-  (state: RootState): CartItem | null =>
-    state.cart.items.find((item) => item.id === id) ?? null;
+export const selectors = {
+  selectCartItems,
+  selectCartLoading,
+  selectCartError,
+  selectCartTotalItems,
+  selectCartTotalPrice,
+  selectCartItemById,
+};

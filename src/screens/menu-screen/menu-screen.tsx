@@ -9,8 +9,7 @@ import { Category, Dish } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
 import { FilterChips } from '../../features/filter/filter-chips';
-import { MenuFeature } from '../../features/menu/index';
-import { MENU_SLICE_NAME } from '../../features/menu/slice';
+import { MenuFeature } from '../../features/menu';
 import { Images } from '../../shared/constants/images';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
@@ -106,7 +105,6 @@ const QuantityControls = React.memo(
         </TouchableOpacity>
       );
     }
-
     return (
       <View style={styles.quantityControl}>
         <TouchableOpacity style={styles.quantityButton} onPress={onDecrease}>
@@ -167,7 +165,7 @@ export const MenuScreen: React.FC = () => {
   }, [categories]);
 
   useEffect(() => {
-    dispatch({ type: `${MENU_SLICE_NAME}/fetchDishes` });
+    dispatch(MenuFeature.actions.fetchDishes());
   }, [dispatch]);
 
   useFocusEffect(
@@ -186,14 +184,14 @@ export const MenuScreen: React.FC = () => {
       setRestaurantTitle(restaurantName ?? 'Кафе Цезарь');
 
       if (mainFilter && filters.includes(mainFilter)) {
-        dispatch({ type: `${MENU_SLICE_NAME}/changeFilter`, payload: mainFilter });
+        dispatch(MenuFeature.actions.changeFilter(mainFilter));
       }
     }, [route.params, filters, dispatch])
   );
 
   const handleFilterPress = useCallback(
     (filter: string) => {
-      dispatch({ type: `${MENU_SLICE_NAME}/changeFilter`, payload: filter });
+      dispatch(MenuFeature.actions.changeFilter(filter));
     },
     [dispatch]
   );

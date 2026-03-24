@@ -6,16 +6,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
-import {
-  selectCartError,
-  selectCartItems,
-  selectCartLoading,
-  selectCartTotalItems,
-  selectCartTotalPrice,
-} from '../../features/cart/selectors';
-import { addToCart, clearCart, decreaseQuantity, removeFromCart } from '../../features/cart/slice';
+import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
-import { addOrder } from '../../features/orders/slice';
+import { OrdersFeature } from '../../features/orders';
 import { Images } from '../../shared/constants/images';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
@@ -46,20 +39,37 @@ const getCurrentDateInfo = () => {
   return { date, dayOfWeek };
 };
 
+const renderItemImage = (item: CartItem) => {
+  if (item.imageUrl) {
+    return (
+      <Image
+        source={{ uri: item.imageUrl }}
+        style={{ width: '100%', height: '100%', borderRadius: 12 }}
+        resizeMode="contain"
+      />
+    );
+  }
+  if (item.imageSvg) {
+    const SvgImage = item.imageSvg;
+    return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
+  }
+  return <Text style={styles.imagePlaceholder}>🍽</Text>;
+};
+
 export const BasketScreen: React.FC = () => {
   const navigation = useNavigation<BasketScreenNavigationProp>();
   const dispatch = useDispatch();
 
-  const items = useSelector(selectCartItems);
-  const totalPrice = useSelector(selectCartTotalPrice);
-  const totalItems = useSelector(selectCartTotalItems);
-  const loading = useSelector(selectCartLoading);
-  const error = useSelector(selectCartError);
+  const items = useSelector(CartFeature.selectors.selectCartItems);
+  const totalPrice = useSelector(CartFeature.selectors.selectCartTotalPrice);
+  const totalItems = useSelector(CartFeature.selectors.selectCartTotalItems);
+  const loading = useSelector(CartFeature.selectors.selectCartLoading);
+  const error = useSelector(CartFeature.selectors.selectCartError);
 
   const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
 
   useEffect(() => {
-    dispatch({ type: 'FETCH_CART' });
+    dispatch(CartFeature.actions.fetchCart());
   }, [dispatch]);
 
   const handleBackPress = useCallback(() => {
@@ -85,7 +95,7 @@ export const BasketScreen: React.FC = () => {
   const handleAddToCart = useCallback(
     (item: CartItem) => {
       dispatch(
-        addToCart({
+        CartFeature.actions.addToCart({
           id: item.id,
           cartItemId: item.cartItemId,
           name: item.name,
@@ -100,14 +110,14 @@ export const BasketScreen: React.FC = () => {
 
   const handleDecrease = useCallback(
     (item: CartItem) => {
-      dispatch(decreaseQuantity({ id: item.id, cartItemId: item.cartItemId }));
+      dispatch(CartFeature.actions.decreaseQuantity({ id: item.id, cartItemId: item.cartItemId }));
     },
     [dispatch]
   );
 
   const handleRemove = useCallback(
     (item: CartItem) => {
-      dispatch(removeFromCart({ id: item.id, cartItemId: item.cartItemId }));
+      dispatch(CartFeature.actions.removeFromCart({ id: item.id, cartItemId: item.cartItemId }));
     },
     [dispatch]
   );
@@ -133,27 +143,10 @@ export const BasketScreen: React.FC = () => {
       totalPrice,
       totalItems,
     };
-    dispatch(addOrder(newOrder));
-    dispatch(clearCart());
+    dispatch(OrdersFeature.actions.addOrder(newOrder));
+    dispatch(CartFeature.actions.clearCart());
     Alert.alert('Успешно', 'Заказ оформлен!');
   }, [dispatch, items, totalPrice, totalItems]);
-
-  const renderItemImage = (item: CartItem) => {
-    if (item.imageUrl) {
-      return (
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={{ width: '100%', height: '100%', borderRadius: 12 }}
-          resizeMode="contain"
-        />
-      );
-    }
-    if (item.imageSvg) {
-      const SvgImage = item.imageSvg;
-      return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
-    }
-    return <Text style={styles.imagePlaceholder}>🍽</Text>;
-  };
 
   const renderItem = useCallback(
     ({ item }: { item: CartItem }) => (
@@ -233,7 +226,7 @@ export const BasketScreen: React.FC = () => {
         {waveHeader}
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>{error}</Text>
-          <TouchableOpacity onPress={() => dispatch({ type: 'FETCH_CART' })}>
+          <TouchableOpacity onPress={() => dispatch(CartFeature.actions.fetchCart())}>
             <Text style={{ color: '#86EFAC', marginTop: 12 }}>Повторить</Text>
           </TouchableOpacity>
         </View>
@@ -255,7 +248,6 @@ export const BasketScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {waveHeader}
-
       <FlatList
         data={items}
         renderItem={renderItem}
@@ -263,7 +255,6 @@ export const BasketScreen: React.FC = () => {
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
       />
-
       <View style={styles.footer}>
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>Итого:</Text>
@@ -273,7 +264,6 @@ export const BasketScreen: React.FC = () => {
           <Text style={styles.orderButtonText}>Оформить заказ</Text>
         </TouchableOpacity>
       </View>
-
       <DishModal
         dishId={selectedDishId}
         visible={selectedDishId !== null}
