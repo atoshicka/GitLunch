@@ -256,12 +256,23 @@ export const BasketScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       />
       <View style={styles.footer}>
-        <View style={styles.totalContainer}>
-          <Text style={styles.totalLabel}>Итого:</Text>
+        <View style={styles.promoRow}>
+          <Text style={styles.promoLabel}>Акции</Text>
+          <Text style={styles.promoValue}>—</Text>
+        </View>
+
+        <View style={styles.discountRow}>
+          <Text style={styles.discountLabel}>Скидка</Text>
+          <Text style={styles.discountValue}>—</Text>
+        </View>
+
+        <View style={styles.totalRow}>
+          <Text style={styles.totalLabel}>Итоговая цена</Text>
           <Text style={styles.totalPrice}>{totalPrice} ₽</Text>
         </View>
+
         <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
-          <Text style={styles.orderButtonText}>Оформить заказ</Text>
+          <Text style={styles.orderButtonText}>Оплатить</Text>
         </TouchableOpacity>
       </View>
       <DishModal

@@ -29,18 +29,18 @@ export const SearchScreen: React.FC = () => {
   const dispatch = useDispatch();
 
   const dishes = useSelector(MenuFeature.selectors.selectDishes);
-  const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
+  const isMenuLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
   const cartItems = useSelector(CartFeature.selectors.selectCartItems);
 
-  const { query, setQuery, searchResults } = useSearch(dishes);
+  const { query, setQuery, searchResults, isSearching } = useSearch(dishes);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (dishes.length === 0 && !isLoading) {
+    if (dishes.length === 0 && !isMenuLoading) {
       dispatch(MenuFeature.actions.fetchDishes());
     }
-  }, [dishes.length, isLoading, dispatch]);
+  }, [dishes.length, isMenuLoading, dispatch]);
 
   const getCartItem = useCallback(
     (itemId: string): CartItem | undefined => {
@@ -168,7 +168,7 @@ export const SearchScreen: React.FC = () => {
   );
 
   const renderContent = () => {
-    if (isLoading && dishes.length === 0) {
+    if (isMenuLoading && dishes.length === 0) {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#22C55E" />
@@ -178,6 +178,13 @@ export const SearchScreen: React.FC = () => {
     }
 
     if (query.length > 0) {
+      if (isSearching) {
+        return (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#22C55E" />
+          </View>
+        );
+      }
       return (
         <FlatList
           data={searchResults}

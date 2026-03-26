@@ -166,15 +166,45 @@ export const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW + 20,
     backgroundColor: '#22C55E',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 38,
+    borderTopRightRadius: 38,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 4,
   },
-  totalContainer: {
+  promoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  promoLabel: {
+    ...Typography.buttonRegular,
+    fontWeight: '500',
+    color: '#1F2937',
+  },
+  promoValue: {
+    ...Typography.bodyRegular,
+    color: '#1F2937',
+  },
+  discountRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  discountLabel: {
+    ...Typography.buttonRegular,
+    fontWeight: '500',
+    color: '#1F2937',
+  },
+  discountValue: {
+    ...Typography.bodyRegular,
+    color: '#1F2937',
+  },
+  totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

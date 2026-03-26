@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
   DISHES_BY_CATEGORY: (categoryId: string) => `/menu_items?category_id=${categoryId}`,
   CATEGORIES: '/categories',
   DISH_DETAIL: (id: string) => `/menu_items/${id}`,
+  SEARCH: '/search',
 
   ORDERS: '/orders',
   ORDER_DETAIL: (id: string) => `/orders/${id}`,

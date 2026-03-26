@@ -19,4 +19,5 @@ export interface LoginState {
   isLoading: boolean;
   isAuthenticated: boolean;
   token: string | null;
+  isRestoring: boolean;
 }

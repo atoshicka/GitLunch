@@ -99,13 +99,11 @@ export const createApiService = (api: AxiosInstance) => ({
   async searchDishes(query: string): Promise<Dish[]> {
     try {
       const response = await api.get<Dish[] | { menu_items: Dish[] }>(
-        `${API_ENDPOINTS.DISHES}?search=${query}`
+        `${API_ENDPOINTS.SEARCH}?q=${encodeURIComponent(query)}`
       );
-
       const dishes: Dish[] = Array.isArray(response.data)
         ? response.data
         : (response.data.menu_items ?? []);
-
       return dishes.map(normalizeDish);
     } catch (error) {
       console.error(`Error searching dishes with query "${query}":`, error);

@@ -18,6 +18,7 @@ const selectGeneralError = createSelector(root, (loginSlice) => loginSlice.error
 const selectIsLoading = createSelector(root, (loginSlice) => loginSlice.isLoading);
 const selectIsAuthenticated = createSelector(root, (loginSlice) => loginSlice.isAuthenticated);
 const selectToken = createSelector(root, (loginSlice) => loginSlice.token);
+const selectIsRestoring = createSelector(root, (loginSlice) => loginSlice.isRestoring);
 
 export const selectors = {
   selectLogin,
@@ -30,4 +31,5 @@ export const selectors = {
   selectIsLoading,
   selectIsAuthenticated,
   selectToken,
+  selectIsRestoring,
 };
