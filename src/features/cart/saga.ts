@@ -33,14 +33,16 @@ function* syncAddToCartSaga(action: ReturnType<typeof actions.addToCart>) {
     const apiService: ApiService = yield getContext('apiService');
     const { id, cartItemId } = action.payload;
 
+    // Читаем стейт ПОСЛЕ того как Redux уже обновил quantity
     const items: CartItem[] = yield select(selectors.selectCartItems);
     const existing = items.find((i) => i.id === id);
     const resolvedCartItemId = cartItemId ?? existing?.cartItemId;
 
-    if (resolvedCartItemId) {
-      const newQuantity = existing?.quantity ?? 1;
-      yield call([apiService, apiService.updateCartItem], resolvedCartItemId, newQuantity);
+    if (resolvedCartItemId && existing) {
+      // Отправляем актуальное quantity которое уже в стейте
+      yield call([apiService, apiService.updateCartItem], resolvedCartItemId, existing.quantity);
     } else {
+      // Новый товар — добавляем с quantity 1
       const cart: BackendCartResponse = yield call(
         [apiService, apiService.addCartItem],
         Number(id),
@@ -52,6 +54,7 @@ function* syncAddToCartSaga(action: ReturnType<typeof actions.addToCart>) {
       }
     }
   } catch {
+    // При ошибке синхронизируем с бэком
     yield call(fetchCartSaga);
   }
 }
@@ -63,12 +66,15 @@ function* syncDecreaseSaga(action: ReturnType<typeof actions.decreaseQuantity>) 
 
     if (!cartItemId) return;
 
+    // Читаем стейт ПОСЛЕ того как Redux уже уменьшил quantity
     const items: CartItem[] = yield select(selectors.selectCartItems);
     const item = items.find((i) => i.id === id);
 
     if (!item) {
+      // Товара нет в стейте — значит quantity стало 0, удаляем
       yield call([apiService, apiService.deleteCartItem], cartItemId);
     } else {
+      // Отправляем актуальное quantity
       yield call([apiService, apiService.updateCartItem], cartItemId, item.quantity);
     }
   } catch {

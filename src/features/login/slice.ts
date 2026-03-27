@@ -47,13 +47,13 @@ export const { name, actions, reducer } = createSlice({
       state.errors = action.payload;
       state.isRestoring = false;
     },
+    logoutRequest: () => {},
     logout: (state) => {
       state.isAuthenticated = false;
       state.userName = null;
       state.token = null;
       state.isRestoring = false;
     },
-    restoreSession: () => {},
     restoreSessionSuccess: (state, action: PayloadAction<{ token: string; userName: string }>) => {
       state.isAuthenticated = true;
       state.token = action.payload.token;

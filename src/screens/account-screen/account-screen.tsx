@@ -41,15 +41,12 @@ export const AccountScreen: React.FC = () => {
       'Выход из аккаунта',
       'Вы уверены, что хотите выйти?',
       [
-        {
-          text: 'Нет',
-          style: 'cancel',
-        },
+        { text: 'Нет', style: 'cancel' },
         {
           text: 'Да',
           style: 'destructive',
           onPress: () => {
-            dispatch(LoginFeature.actions.logout());
+            dispatch(LoginFeature.actions.logoutRequest());
           },
         },
       ],

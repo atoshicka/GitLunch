@@ -44,5 +44,5 @@ function* handleLogout() {
 
 export function* watchLogin() {
   yield takeLatest(actions.submitLogin.type, handleSubmitLogin);
-  yield takeLatest(actions.logout.type, handleLogout);
+  yield takeLatest(actions.logoutRequest.type, handleLogout);
 }
