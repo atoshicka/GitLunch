@@ -1,62 +1,36 @@
-import { useEffect, useRef, useState } from 'react';
-import { createApiService } from '../../../entities/api/api-interface';
-import { api } from '../../../entities/api/axios-config';
-import { Dish } from '../../../entities/api/types/menu-types';
+import { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { SearchFeature } from '../../../features/search';
 
-const DEBOUNCE_MS = 400;
+export const useSearch = () => {
+  const dispatch = useDispatch();
 
-const apiService = createApiService(api);
+  const query = useSelector(SearchFeature.selectors.selectQuery);
+  const searchResults = useSelector(SearchFeature.selectors.selectResults);
+  const isSearching = useSelector(SearchFeature.selectors.selectIsSearching);
+  const recentSearches = useSelector(SearchFeature.selectors.selectRecentSearches);
 
-export const useSearch = (localItems: Dish[]) => {
-  const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Dish[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setQuery = useCallback(
+    (text: string) => {
+      dispatch(SearchFeature.actions.setQuery(text));
+      dispatch(SearchFeature.actions.searchRequest(text));
+    },
+    [dispatch]
+  );
 
-  useEffect(() => {
-    const trimmed = query.trim();
-
-    if (!trimmed) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    setIsSearching(true);
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const results = await apiService.searchDishes(trimmed);
-        setSearchResults(results);
-      } catch {
-        const lower = trimmed.toLowerCase();
-        const fallback = localItems.filter((item) => {
-          const name = item.name?.toLowerCase() ?? '';
-          const description = item.description?.toLowerCase() ?? '';
-          const ingredients = item.ingredients?.toLowerCase() ?? '';
-          return name.includes(lower) || description.includes(lower) || ingredients.includes(lower);
-        });
-        setSearchResults(fallback);
-      } finally {
-        setIsSearching(false);
-      }
-    }, DEBOUNCE_MS);
-
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, [query, localItems]);
+  const addRecentSearch = useCallback(
+    (text: string) => {
+      dispatch(SearchFeature.actions.addRecentSearch(text));
+    },
+    [dispatch]
+  );
 
   return {
     query,
     setQuery,
     searchResults,
     isSearching,
+    recentSearches,
+    addRecentSearch,
   };
 };

@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoginForm } from '../../features/login/ui/login-form';
 import { OrdersScreen } from '../../features/orders/orders';
-import { SearchScreen } from '../../features/search/ui/search-screen';
+import { SearchScreen } from '../../screens/search-screen/search-screen';
 import { SCREEN_NAMES } from '../../shared/constants/navigation';
 import { TabNavigator } from '../../shared/constants/TabNavigator';
 import { authStyles } from './navigation-styles';

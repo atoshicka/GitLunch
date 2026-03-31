@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
   container: {
@@ -23,8 +24,9 @@ export const styles = StyleSheet.create({
     marginRight: 8,
   },
   backButtonText: {
+    ...Typography.buttonRegular,
     fontSize: 32,
-    color: '#0F172A',
+    color: '#1F2937',
     lineHeight: 32,
   },
   searchContainer: {
@@ -37,6 +39,7 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
   loadingText: {
+    ...Typography.bodyRegular,
     fontSize: 16,
     color: '#94A3B8',
   },
@@ -47,6 +50,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   hintText: {
+    ...Typography.bodyRegular,
     fontSize: 15,
     color: '#94A3B8',
     textAlign: 'center',
@@ -58,9 +62,10 @@ export const styles = StyleSheet.create({
     paddingTop: 20,
   },
   recentTitle: {
+    ...Typography.titleSmall,
     fontSize: 16,
     fontWeight: '600',
-    color: '#0F172A',
+    color: '#1F2937',
     marginBottom: 12,
   },
   recentItem: {
@@ -69,8 +74,9 @@ export const styles = StyleSheet.create({
     borderBottomColor: '#E2E8F0',
   },
   recentText: {
+    ...Typography.bodyRegular,
     fontSize: 16,
-    color: '#0F172A',
+    color: '#1F2937',
   },
   resultsList: {
     padding: 16,
@@ -91,7 +97,7 @@ export const styles = StyleSheet.create({
   imageContainer: {
     width: 56,
     height: 56,
-    backgroundColor: '#DFFCEA',
+    backgroundColor: 'transparent',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -99,21 +105,24 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   resultImagePlaceholder: {
+    ...Typography.bodyRegular,
     fontSize: 24,
   },
   resultInfo: {
     flex: 1,
   },
   resultName: {
+    ...Typography.bodyRegular,
     fontSize: 15,
     fontWeight: '600',
     color: '#0F172A',
     marginBottom: 2,
   },
   resultPrice: {
+    ...Typography.buttonRegular,
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#22C55E',
+    color: '#1F2937',
     marginBottom: 2,
   },
   resultCategory: {
@@ -121,16 +130,17 @@ export const styles = StyleSheet.create({
     color: '#94A3B8',
   },
   addButton: {
-    backgroundColor: '#1BB910',
+    backgroundColor: '#22C55E',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 15,
     marginLeft: 12,
   },
   addButtonText: {
-    color: '#FFFFFF',
+    ...Typography.buttonSmall,
     fontSize: 14,
     fontWeight: '600',
+    color: '#1F2937',
   },
   quantityControls: {
     flexDirection: 'row',
@@ -140,19 +150,21 @@ export const styles = StyleSheet.create({
   },
   quantityButton: {
     width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#1BB910',
+    height: 28,
+    borderRadius: 10,
+    backgroundColor: '#22C55E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   quantityButtonText: {
+    ...Typography.buttonRegular,
     fontSize: 18,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#1F2937',
     lineHeight: 22,
   },
   quantityText: {
+    ...Typography.bodyRegular,
     fontSize: 16,
     fontWeight: '600',
     color: '#1F2937',
@@ -160,6 +172,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   emptyText: {
+    ...Typography.bodyRegular,
     textAlign: 'center',
     color: '#94A3B8',
     fontSize: 16,

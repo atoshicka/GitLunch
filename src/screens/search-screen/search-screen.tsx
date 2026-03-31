@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,15 +12,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { Dish } from '../../../entities/api/types/menu-types';
-import { CartFeature } from '../../../features/cart';
-import { CartItem } from '../../../features/cart/types';
-import { MenuFeature } from '../../../features/menu';
-import { Images } from '../../../shared/constants/images';
-import { DishModal } from '../../../shared/dish-modal/dish-modal';
-import { useSearch } from '../../../shared/search/hooks/use-search';
-import { SearchInput } from '../../../shared/search/ui/search-input';
-import { styles } from './search-screen.styles';
+import { Dish } from '../../entities/api/types/menu-types';
+import { CartFeature } from '../../features/cart';
+import { CartItem } from '../../features/cart/types';
+import { Images } from '../../shared/constants/images';
+import { DishModal } from '../../shared/dish-modal/dish-modal';
+import { useSearch } from '../../shared/search/hooks/use-search';
+import { SearchInput } from '../../shared/search/ui/search-input';
+import { styles } from './search-screen-styles';
 
 const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 
@@ -28,32 +27,22 @@ export const SearchScreen: React.FC = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const dishes = useSelector(MenuFeature.selectors.selectDishes);
-  const isMenuLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
   const cartItems = useSelector(CartFeature.selectors.selectCartItems);
+  const { query, setQuery, searchResults, isSearching, recentSearches, addRecentSearch } =
+    useSearch();
 
-  const { query, setQuery, searchResults, isSearching } = useSearch(dishes);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (dishes.length === 0 && !isMenuLoading) {
-      dispatch(MenuFeature.actions.fetchDishes());
-    }
-  }, [dishes.length, isMenuLoading, dispatch]);
-
   const getCartItem = useCallback(
-    (itemId: string): CartItem | undefined => {
-      return cartItems.find((item) => item.id === itemId);
-    },
+    (itemId: string): CartItem | undefined => cartItems.find((item) => item.id === itemId),
     [cartItems]
   );
 
   const handleSubmit = useCallback(() => {
     if (query.trim()) {
-      setRecentSearches((prev) => [query, ...prev.filter((s) => s !== query)].slice(0, 5));
+      addRecentSearch(query);
     }
-  }, [query]);
+  }, [query, addRecentSearch]);
 
   const handleAddToCart = useCallback(
     (item: Dish) => {
@@ -86,13 +75,8 @@ export const SearchScreen: React.FC = () => {
     [dispatch, cartItems]
   );
 
-  const handleDishPress = useCallback((id: number) => {
-    setSelectedDishId(id);
-  }, []);
-
-  const handleModalClose = useCallback(() => {
-    setSelectedDishId(null);
-  }, []);
+  const handleDishPress = useCallback((id: number) => setSelectedDishId(id), []);
+  const handleModalClose = useCallback(() => setSelectedDishId(null), []);
 
   const renderItemImage = (item: Dish) => {
     if (item.image_url) {
@@ -168,23 +152,15 @@ export const SearchScreen: React.FC = () => {
   );
 
   const renderContent = () => {
-    if (isMenuLoading && dishes.length === 0) {
+    if (isSearching) {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#22C55E" />
-          <Text style={styles.loadingText}>Загрузка блюд...</Text>
         </View>
       );
     }
 
     if (query.length > 0) {
-      if (isSearching) {
-        return (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#22C55E" />
-          </View>
-        );
-      }
       return (
         <FlatList
           data={searchResults}
