@@ -42,7 +42,27 @@ function* handleLogout() {
   yield put(actions.logout());
 }
 
+function* handleRestoreSession() {
+  try {
+    const token: string | null = yield call([AsyncStorage, 'getItem'], 'token');
+    const userJson: string | null = yield call([AsyncStorage, 'getItem'], 'user');
+
+    if (!token || !userJson) {
+      yield put(actions.restoreSessionFailure());
+      return;
+    }
+
+    const user = JSON.parse(userJson);
+    yield put(actions.restoreSessionSuccess({ token, userName: user.full_name }));
+  } catch {
+    yield call([AsyncStorage, 'removeItem'], 'token');
+    yield call([AsyncStorage, 'removeItem'], 'user');
+    yield put(actions.restoreSessionFailure());
+  }
+}
+
 export function* watchLogin() {
   yield takeLatest(actions.submitLogin.type, handleSubmitLogin);
   yield takeLatest(actions.logoutRequest.type, handleLogout);
+  yield takeLatest(actions.restoreSession.type, handleRestoreSession);
 }

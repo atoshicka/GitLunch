@@ -1,22 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Provider, useSelector } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { LoginFeature } from '../features/login';
 import { AppNavigator, AuthScreen } from './navigation/app-navigation';
 import { store } from './store';
-import { initializeAuth } from './store-initializer';
 
 const AppContent: React.FC = () => {
-  const [isInitialized, setIsInitialized] = useState(false);
+  const dispatch = useDispatch();
   const isAuthenticated = useSelector(LoginFeature.selectors.selectIsAuthenticated);
+  const isRestoring = useSelector(LoginFeature.selectors.selectIsRestoring);
 
   useEffect(() => {
-    initializeAuth().finally(() => {
-      setIsInitialized(true);
-    });
-  }, []);
+    dispatch(LoginFeature.actions.restoreSession());
+  }, [dispatch]);
 
-  if (!isInitialized) {
+  if (isRestoring) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#86EFAC" />

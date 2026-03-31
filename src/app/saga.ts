@@ -3,6 +3,7 @@ import { CartFeature } from '../features/cart';
 import { HomeFeature } from '../features/home';
 import { LoginFeature } from '../features/login';
 import { MenuFeature } from '../features/menu';
+import { SearchFeature } from '../features/search';
 
 export function* rootSaga() {
   yield all([
@@ -10,5 +11,6 @@ export function* rootSaga() {
     fork(HomeFeature.sagas.watchHome),
     fork(MenuFeature.sagas.watchMenu),
     fork(CartFeature.sagas.watchCart),
+    fork(SearchFeature.sagas.watchSearch),
   ]);
 }

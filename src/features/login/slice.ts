@@ -54,6 +54,7 @@ export const { name, actions, reducer } = createSlice({
       state.token = null;
       state.isRestoring = false;
     },
+    restoreSession: () => {},
     restoreSessionSuccess: (state, action: PayloadAction<{ token: string; userName: string }>) => {
       state.isAuthenticated = true;
       state.token = action.payload.token;

@@ -4,7 +4,10 @@ export const styles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    width: '100%',
+  },
+  searchTouchable: {
+    flex: 1,
   },
   container: {
     flex: 1,
@@ -48,5 +51,6 @@ export const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 8,
   },
 });
