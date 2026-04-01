@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -223,17 +223,21 @@ export const HomeScreen: React.FC = () => {
     dispatch(HomeFeature.actions.fetchRestaurants());
   }, [dispatch]);
 
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-
-  const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [-120, 0],
-    extrapolate: 'clamp',
-  });
+  const { headerOpacity, headerTranslateY } = useMemo(
+    () => ({
+      headerOpacity: scrollY.interpolate({
+        inputRange: [0, 80],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+      }),
+      headerTranslateY: scrollY.interpolate({
+        inputRange: [0, 80],
+        outputRange: [-100, 0],
+        extrapolate: 'clamp',
+      }),
+    }),
+    [scrollY]
+  );
 
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
@@ -294,48 +298,32 @@ export const HomeScreen: React.FC = () => {
     [handleDishPress]
   );
 
-  const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-    useNativeDriver: true,
-  });
-
-  const accountButton = (
-    <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
-      <AccountIcon width={36} height={36} />
-    </TouchableOpacity>
+  const handleScroll = useMemo(
+    () =>
+      Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: true,
+      }),
+    [scrollY]
   );
 
-  const renderPromoSection = () => {
-    if (promoDishes.length === 0) {
-      return (
-        <View style={styles.emptyPromoContainer}>
-          <Text style={styles.emptyPromoText}>Нет акционных блюд</Text>
-        </View>
-      );
-    }
-    return (
-      <FlatList
-        data={promoDishes}
-        renderItem={renderPromoItem}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.promoList}
-        decelerationRate="fast"
-        removeClippedSubviews
-        maxToRenderPerBatch={3}
-        windowSize={3}
-      />
-    );
-  };
+  const accountButton = useMemo(
+    () => (
+      <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
+        <AccountIcon width={36} height={36} />
+      </TouchableOpacity>
+    ),
+    [handleAccountPress]
+  );
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
       <Animated.View
+        pointerEvents="box-none"
         style={[
           styles.floatingHeader,
-          { transform: [{ translateY: headerTranslateY }], opacity: headerOpacity },
+          { transform: [{ translateY: headerTranslateY }], opacity: headerOpacity, zIndex: 10 },
         ]}
       >
         <SafeAreaView edges={['top']} style={styles.floatingHeaderSafe}>
@@ -355,6 +343,7 @@ export const HomeScreen: React.FC = () => {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW }}
+        removeClippedSubviews={true}
       >
         <View style={styles.waveSection}>
           <View style={styles.waveBackground}>
@@ -381,6 +370,7 @@ export const HomeScreen: React.FC = () => {
               style={{ width, height: 180 }}
               initialPage={0}
               onPageSelected={(e) => setCurrentIndex(e.nativeEvent.position)}
+              offscreenPageLimit={2}
             >
               {restaurants.map((item) => (
                 <View key={item.id}>
@@ -393,7 +383,23 @@ export const HomeScreen: React.FC = () => {
 
           <View style={styles.promoSection}>
             <Text style={styles.sectionTitle}>Акции дня</Text>
-            {renderPromoSection()}
+            {promoDishes.length === 0 ? (
+              <View style={styles.emptyPromoContainer}>
+                <Text style={styles.emptyPromoText}>Нет акционных блюд</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={promoDishes}
+                renderItem={renderPromoItem}
+                keyExtractor={(item) => String(item.id)}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.promoList}
+                decelerationRate="fast"
+                initialNumToRender={3}
+                windowSize={3}
+              />
+            )}
           </View>
         </View>
       </Animated.ScrollView>

@@ -3,6 +3,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { SvgProps } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Category, Dish } from '../../entities/api/types/menu-types';
@@ -19,7 +20,6 @@ import { styles } from './menu-styles';
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 type MenuScreenRouteProp = RouteProp<RootStackParamList, 'Menu'>;
 
-const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 const SubtractIcon = Images.home.wave;
 const AccountIcon = Images.navigation.account;
 
@@ -40,9 +40,9 @@ const useDishCart = (dishId: string, dish: Dish) => {
         id: dishId,
         cartItemId: cartItem?.cartItemId,
         name: dish.name,
-        price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
+        price: dish.price,
         imageSvg: dish.imageSvg,
-        imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
+        imageUrl: dish.imageUrl,
       })
     );
   }, [dispatch, dishId, dish, cartItem?.cartItemId]);
@@ -60,28 +60,17 @@ const useDishCart = (dishId: string, dish: Dish) => {
 };
 
 const DishImage = React.memo(
-  ({
-    imageUrl,
-    imageSvg,
-  }: {
-    imageUrl?: string;
-    imageSvg?: React.ComponentType<{
-      width: string;
-      height: string;
-      preserveAspectRatio: string;
-    }>;
-  }) => {
+  ({ imageUrl, imageSvg: SvgImage }: { imageUrl?: string; imageSvg?: React.FC<SvgProps> }) => {
     if (imageUrl) {
       return (
         <Image
-          source={{ uri: `${BASE_URL}${imageUrl}` }}
+          source={{ uri: imageUrl }}
           style={{ width: '100%', height: '100%', borderRadius: 12 }}
           resizeMode="contain"
         />
       );
     }
-    if (imageSvg) {
-      const SvgImage = imageSvg;
+    if (SvgImage) {
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
     }
     return <Text style={styles.imagePlaceholder}>🍽</Text>;
@@ -132,14 +121,13 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
       style={styles.dishCard}
     >
       <View style={styles.imageContainer}>
-        <DishImage imageUrl={item.image_url} imageSvg={item.imageSvg} />
+        {/* Передаем imageUrl, а не image_url */}
+        <DishImage imageUrl={item.imageUrl} imageSvg={item.imageSvg} />
       </View>
       <Text style={styles.dishName} numberOfLines={2}>
         {item.name}
       </Text>
-      <Text style={styles.dishPrice}>
-        {typeof item.price === 'string' ? parseFloat(item.price) : item.price} ₽
-      </Text>
+      <Text style={styles.dishPrice}>{item.price} ₽</Text>
       <QuantityControls quantity={quantity} onIncrease={handleAdd} onDecrease={handleDecrease} />
     </LinearGradient>
   );

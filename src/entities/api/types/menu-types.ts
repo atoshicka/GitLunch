@@ -10,8 +10,9 @@ export interface Dish {
   id: number;
   name: string;
   description: string;
-  price: string;
+  price: number;
   image_url?: string;
+  imageUrl?: string;
   categories?: DishCategory[];
   category: DishCategory;
   meal_category?: number;
