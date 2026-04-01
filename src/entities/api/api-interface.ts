@@ -11,23 +11,27 @@ import {
 import { PromoDish, Restaurant } from './types/home-types';
 import { Dish, DishCategory } from './types/menu-types';
 
-const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
+export const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 
 const normalizeDish = (dish: Dish): Dish => {
-  if (dish.category) return dish;
-
-  const categories = dish.categories ?? [];
-  const primary = categories.find((c) => c.name.toLowerCase() !== 'акции') ?? categories[0];
-
-  return {
+  const fullImageUrl = dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined;
+  const normalized: Dish = {
     ...dish,
-    category: primary ?? { id: 0, name: '' },
+    imageUrl: fullImageUrl,
   };
+
+  // Логика с категориями
+  if (!normalized.category) {
+    const categories = normalized.categories ?? [];
+    const primary = categories.find((c) => c.name.toLowerCase() !== 'акции') ?? categories[0];
+    normalized.category = primary ?? { id: 0, name: '' };
+  }
+
+  return normalized;
 };
 
 export const createApiService = (api: AxiosInstance) => ({
   //Блюда
-
   async getDishes(): Promise<Dish[]> {
     try {
       const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);

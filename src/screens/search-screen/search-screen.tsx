@@ -21,8 +21,6 @@ import { useSearch } from '../../shared/search/hooks/use-search';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './search-screen-styles';
 
-const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
-
 export const SearchScreen: React.FC = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -48,6 +46,7 @@ export const SearchScreen: React.FC = () => {
     (item: Dish) => {
       const dishId = String(item.id);
       const cartItem = cartItems.find((i) => i.id === dishId);
+
       dispatch(
         CartFeature.actions.addToCart({
           id: dishId,
@@ -55,7 +54,7 @@ export const SearchScreen: React.FC = () => {
           name: item.name,
           price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
           imageSvg: item.imageSvg,
-          imageUrl: item.image_url ? `${BASE_URL}${item.image_url}` : undefined,
+          imageUrl: item.imageUrl,
         })
       );
     },
@@ -82,7 +81,7 @@ export const SearchScreen: React.FC = () => {
     if (item.image_url) {
       return (
         <Image
-          source={{ uri: `${BASE_URL}${item.image_url}` }}
+          source={{ uri: item.imageUrl }}
           style={{ width: '100%', height: '100%', borderRadius: 8 }}
           resizeMode="contain"
         />
