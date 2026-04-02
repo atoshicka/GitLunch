@@ -12,16 +12,15 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { createApiService } from '../../entities/api/api-interface';
+
+import { BASE_URL, createApiService } from '../../entities/api/api-interface';
 import { api } from '../../entities/api/axios-config';
 import { Dish } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
 import { styles } from './dish-modal-styles';
 
-const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 const apiService = createApiService(api);
-
 const SWIPE_THRESHOLD = 80;
 
 interface DishModalProps {
@@ -30,13 +29,12 @@ interface DishModalProps {
   onClose: () => void;
 }
 
-interface NutritionRowProps {
+interface NutritionItem {
   label: string;
   value: string;
-  isLast?: boolean;
 }
 
-const NutritionRow: React.FC<NutritionRowProps> = ({ label, value, isLast }) => (
+const NutritionRow: React.FC<NutritionItem & { isLast?: boolean }> = ({ label, value, isLast }) => (
   <View style={[styles.nutritionRow, isLast && { borderBottomWidth: 0 }]}>
     <Text style={styles.nutritionLabel}>{label}</Text>
     <Text style={styles.nutritionValue}>{value}</Text>
@@ -54,33 +52,27 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 0,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          translateY.setValue(gestureState.dy);
-        }
+      onMoveShouldSetPanResponder: (_, { dy }) => dy > 0,
+      onPanResponderMove: (_, { dy }) => {
+        if (dy > 0) translateY.setValue(dy);
       },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > SWIPE_THRESHOLD) {
+      onPanResponderRelease: (_, { dy }) => {
+        if (dy > SWIPE_THRESHOLD) {
           Animated.timing(translateY, {
             toValue: 600,
             duration: 200,
             useNativeDriver: true,
-          }).start(() => {
-            onClose();
-          });
+          }).start(onClose);
         } else {
-          Animated.spring(translateY, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
+          Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
         }
       },
     })
   ).current;
 
-  const cartItemSelector = CartFeature.selectors.selectCartItemById(dish ? String(dish.id) : '');
-  const cartItem = useSelector(cartItemSelector) as CartItem | null;
+  const cartItem = useSelector(
+    CartFeature.selectors.selectCartItemById(dish ? String(dish.id) : '')
+  ) as CartItem | null;
   const quantity = cartItem?.quantity ?? 0;
 
   const fetchDish = useCallback(async (id: number) => {
@@ -109,43 +101,33 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
     }
   }, [visible, dishId, fetchDish, translateY]);
 
-  const handleAddToCart = useCallback(() => {
-    if (!dish) return;
-    dispatch(
-      CartFeature.actions.addToCart({
-        id: String(dish.id),
-        cartItemId: cartItem?.cartItemId,
-        name: dish.name,
-        price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
-        imageSvg: dish.imageSvg,
-        imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
-      })
-    );
-  }, [dispatch, dish, cartItem?.cartItemId]);
+  const handleCartAction = useCallback(
+    (type: 'add' | 'decrease') => {
+      if (!dish) return;
+      const action =
+        type === 'add' ? CartFeature.actions.addToCart : CartFeature.actions.decreaseQuantity;
 
-  const handleDecrease = useCallback(() => {
-    if (!dish) return;
-    dispatch(
-      CartFeature.actions.decreaseQuantity({
-        id: String(dish.id),
-        cartItemId: cartItem?.cartItemId,
-      })
-    );
-  }, [dispatch, dish, cartItem?.cartItemId]);
+      dispatch(
+        action({
+          id: String(dish.id),
+          cartItemId: cartItem?.cartItemId,
+          name: dish.name,
+          price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
+          imageSvg: dish.imageSvg,
+          imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
+        })
+      );
+    },
+    [dispatch, dish, cartItem]
+  );
 
-  const hasNutrition =
-    dish?.calories !== undefined ||
-    dish?.proteins !== undefined ||
-    dish?.fats !== undefined ||
-    dish?.carbs !== undefined;
-
-  const nutritionRows = dish
+  const nutritionData: NutritionItem[] = dish
     ? [
-        dish.proteins !== undefined ? { label: 'Белки', value: `${dish.proteins} г` } : null,
-        dish.fats !== undefined ? { label: 'Жиры', value: `${dish.fats} г` } : null,
-        dish.carbs !== undefined ? { label: 'Углеводы', value: `${dish.carbs} г` } : null,
-        dish.calories !== undefined ? { label: 'Калории', value: `${dish.calories} ккал` } : null,
-      ].filter(Boolean)
+        dish.proteins !== undefined && { label: 'Белки', value: `${dish.proteins} г` },
+        dish.fats !== undefined && { label: 'Жиры', value: `${dish.fats} г` },
+        dish.carbs !== undefined && { label: 'Углеводы', value: `${dish.carbs} г` },
+        dish.calories !== undefined && { label: 'Калории', value: `${dish.calories} ккал` },
+      ].filter((item): item is NutritionItem => Boolean(item))
     : [];
 
   return (
@@ -165,110 +147,108 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
           <View style={styles.handle} />
         </View>
 
-        <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeButtonText}>✕</Text>
         </TouchableOpacity>
 
-        {isLoading && (
+        {isLoading ? (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color="#22C55E" />
           </View>
-        )}
-
-        {error !== null && !isLoading && (
+        ) : error ? (
           <View style={styles.centered}>
             <Text style={styles.errorText}>{error}</Text>
             <TouchableOpacity
               style={styles.retryButton}
-              onPress={() => dishId !== null && fetchDish(dishId)}
+              onPress={() => dishId && fetchDish(dishId)}
             >
               <Text style={styles.retryButtonText}>Повторить</Text>
             </TouchableOpacity>
           </View>
-        )}
-
-        {dish !== null && !isLoading && error === null && (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-            bounces={false}
-          >
-            {dish.image_url ? (
-              <Image
-                source={{ uri: `${BASE_URL}${dish.image_url}` }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={styles.imagePlaceholder}>
-                <Text style={styles.imagePlaceholderText}>🍽</Text>
-              </View>
-            )}
-
-            <View style={styles.infoBlock}>
-              <Text style={styles.name}>{dish.name}</Text>
-
-              <View style={styles.metaRow}>
-                {dish.weight !== undefined && (
-                  <View style={styles.metaBadge}>
-                    <Text style={styles.metaBadgeText}>{dish.weight} г</Text>
-                  </View>
-                )}
-                {dish.calories !== undefined && (
-                  <View style={styles.metaBadge}>
-                    <Text style={styles.metaBadgeText}>{dish.calories} ккал</Text>
-                  </View>
-                )}
-                {dish.category?.name ? (
-                  <View style={[styles.metaBadge, styles.metaBadgeGreen]}>
-                    <Text style={styles.metaBadgeText}>{dish.category.name}</Text>
-                  </View>
-                ) : null}
-              </View>
-
-              {dish.description ? <Text style={styles.description}>{dish.description}</Text> : null}
-
-              {dish.ingredients ? (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Состав</Text>
-                  <Text style={styles.ingredients}>{dish.ingredients}</Text>
-                </View>
-              ) : null}
-
-              {hasNutrition && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Пищевая ценность</Text>
-                  <View style={styles.nutritionBlock}>
-                    {nutritionRows.map((row, index) => (
-                      <NutritionRow
-                        key={row!.label}
-                        label={row!.label}
-                        value={row!.value}
-                        isLast={index === nutritionRows.length - 1}
-                      />
-                    ))}
-                  </View>
+        ) : (
+          dish && (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+              bounces={false}
+            >
+              {dish.image_url ? (
+                <Image
+                  source={{ uri: `${BASE_URL}${dish.image_url}` }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Text style={styles.imagePlaceholderText}>🍽</Text>
                 </View>
               )}
-            </View>
-          </ScrollView>
+
+              <View style={styles.infoBlock}>
+                <Text style={styles.name}>{dish.name}</Text>
+
+                <View style={styles.metaRow}>
+                  {dish.weight && (
+                    <View style={styles.metaBadge}>
+                      <Text style={styles.metaBadgeText}>{dish.weight} г</Text>
+                    </View>
+                  )}
+                  {dish.category?.name && (
+                    <View style={[styles.metaBadge, styles.metaBadgeGreen]}>
+                      <Text style={styles.metaBadgeText}>{dish.category.name}</Text>
+                    </View>
+                  )}
+                </View>
+
+                {dish.description && <Text style={styles.description}>{dish.description}</Text>}
+
+                {dish.ingredients && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Состав</Text>
+                    <Text style={styles.ingredients}>{dish.ingredients}</Text>
+                  </View>
+                )}
+
+                {nutritionData.length > 0 && (
+                  <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Пищевая ценность</Text>
+                    <View style={styles.nutritionBlock}>
+                      {nutritionData.map((item, index) => (
+                        <NutritionRow
+                          key={item.label}
+                          {...item}
+                          isLast={index === nutritionData.length - 1}
+                        />
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </View>
+            </ScrollView>
+          )
         )}
 
-        {dish !== null && !isLoading && error === null && (
+        {dish && !isLoading && !error && (
           <View style={styles.footer}>
             <Text style={styles.price}>{dish.price} ₽</Text>
             {quantity > 0 ? (
               <View style={styles.quantityControl}>
-                <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={() => handleCartAction('decrease')}
+                >
                   <Text style={styles.quantityButtonText}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.quantityText}>{quantity}</Text>
-                <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={() => handleCartAction('add')}
+                >
                   <Text style={styles.quantityButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
+              <TouchableOpacity style={styles.addButton} onPress={() => handleCartAction('add')}>
                 <Text style={styles.addButtonText}>В корзину</Text>
               </TouchableOpacity>
             )}

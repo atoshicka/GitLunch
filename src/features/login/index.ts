@@ -9,8 +9,9 @@ export const LoginFeature = {
   sagas: {
     watchLogin,
   },
-  reducer,
-  sliceName: name,
+  reducer: {
+    [name]: reducer,
+  },
   selectors,
   ui: {
     LoginForm,

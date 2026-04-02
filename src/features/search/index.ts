@@ -7,7 +7,9 @@ export const SearchFeature = {
   sagas: {
     watchSearch,
   },
-  reducer,
+  reducer: {
+    [name]: reducer,
+  },
   sliceName: name,
   selectors,
 };

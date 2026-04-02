@@ -7,7 +7,8 @@ export const MenuFeature = {
   sagas: {
     watchMenu,
   },
-  reducer,
-  sliceName: name,
+  reducer: {
+    [name]: reducer,
+  },
   selectors,
 };

@@ -38,9 +38,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({
           onChangeText={onChangeText}
           onSubmitEditing={onSubmitEditing}
           returnKeyType="search"
-          autoFocus={!onPress}
-          editable={onPress ? false : editable}
-          pointerEvents={onPress ? 'none' : 'auto'}
+          autoFocus={onPress === undefined}
+          editable={onPress === undefined && editable}
+          pointerEvents={onPress !== undefined ? 'none' : 'auto'}
         />
       </View>
     </View>
@@ -48,7 +48,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   return (
     <View style={styles.wrapper}>
-      {onPress ? (
+      {onPress !== undefined ? (
         <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.searchTouchable}>
           {inputContent}
         </TouchableOpacity>

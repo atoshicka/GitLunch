@@ -1,5 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit';
-import { call, getContext, put, select, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api/api-interface';
 import { Category, Dish } from '../../entities/api/types/menu-types';
 import { selectors } from './selectors';
@@ -25,9 +25,8 @@ function* filterDishesSaga() {
   yield put(actions.setFilteredDishes(filtered));
 }
 
-function* fetchDishesSaga() {
+function* fetchDishesSaga(apiService: ApiService) {
   try {
-    const apiService: ApiService = yield getContext('apiService');
     yield put(actions.fetchDishesStart());
 
     const dishes: Dish[] = yield call([apiService, apiService.getDishes]);
@@ -48,7 +47,7 @@ function* handleFilterChangeSaga(action: PayloadAction<string>) {
   yield call(filterDishesSaga);
 }
 
-export function* watchMenu() {
-  yield takeLatest(actions.fetchDishes.type, fetchDishesSaga);
+export function* watchMenu(apiService: ApiService) {
+  yield takeLatest(actions.fetchDishes.type, fetchDishesSaga, apiService);
   yield takeLatest(actions.changeFilter.type, handleFilterChangeSaga);
 }

@@ -7,7 +7,8 @@ export const HomeFeature = {
   sagas: {
     watchHome,
   },
-  reducer,
-  sliceName: name,
+  reducer: {
+    [name]: reducer,
+  },
   selectors,
 };

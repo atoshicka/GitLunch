@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -14,10 +14,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dish } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
-import { CartItem } from '../../features/cart/types';
+import { SearchFeature } from '../../features/search';
 import { Images } from '../../shared/constants/images';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
-import { useSearch } from '../../shared/search/hooks/use-search';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './search-screen-styles';
 
@@ -25,15 +24,34 @@ export const SearchScreen: React.FC = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  const query = useSelector(SearchFeature.selectors.selectQuery);
+  const searchResults = useSelector(SearchFeature.selectors.selectResults);
+  const isSearching = useSelector(SearchFeature.selectors.selectIsSearching);
+  const recentSearches = useSelector(SearchFeature.selectors.selectRecentSearches);
   const cartItems = useSelector(CartFeature.selectors.selectCartItems);
-  const { query, setQuery, searchResults, isSearching, recentSearches, addRecentSearch } =
-    useSearch();
 
   const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
 
-  const getCartItem = useCallback(
-    (itemId: string): CartItem | undefined => cartItems.find((item) => item.id === itemId),
-    [cartItems]
+  useEffect(() => {
+    return () => {
+      dispatch(SearchFeature.actions.setQuery(''));
+      dispatch(SearchFeature.actions.clearResults());
+    };
+  }, [dispatch]);
+
+  const handleQueryChange = useCallback(
+    (text: string) => {
+      dispatch(SearchFeature.actions.setQuery(text));
+      dispatch(SearchFeature.actions.searchRequest(text));
+    },
+    [dispatch]
+  );
+
+  const addRecentSearch = useCallback(
+    (text: string) => {
+      dispatch(SearchFeature.actions.addRecentSearch(text));
+    },
+    [dispatch]
   );
 
   const handleSubmit = useCallback(() => {
@@ -74,11 +92,8 @@ export const SearchScreen: React.FC = () => {
     [dispatch, cartItems]
   );
 
-  const handleDishPress = useCallback((id: number) => setSelectedDishId(id), []);
-  const handleModalClose = useCallback(() => setSelectedDishId(null), []);
-
   const renderItemImage = (item: Dish) => {
-    if (item.image_url) {
+    if (item.imageUrl) {
       return (
         <Image
           source={{ uri: item.imageUrl }}
@@ -97,14 +112,14 @@ export const SearchScreen: React.FC = () => {
   const renderSearchResult = useCallback(
     ({ item }: { item: Dish }) => {
       const dishId = String(item.id);
-      const cartItem = getCartItem(dishId);
+      const cartItem = cartItems.find((i) => i.id === dishId);
       const quantity = cartItem?.quantity ?? 0;
 
       return (
         <View style={styles.resultItem}>
           <TouchableOpacity
             style={styles.resultContent}
-            onPress={() => handleDishPress(item.id)}
+            onPress={() => setSelectedDishId(item.id)}
             activeOpacity={0.7}
           >
             <View style={styles.imageContainer}>{renderItemImage(item)}</View>
@@ -138,16 +153,7 @@ export const SearchScreen: React.FC = () => {
         </View>
       );
     },
-    [getCartItem, handleDishPress, handleDecreaseQuantity, handleAddToCart]
-  );
-
-  const renderRecentItem = useCallback(
-    ({ item }: { item: string }) => (
-      <TouchableOpacity style={styles.recentItem} onPress={() => setQuery(item)}>
-        <Text style={styles.recentText}>{item}</Text>
-      </TouchableOpacity>
-    ),
-    [setQuery]
+    [cartItems, handleDecreaseQuantity, handleAddToCart]
   );
 
   const renderContent = () => {
@@ -178,7 +184,11 @@ export const SearchScreen: React.FC = () => {
             <Text style={styles.recentTitle}>Недавние запросы</Text>
             <FlatList
               data={recentSearches}
-              renderItem={renderRecentItem}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.recentItem} onPress={() => handleQueryChange(item)}>
+                  <Text style={styles.recentText}>{item}</Text>
+                </TouchableOpacity>
+              )}
               keyExtractor={(_, index) => index.toString()}
             />
           </>
@@ -208,7 +218,7 @@ export const SearchScreen: React.FC = () => {
           <View style={styles.searchContainer}>
             <SearchInput
               value={query}
-              onChangeText={setQuery}
+              onChangeText={handleQueryChange}
               onSubmitEditing={handleSubmit}
               placeholder="Поиск"
             />
@@ -221,7 +231,7 @@ export const SearchScreen: React.FC = () => {
       <DishModal
         dishId={selectedDishId}
         visible={selectedDishId !== null}
-        onClose={handleModalClose}
+        onClose={() => setSelectedDishId(null)}
       />
     </SafeAreaView>
   );

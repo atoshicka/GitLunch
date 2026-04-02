@@ -20,12 +20,12 @@ const sagaMiddleware = createSagaMiddleware({
 
 export const store = configureStore({
   reducer: {
-    [LoginFeature.sliceName]: LoginFeature.reducer,
-    [CartFeature.sliceName]: CartFeature.reducer,
-    [HomeFeature.sliceName]: HomeFeature.reducer,
-    [MenuFeature.sliceName]: MenuFeature.reducer,
-    [OrdersFeature.sliceName]: OrdersFeature.reducer,
-    [SearchFeature.sliceName]: SearchFeature.reducer,
+    ...LoginFeature.reducer,
+    ...CartFeature.reducer,
+    ...HomeFeature.reducer,
+    ...MenuFeature.reducer,
+    ...OrdersFeature.reducer,
+    ...SearchFeature.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(sagaMiddleware),
