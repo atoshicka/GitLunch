@@ -3,7 +3,8 @@ import { actions, name, reducer } from './slice';
 
 export const OrdersFeature = {
   actions,
-  reducer,
-  sliceName: name,
+  reducer: {
+    [name]: reducer,
+  },
   selectors,
 };

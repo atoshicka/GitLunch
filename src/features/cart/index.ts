@@ -7,7 +7,8 @@ export const CartFeature = {
   sagas: {
     watchCart,
   },
-  reducer,
-  sliceName: name,
+  reducer: {
+    [name]: reducer,
+  },
   selectors,
 };

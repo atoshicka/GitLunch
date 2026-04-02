@@ -1,12 +1,10 @@
-import { call, getContext, put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api';
 import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
 import { actions } from './slice';
 
-function* fetchRestaurantsSaga() {
+function* fetchRestaurantsSaga(apiService: ApiService) {
   try {
-    const apiService: ApiService = yield getContext('apiService');
-
     yield put(actions.fetchRestaurantsStart());
 
     const restaurants: Restaurant[] = yield call([apiService, apiService.getRestaurants]);
@@ -20,6 +18,6 @@ function* fetchRestaurantsSaga() {
   }
 }
 
-export function* watchHome() {
-  yield takeLatest(actions.fetchRestaurants.type, fetchRestaurantsSaga);
+export function* watchHome(apiService: ApiService) {
+  yield takeLatest(actions.fetchRestaurants.type, fetchRestaurantsSaga, apiService);
 }

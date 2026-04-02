@@ -1,13 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError } from 'axios';
-import { call, getContext, put, select, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api';
 import { LoginFeature } from './';
 import { actions } from './slice';
 
-function* handleSubmitLogin() {
+function* handleSubmitLogin(apiService: ApiService) {
   try {
-    const apiService: ApiService = yield getContext('apiService');
     const login: string = yield select(LoginFeature.selectors.selectLogin);
     const password: string = yield select(LoginFeature.selectors.selectPassword);
 
@@ -61,8 +60,8 @@ function* handleRestoreSession() {
   }
 }
 
-export function* watchLogin() {
-  yield takeLatest(actions.submitLogin.type, handleSubmitLogin);
+export function* watchLogin(apiService: ApiService) {
+  yield takeLatest(actions.submitLogin.type, handleSubmitLogin, apiService);
   yield takeLatest(actions.logoutRequest.type, handleLogout);
   yield takeLatest(actions.restoreSession.type, handleRestoreSession);
 }
