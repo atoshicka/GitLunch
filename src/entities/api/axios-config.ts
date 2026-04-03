@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { store } from '../../app/store';
+import { LoginFeature } from '../../features/login';
 import { getApiConfig } from './api';
 
 const { BASE_URL, DEBUG } = getApiConfig();
@@ -20,16 +22,10 @@ api.interceptors.request.use(
     }
     if (DEBUG) {
       console.log(`API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
-      if (config.data) {
-        console.log('Request Data:', config.data);
-      }
     }
     return config;
   },
-  (error: unknown) => {
-    console.error('Request Error:', error);
-    return Promise.reject(error);
-  }
+  (error: unknown) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
@@ -39,11 +35,22 @@ api.interceptors.response.use(
     }
     return response;
   },
-  (error: unknown) => {
+  async (error: unknown) => {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
-      const message = (error.response?.data as { message?: string })?.message ?? error.message;
-      console.error(`API Error [${status}]:`, message);
+
+      if (status === 401) {
+        console.warn('Токен протух (401). Запускаем процесс выхода...');
+
+        await AsyncStorage.multiRemove(['token', 'user']);
+
+        store.dispatch(LoginFeature.actions.logout());
+      }
+
+      if (DEBUG) {
+        const message = error.response?.data?.message ?? error.message;
+        console.error(`API Error [${status}]:`, message);
+      }
     }
     return Promise.reject(error);
   }

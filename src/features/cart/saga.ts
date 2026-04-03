@@ -23,6 +23,8 @@ function* fetchCartSaga(apiService: ApiService) {
   } catch (error) {
     console.error('fetchCartSaga error:', error);
     yield put(actions.setCartError('Не удалось загрузить корзину'));
+  } finally {
+    yield put(actions.setCartLoading(false));
   }
 }
 
@@ -48,7 +50,6 @@ function* syncAddToCartSaga(apiService: ApiService, action: ReturnType<typeof ac
     }
   } catch (error) {
     console.error('syncAddToCartSaga error:', error);
-    yield call(fetchCartSaga, apiService);
   }
 }
 
@@ -70,7 +71,6 @@ function* syncDecreaseSaga(
     }
   } catch (error) {
     console.error('syncDecreaseSaga error:', error);
-    yield call(fetchCartSaga, apiService);
   }
 }
 
@@ -84,7 +84,6 @@ function* syncRemoveSaga(
     yield call([apiService, apiService.deleteCartItem], cartItemId);
   } catch (error) {
     console.error('syncRemoveSaga error:', error);
-    yield call(fetchCartSaga, apiService);
   }
 }
 
