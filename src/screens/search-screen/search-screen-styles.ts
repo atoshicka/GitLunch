@@ -1,5 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import { Typography } from '../../shared/fontsFile/fonts';
+
+const { width } = Dimensions.get('window');
+const COLUMN_WIDTH = (width - 48) / 2;
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,6 +15,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 10,
     paddingBottom: 10,
+    backgroundColor: '#F4F4F4',
+    zIndex: 10,
   },
   content: {
     flex: 1,
@@ -36,12 +41,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-  },
-  loadingText: {
-    ...Typography.bodyRegular,
-    fontSize: 16,
-    color: '#94A3B8',
   },
   hintContainer: {
     flex: 1,
@@ -79,97 +78,16 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
   },
   resultsList: {
-    padding: 16,
-  },
-  resultItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  resultContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  imageContainer: {
-    width: 56,
-    height: 56,
-    backgroundColor: 'transparent',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    overflow: 'hidden',
-  },
-  resultImagePlaceholder: {
-    ...Typography.bodyRegular,
-    fontSize: 24,
-  },
-  resultInfo: {
-    flex: 1,
-  },
-  resultName: {
-    ...Typography.bodyRegular,
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#0F172A',
-    marginBottom: 2,
-  },
-  resultPrice: {
-    ...Typography.buttonRegular,
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 2,
-  },
-  resultCategory: {
-    fontSize: 12,
-    color: '#94A3B8',
-  },
-  addButton: {
-    backgroundColor: '#22C55E',
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 15,
-    marginLeft: 12,
+    paddingTop: 24,
+    paddingBottom: 40,
   },
-  addButtonText: {
-    ...Typography.buttonSmall,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1F2937',
+  row: {
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
-  quantityControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginLeft: 12,
-  },
-  quantityButton: {
-    width: 32,
-    height: 28,
-    borderRadius: 10,
-    backgroundColor: '#22C55E',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quantityButtonText: {
-    ...Typography.buttonRegular,
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1F2937',
-    lineHeight: 22,
-  },
-  quantityText: {
-    ...Typography.bodyRegular,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    minWidth: 20,
-    textAlign: 'center',
+  cardWrapper: {
+    width: COLUMN_WIDTH,
   },
   emptyText: {
     ...Typography.bodyRegular,

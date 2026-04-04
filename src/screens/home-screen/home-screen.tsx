@@ -6,6 +6,7 @@ import {
   Dimensions,
   FlatList,
   ListRenderItem,
+  Platform,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -134,7 +135,11 @@ export const HomeScreen: React.FC = () => {
   const promoDishes = useSelector(HomeFeature.selectors.selectPromoDishes);
 
   useEffect(() => {
-    dispatch(HomeFeature.actions.fetchRestaurants());
+    const timer = setTimeout(() => {
+      dispatch(HomeFeature.actions.fetchRestaurants());
+    }, 250);
+
+    return () => clearTimeout(timer);
   }, [dispatch]);
 
   const { headerOpacity, headerTranslateY } = useMemo(
@@ -202,6 +207,7 @@ export const HomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+
       <Animated.View
         pointerEvents="box-none"
         style={[
@@ -225,6 +231,7 @@ export const HomeScreen: React.FC = () => {
         onScroll={handleScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW }}
+        removeClippedSubviews={true}
       >
         <View style={styles.waveSection}>
           <View style={styles.waveBackground}>
@@ -250,6 +257,7 @@ export const HomeScreen: React.FC = () => {
               style={{ width, height: 180 }}
               initialPage={0}
               onPageSelected={(e) => setCurrentIndex(e.nativeEvent.position)}
+              offscreenPageLimit={2}
             >
               {restaurants.map((item) => (
                 <View key={item.id}>
@@ -281,10 +289,15 @@ export const HomeScreen: React.FC = () => {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.promoList}
+              initialNumToRender={3}
+              maxToRenderPerBatch={5}
+              windowSize={5}
+              removeClippedSubviews={Platform.OS === 'android'}
             />
           </View>
         </View>
       </Animated.ScrollView>
+
       <DishModal
         dishId={selectedDishId}
         visible={selectedDishId !== null}
