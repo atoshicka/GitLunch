@@ -16,13 +16,11 @@ interface DishCardProps {
     imageSvg?: React.FC<SvgProps>;
   };
   onPress?: () => void;
-  variant?: 'grid' | 'promo';
 }
 
 export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
   const dispatch = useDispatch();
   const dishId = String(item.id);
-
   const [isSyncing, setIsSyncing] = useState(false);
 
   const cartItem = useSelector(CartFeature.selectors.selectCartItemById(dishId)) as CartItem | null;
@@ -32,7 +30,6 @@ export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
   const handleAddToCart = useCallback(() => {
     if (isSyncing) return;
     setIsSyncing(true);
-
     dispatch(
       CartFeature.actions.addToCart({
         id: dishId,
@@ -43,21 +40,18 @@ export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
         imageUrl: item.imageUrl,
       })
     );
-
     setTimeout(() => setIsSyncing(false), 500);
   }, [dispatch, dishId, item, cartItem?.cartItemId, price, isSyncing]);
 
   const handleDecrease = useCallback(() => {
     if (isSyncing) return;
     setIsSyncing(true);
-
     dispatch(
       CartFeature.actions.decreaseQuantity({
         id: dishId,
         cartItemId: cartItem?.cartItemId,
       })
     );
-
     setTimeout(() => setIsSyncing(false), 500);
   }, [dispatch, dishId, cartItem?.cartItemId, isSyncing]);
 
@@ -86,40 +80,43 @@ export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
         end={{ x: 0, y: 0 }}
         style={styles.card}
       >
-        <View style={styles.imageContainer}>{renderImage()}</View>
+        <View style={styles.topContent}>
+          <View style={styles.imageContainer}>{renderImage()}</View>
+          <Text style={styles.name} numberOfLines={2}>
+            {item.name}
+          </Text>
+          <Text style={styles.price}>{price} ₽</Text>
+        </View>
 
-        <Text style={styles.name} numberOfLines={2}>
-          {item.name}
-        </Text>
-        <Text style={styles.price}>{price} ₽</Text>
-
-        {quantity > 0 ? (
-          <View style={styles.quantityControl}>
+        <View style={styles.actionBlock}>
+          {quantity > 0 ? (
+            <View style={styles.quantityControl}>
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={handleDecrease}
+                disabled={isSyncing}
+              >
+                <Text style={styles.quantityButtonText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{quantity}</Text>
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={handleAddToCart}
+                disabled={isSyncing}
+              >
+                <Text style={styles.quantityButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
             <TouchableOpacity
-              style={styles.quantityButton}
-              onPress={handleDecrease}
-              disabled={isSyncing}
-            >
-              <Text style={styles.quantityButtonText}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.quantityText}>{quantity}</Text>
-            <TouchableOpacity
-              style={styles.quantityButton}
+              style={styles.addToCartButton}
               onPress={handleAddToCart}
               disabled={isSyncing}
             >
-              <Text style={styles.quantityButtonText}>+</Text>
+              <Text style={styles.addToCartButtonText}>В корзину</Text>
             </TouchableOpacity>
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={styles.addToCartButton}
-            onPress={handleAddToCart}
-            disabled={isSyncing}
-          >
-            <Text style={styles.addToCartButtonText}>В корзину</Text>
-          </TouchableOpacity>
-        )}
+          )}
+        </View>
       </LinearGradient>
     </TouchableOpacity>
   );
