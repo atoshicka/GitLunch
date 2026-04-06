@@ -5,39 +5,20 @@ import { Alert, FlatList, Image, Text, TouchableOpacity, View } from 'react-nati
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
-import { OrdersFeature } from '../../features/orders';
 import { Images } from '../../shared/constants/images';
+import { SCREEN_NAMES } from '../../shared/constants/navigation';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './basket-styles';
 
-type BasketScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+type BasketScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const AccountIcon = Images.navigation.account;
 const SubtractIcon = Images.home.wave;
-
-const getCurrentDateInfo = () => {
-  const now = new Date();
-  const daysOfWeek = [
-    'Воскресенье',
-    'Понедельник',
-    'Вторник',
-    'Среда',
-    'Четверг',
-    'Пятница',
-    'Суббота',
-  ];
-  const date = now.toLocaleDateString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-  const dayOfWeek = daysOfWeek[now.getDay()];
-  return { date, dayOfWeek };
-};
 
 const renderItemImage = (item: CartItem) => {
   if (item.imageUrl) {
@@ -62,7 +43,6 @@ export const BasketScreen: React.FC = () => {
 
   const items = useSelector(CartFeature.selectors.selectCartItems);
   const totalPrice = useSelector(CartFeature.selectors.selectCartTotalPrice);
-  const totalItems = useSelector(CartFeature.selectors.selectCartTotalItems);
   const loading = useSelector(CartFeature.selectors.selectCartLoading);
   const error = useSelector(CartFeature.selectors.selectCartError);
 
@@ -77,11 +57,11 @@ export const BasketScreen: React.FC = () => {
   }, [navigation]);
 
   const handleSearchPress = useCallback(() => {
-    navigation.navigate('Search', {});
+    navigation.navigate(SCREEN_NAMES.SEARCH, {});
   }, [navigation]);
 
   const handleAccountPress = useCallback(() => {
-    navigation.navigate('Tabs', { screen: 'Аккаунт' });
+    navigation.navigate(SCREEN_NAMES.TABS, { screen: 'Аккаунт' });
   }, [navigation]);
 
   const handleDishPress = useCallback((id: string) => {
@@ -127,26 +107,8 @@ export const BasketScreen: React.FC = () => {
       Alert.alert('Корзина пуста', 'Добавьте блюда в корзину');
       return;
     }
-    const { date, dayOfWeek } = getCurrentDateInfo();
-    const code = Math.floor(10000 + Math.random() * 90000).toString();
-    const newOrder = {
-      id: Date.now().toString(),
-      date,
-      dayOfWeek,
-      code,
-      items: items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-      })),
-      totalPrice,
-      totalItems,
-    };
-    dispatch(OrdersFeature.actions.addOrder(newOrder));
-    dispatch(CartFeature.actions.clearCart());
-    Alert.alert('Успешно', 'Заказ оформлен!');
-  }, [dispatch, items, totalPrice, totalItems]);
+    navigation.navigate(SCREEN_NAMES.PAYMENT);
+  }, [items.length, navigation]);
 
   const renderItem = useCallback(
     ({ item }: { item: CartItem }) => (

@@ -6,7 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoginForm } from '../../features/login/ui/login-form';
 import { OrdersScreen } from '../../features/orders/orders';
+import { PaymentScreen } from '../../screens/pay-screen/payment-seen';
 import { SearchScreen } from '../../screens/search-screen/search-screen';
+import { SuccessScreen } from '../../screens/success-screen/success-screen';
 import { SCREEN_NAMES } from '../../shared/constants/navigation';
 import { TabNavigator } from '../../shared/constants/TabNavigator';
 import { authStyles } from './navigation-styles';
@@ -39,6 +41,16 @@ export const AppNavigator: React.FC = () => {
           name={SCREEN_NAMES.ORDERS}
           component={OrdersScreen}
           options={{ presentation: 'card' }}
+        />
+        <RootStack.Screen
+          name={SCREEN_NAMES.PAYMENT}
+          component={PaymentScreen}
+          options={{ presentation: 'card' }}
+        />
+        <RootStack.Screen
+          name={SCREEN_NAMES.SUCCESS}
+          component={SuccessScreen}
+          options={{ presentation: 'card', gestureEnabled: false }}
         />
       </RootStack.Navigator>
     </NavigationContainer>
