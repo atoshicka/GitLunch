@@ -13,10 +13,12 @@ import Nowin from '../../assets/images/nowin.svg';
 import MinQrCode from '../../assets/images/qrCodeMin.svg';
 import RestCezar from '../../assets/images/restCezar.svg';
 import Salads from '../../assets/images/salads.svg';
+import SBP from '../../assets/images/sbp.svg';
 import Search from '../../assets/images/search.svg';
 import Setting from '../../assets/images/setting.svg';
 import Snacks from '../../assets/images/snacks.svg';
 import Subtract from '../../assets/images/subtract.svg';
+import Success from '../../assets/images/success.svg';
 import Vector1 from '../../assets/images/vector1.svg';
 import Vector2 from '../../assets/images/vector2.svg';
 
@@ -56,5 +58,9 @@ export const Images = {
   account: {
     setting: Setting,
     minQRCode: MinQrCode,
+  },
+  other: {
+    sbp: SBP,
+    success: Success,
   },
 } as const;
