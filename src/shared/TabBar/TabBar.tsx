@@ -4,7 +4,7 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
 import { Images } from '../constants/images';
-import { TAB_NAMES } from '../constants/navigation';
+import { TAB_NAMES, TabName } from '../constants/navigation';
 import { styles } from './tab-bar-styles';
 
 const { width } = Dimensions.get('window');
@@ -42,7 +42,28 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
   const insets = useSafeAreaInsets();
   const previousMainTab = useRef<MainTabName>(TAB_NAMES.HOME);
 
-  const currentRouteName = state.routes[state.index].name;
+  const handleTabPress = useCallback(
+    (routeName: string) => {
+      const route = state.routes.find((r) => r.name === routeName);
+      if (!route) return;
+      const event = navigation.emit({
+        type: 'tabPress',
+        target: route.key,
+        canPreventDefault: true,
+      });
+      if (!event.defaultPrevented) {
+        navigation.navigate(routeName, undefined);
+      }
+    },
+    [navigation, state.routes]
+  );
+
+  const currentRouteName = state.routes[state.index].name as TabName;
+
+  if (currentRouteName === TAB_NAMES.BASKET) {
+    return null;
+  }
+
   const isAccountScreen = currentRouteName === TAB_NAMES.ACCOUNT;
 
   const isMainTab = (name: string): name is MainTabName =>
@@ -64,22 +85,6 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
 
   const layout = getLayout();
   const circleBottom = WAVE_HEIGHT - CIRCLE_SIZE / 2 + TAB_BAR_CIRCLE_OVERFLOW;
-
-  const handleTabPress = useCallback(
-    (routeName: string) => {
-      const route = state.routes.find((r) => r.name === routeName);
-      if (!route) return;
-      const event = navigation.emit({
-        type: 'tabPress',
-        target: route.key,
-        canPreventDefault: true,
-      });
-      if (!event.defaultPrevented) {
-        navigation.navigate(routeName, undefined);
-      }
-    },
-    [navigation, state.routes]
-  );
 
   const renderIcon = (
     routeName: MainTabName,
@@ -110,8 +115,6 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
             >
               {renderIcon(layout.left, 28, 0.8)}
             </TouchableOpacity>
-
-            <View style={{ width: CIRCLE_SIZE + 16 }} />
 
             <TouchableOpacity
               style={styles.sideButton}

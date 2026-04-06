@@ -10,7 +10,7 @@ import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
 import { Images } from '../../shared/constants/images';
-import { SCREEN_NAMES } from '../../shared/constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './basket-styles';
@@ -53,7 +53,11 @@ export const BasketScreen: React.FC = () => {
   }, [dispatch]);
 
   const handleBackPress = useCallback(() => {
-    navigation.goBack();
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate(SCREEN_NAMES.TABS, { screen: TAB_NAMES.HOME });
+    }
   }, [navigation]);
 
   const handleSearchPress = useCallback(() => {
@@ -61,7 +65,7 @@ export const BasketScreen: React.FC = () => {
   }, [navigation]);
 
   const handleAccountPress = useCallback(() => {
-    navigation.navigate(SCREEN_NAMES.TABS, { screen: 'Аккаунт' });
+    navigation.navigate(SCREEN_NAMES.TABS, { screen: TAB_NAMES.ACCOUNT });
   }, [navigation]);
 
   const handleDishPress = useCallback((id: string) => {
@@ -126,7 +130,10 @@ export const BasketScreen: React.FC = () => {
               <Text style={styles.itemName} numberOfLines={2}>
                 {item.name}
               </Text>
-              <TouchableOpacity onPress={() => handleRemove(item)}>
+              <TouchableOpacity
+                onPress={() => handleRemove(item)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <Text style={styles.removeButton}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -147,96 +154,78 @@ export const BasketScreen: React.FC = () => {
     [handleAddToCart, handleDecrease, handleDishPress, handleRemove]
   );
 
-  const waveHeader = (
-    <View style={styles.waveSection}>
-      <View style={styles.waveBackground}>
-        <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
-      </View>
-      <SafeAreaView edges={['top']} style={styles.searchContainer}>
-        <View style={styles.searchWrapper}>
-          <View style={styles.topBar}>
-            <TouchableOpacity style={styles.topBarButton} onPress={handleBackPress}>
-              <Text style={styles.backButtonText}>‹</Text>
-            </TouchableOpacity>
-            <View style={styles.searchInputWrapper}>
-              <SearchInput onPress={handleSearchPress} placeholder="Поиск" />
-            </View>
-            <TouchableOpacity style={styles.topBarButton} onPress={handleAccountPress}>
-              <AccountIcon width={36} height={36} />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.cafeTitle}>Корзина</Text>
+  return (
+    <View style={styles.container}>
+      <View style={styles.waveSection}>
+        <View style={styles.waveBackground}>
+          <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
         </View>
-      </SafeAreaView>
-    </View>
-  );
+        <SafeAreaView edges={['top']} style={styles.searchContainer}>
+          <View style={styles.searchWrapper}>
+            <View style={styles.topBar}>
+              <TouchableOpacity style={styles.topBarButton} onPress={handleBackPress}>
+                <Text style={styles.backButtonText}>‹</Text>
+              </TouchableOpacity>
+              <View style={styles.searchInputWrapper}>
+                <SearchInput onPress={handleSearchPress} placeholder="Поиск" />
+              </View>
+              <TouchableOpacity style={styles.topBarButton} onPress={handleAccountPress}>
+                <AccountIcon width={36} height={36} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.cafeTitle}>Корзина</Text>
+          </View>
+        </SafeAreaView>
+      </View>
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        {waveHeader}
+      {loading ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Загрузка...</Text>
         </View>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        {waveHeader}
+      ) : error ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>{error}</Text>
           <TouchableOpacity onPress={() => dispatch(CartFeature.actions.fetchCart())}>
-            <Text style={{ color: '#86EFAC', marginTop: 12 }}>Повторить</Text>
+            <Text style={{ color: '#22C55E', marginTop: 12 }}>Повторить</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <View style={styles.container}>
-        {waveHeader}
+      ) : items.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Корзина пуста</Text>
         </View>
-      </View>
-    );
-  }
+      ) : (
+        <FlatList
+          data={items}
+          renderItem={renderItem}
+          keyExtractor={(item) => String(item.cartItemId || item.id)}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
-  return (
-    <View style={styles.container}>
-      {waveHeader}
-      <FlatList
-        data={items}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
-      <View style={styles.footer}>
-        <View style={styles.promoRow}>
-          <Text style={styles.promoLabel}>Акции</Text>
-          <Text style={styles.promoValue}>—</Text>
+      {items.length > 0 && (
+        <View style={styles.footer}>
+          <View style={styles.promoRow}>
+            <Text style={styles.promoLabel}>Акции</Text>
+            <Text style={styles.promoValue}>—</Text>
+          </View>
+
+          <View style={styles.discountRow}>
+            <Text style={styles.discountLabel}>Скидка</Text>
+            <Text style={styles.discountValue}>—</Text>
+          </View>
+
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Итоговая цена</Text>
+            <Text style={styles.totalPrice}>{totalPrice} ₽</Text>
+          </View>
+
+          <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
+            <Text style={styles.orderButtonText}>Оплатить</Text>
+          </TouchableOpacity>
         </View>
+      )}
 
-        <View style={styles.discountRow}>
-          <Text style={styles.discountLabel}>Скидка</Text>
-          <Text style={styles.discountValue}>—</Text>
-        </View>
-
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Итоговая цена</Text>
-          <Text style={styles.totalPrice}>{totalPrice} ₽</Text>
-        </View>
-
-        <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
-          <Text style={styles.orderButtonText}>Оплатить</Text>
-        </TouchableOpacity>
-      </View>
       <DishModal
         dishId={selectedDishId}
         visible={selectedDishId !== null}
