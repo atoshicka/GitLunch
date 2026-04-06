@@ -8,7 +8,14 @@ import { MenuScreen } from '../../screens/menu-screen/menu-screen';
 import { CustomTabBar } from '../TabBar/TabBar';
 import { TAB_NAMES } from './navigation';
 
-const Tab = createBottomTabNavigator();
+export type TabStackParamList = {
+  [TAB_NAMES.HOME]: undefined;
+  [TAB_NAMES.MENU]: undefined;
+  [TAB_NAMES.BASKET]: undefined;
+  [TAB_NAMES.ACCOUNT]: undefined;
+};
+
+const Tab = createBottomTabNavigator<TabStackParamList>();
 
 export const TabNavigator: React.FC = () => {
   return (

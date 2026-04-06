@@ -6,10 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoginForm } from '../../features/login/ui/login-form';
 import { OrdersScreen } from '../../features/orders/orders';
-import { PaymentScreen } from '../../screens/pay-screen/payment-seen';
+import { BasketScreen } from '../../screens/basket-screen/basket-screen';
+import { PaymentScreen } from '../../screens/pay-screen/payment-screen';
 import { SearchScreen } from '../../screens/search-screen/search-screen';
 import { SuccessScreen } from '../../screens/success-screen/success-screen';
-import { SCREEN_NAMES } from '../../shared/constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
 import { TabNavigator } from '../../shared/constants/TabNavigator';
 import { authStyles } from './navigation-styles';
 
@@ -33,20 +34,14 @@ export const AppNavigator: React.FC = () => {
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         <RootStack.Screen name={SCREEN_NAMES.TABS} component={TabNavigator} />
         <RootStack.Screen
-          name={SCREEN_NAMES.SEARCH}
-          component={SearchScreen}
+          name={TAB_NAMES.BASKET}
+          component={BasketScreen}
           options={{ presentation: 'card' }}
         />
-        <RootStack.Screen
-          name={SCREEN_NAMES.ORDERS}
-          component={OrdersScreen}
-          options={{ presentation: 'card' }}
-        />
-        <RootStack.Screen
-          name={SCREEN_NAMES.PAYMENT}
-          component={PaymentScreen}
-          options={{ presentation: 'card' }}
-        />
+
+        <RootStack.Screen name={SCREEN_NAMES.SEARCH} component={SearchScreen} />
+        <RootStack.Screen name={SCREEN_NAMES.ORDERS} component={OrdersScreen} />
+        <RootStack.Screen name={SCREEN_NAMES.PAYMENT} component={PaymentScreen} />
         <RootStack.Screen
           name={SCREEN_NAMES.SUCCESS}
           component={SuccessScreen}
