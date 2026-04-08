@@ -9,14 +9,13 @@ import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { CartFeature } from '../../features/cart';
 import { OrdersFeature } from '../../features/orders';
 import { Images } from '../../shared/constants/images';
-import { SCREEN_NAMES } from '../../shared/constants/navigation';
+import { TAB_NAMES } from '../../shared/constants/navigation';
 import { paymentStyles } from './payment-screen-styles';
 
-type PaymentNavProp = NativeStackNavigationProp<RootStackParamList, 'Payment'>;
+type PaymentNavProp = NativeStackNavigationProp<RootStackParamList>;
 
 const SubtractIcon = Images.home.wave;
 const SettingsIcon = Images.account.setting;
-const NavigIcon = Images.navigation.navig;
 const SBPIcon = Images.other.sbp;
 
 export const PaymentScreen: React.FC = () => {
@@ -71,7 +70,8 @@ export const PaymentScreen: React.FC = () => {
 
     dispatch(OrdersFeature.actions.addOrder(newOrder));
     dispatch(CartFeature.actions.clearCart());
-    navigation.navigate(SCREEN_NAMES.SUCCESS);
+
+    navigation.navigate(TAB_NAMES.SUCCESS as never);
   };
 
   return (
@@ -161,12 +161,6 @@ export const PaymentScreen: React.FC = () => {
         >
           <Text style={paymentStyles.orderButtonText}>Оплатить</Text>
         </TouchableOpacity>
-      </View>
-
-      <View style={paymentStyles.navigSection} pointerEvents="none">
-        <View style={paymentStyles.navigBackground}>
-          <NavigIcon width="100%" height="100%" preserveAspectRatio="xMidYMax slice" />
-        </View>
       </View>
     </View>
   );

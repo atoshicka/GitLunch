@@ -5,11 +5,8 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoginForm } from '../../features/login/ui/login-form';
-import { OrdersScreen } from '../../features/orders/orders';
 import { BasketScreen } from '../../screens/basket-screen/basket-screen';
-import { PaymentScreen } from '../../screens/pay-screen/payment-screen';
 import { SearchScreen } from '../../screens/search-screen/search-screen';
-import { SuccessScreen } from '../../screens/success-screen/success-screen';
 import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
 import { TabNavigator } from '../../shared/constants/TabNavigator';
 import { authStyles } from './navigation-styles';
@@ -32,7 +29,10 @@ export const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        {/* Главная точка входа — навигатор с табами */}
         <RootStack.Screen name={SCREEN_NAMES.TABS} component={TabNavigator} />
+
+        {/* Корзина всё еще может открываться как модалка поверх всего */}
         <RootStack.Screen
           name={TAB_NAMES.BASKET}
           component={BasketScreen}
@@ -40,13 +40,9 @@ export const AppNavigator: React.FC = () => {
         />
 
         <RootStack.Screen name={SCREEN_NAMES.SEARCH} component={SearchScreen} />
-        <RootStack.Screen name={SCREEN_NAMES.ORDERS} component={OrdersScreen} />
-        <RootStack.Screen name={SCREEN_NAMES.PAYMENT} component={PaymentScreen} />
-        <RootStack.Screen
-          name={SCREEN_NAMES.SUCCESS}
-          component={SuccessScreen}
-          options={{ presentation: 'card', gestureEnabled: false }}
-        />
+
+        {/* ПРИМЕЧАНИЕ: Orders, Payment и Success удалены отсюда, 
+            так как они теперь внутри TabNavigator */}
       </RootStack.Navigator>
     </NavigationContainer>
   );

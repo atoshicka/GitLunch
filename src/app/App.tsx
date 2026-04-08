@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Provider, useDispatch, useSelector } from 'react-redux';
+import { CartFeature } from '../features/cart';
 import { LoginFeature } from '../features/login';
 import { AppNavigator, AuthScreen } from './navigation/app-navigation';
 import { store } from './store';
@@ -13,6 +14,12 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     dispatch(LoginFeature.actions.restoreSession());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(CartFeature.actions.fetchCart());
+    }
+  }, [isAuthenticated, dispatch]);
 
   if (isRestoring) {
     return (
