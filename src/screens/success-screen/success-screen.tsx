@@ -5,7 +5,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Images } from '../../shared/constants/images';
-import { SCREEN_NAMES } from '../../shared/constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
 import { successStyles } from './success-screen-styles';
 
 type SuccessNavProp = NativeStackNavigationProp<RootStackParamList, 'Success'>;
@@ -13,10 +13,15 @@ type SuccessNavProp = NativeStackNavigationProp<RootStackParamList, 'Success'>;
 const SubtractIcon = Images.home.wave;
 const SettingsIcon = Images.account.setting;
 const SuccessIcon = Images.other.success;
-const NavigIcon = Images.navigation.navig;
 
 export const SuccessScreen: React.FC = () => {
   const navigation = useNavigation<SuccessNavProp>();
+
+  const handleGoHome = () => {
+    navigation.navigate(SCREEN_NAMES.TABS, {
+      screen: TAB_NAMES.HOME,
+    });
+  };
 
   return (
     <View style={successStyles.container}>
@@ -28,10 +33,7 @@ export const SuccessScreen: React.FC = () => {
 
       <SafeAreaView edges={['top']} style={successStyles.waveContent}>
         <View style={successStyles.topBar}>
-          <TouchableOpacity
-            style={successStyles.topBarButton}
-            onPress={() => navigation.navigate(SCREEN_NAMES.TABS, { screen: 'Главная' })}
-          >
+          <TouchableOpacity style={successStyles.topBarButton} onPress={handleGoHome}>
             <Text style={successStyles.backButtonText}>‹</Text>
           </TouchableOpacity>
           <Text style={successStyles.brandTitle}>GitLunch</Text>
@@ -48,12 +50,6 @@ export const SuccessScreen: React.FC = () => {
 
         <Text style={successStyles.successTitle}>Ваш заказ оформлен!</Text>
         <Text style={successStyles.successSubTitle}>Отправили его в предприятие</Text>
-      </View>
-
-      <View style={successStyles.navigSection} pointerEvents="none">
-        <View style={successStyles.navigBackground}>
-          <NavigIcon width="100%" height="100%" preserveAspectRatio="xMidYMax slice" />
-        </View>
       </View>
     </View>
   );

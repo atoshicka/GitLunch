@@ -11,6 +11,8 @@ const root = (state: State) => state[name];
 const selectCartItems = createSelector(root, (cart) => cart.items);
 const selectCartLoading = createSelector(root, (cart) => cart.loading);
 const selectCartError = createSelector(root, (cart) => cart.error);
+const selectCartInitialized = createSelector(root, (cart) => cart.initialized);
+
 const selectCartTotalItems = createSelector(root, (cart) =>
   cart.items.reduce((sum, item) => sum + item.quantity, 0)
 );
@@ -27,6 +29,7 @@ export const selectors = {
   selectCartItems,
   selectCartLoading,
   selectCartError,
+  selectCartInitialized,
   selectCartTotalItems,
   selectCartTotalPrice,
   selectCartItemById,

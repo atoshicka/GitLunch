@@ -34,7 +34,6 @@ interface TabLayout {
 
 export const TAB_BAR_HEIGHT = 90;
 export const TAB_BAR_CIRCLE_OVERFLOW = 8;
-
 const WAVE_HEIGHT = 70;
 const CIRCLE_SIZE = 64;
 
@@ -60,11 +59,16 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
 
   const currentRouteName = state.routes[state.index].name as TabName;
 
-  if (currentRouteName === TAB_NAMES.BASKET) {
-    return null;
-  }
+  if (currentRouteName === TAB_NAMES.BASKET) return null;
 
-  const isAccountScreen = currentRouteName === TAB_NAMES.ACCOUNT;
+  const SPECIAL_SCREENS: TabName[] = [
+    TAB_NAMES.ACCOUNT,
+    TAB_NAMES.ORDERS,
+    TAB_NAMES.PAYMENT,
+    TAB_NAMES.SUCCESS,
+  ];
+
+  const isSpecialScreen = SPECIAL_SCREENS.includes(currentRouteName);
 
   const isMainTab = (name: string): name is MainTabName =>
     (MAIN_TABS as readonly string[]).includes(name);
@@ -74,11 +78,11 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
   }
 
   const getLayout = (): TabLayout => {
-    const activeInMain: MainTabName = previousMainTab.current;
+    const activeInMain = previousMainTab.current;
     const others = MAIN_TABS.filter((name) => name !== activeInMain) as [MainTabName, MainTabName];
     return {
       left: others[0],
-      center: isAccountScreen ? null : activeInMain,
+      center: isSpecialScreen ? null : activeInMain,
       right: others[1],
     };
   };
@@ -86,11 +90,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
   const layout = getLayout();
   const circleBottom = WAVE_HEIGHT - CIRCLE_SIZE / 2 + TAB_BAR_CIRCLE_OVERFLOW;
 
-  const renderIcon = (
-    routeName: MainTabName,
-    size: number,
-    opacity: number = 1
-  ): React.ReactElement | null => {
+  const renderIcon = (routeName: MainTabName, size: number, opacity: number = 1) => {
     const Icon = TAB_ICONS[routeName];
     if (!Icon) return null;
     return <Icon width={size} height={size} style={{ opacity }} />;
@@ -105,21 +105,15 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
         <NavWaveIcon width={width} height={WAVE_HEIGHT} preserveAspectRatio="none" />
       </View>
 
-      {!isAccountScreen && (
+      {!isSpecialScreen && (
         <>
           <View style={[styles.sideButtonsRow, { bottom: insets.bottom + WAVE_HEIGHT / 2 - 22 }]}>
-            <TouchableOpacity
-              style={styles.sideButton}
-              onPress={() => handleTabPress(layout.left)}
-              activeOpacity={0.7}
-            >
+            <TouchableOpacity style={styles.sideButton} onPress={() => handleTabPress(layout.left)}>
               {renderIcon(layout.left, 28, 0.8)}
             </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.sideButton}
               onPress={() => handleTabPress(layout.right)}
-              activeOpacity={0.7}
             >
               {renderIcon(layout.right, 28, 0.8)}
             </TouchableOpacity>
@@ -129,11 +123,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
             <View
               style={[
                 styles.circleWrapper,
-                {
-                  bottom: insets.bottom + circleBottom,
-                  width: CIRCLE_SIZE,
-                  height: CIRCLE_SIZE,
-                },
+                { bottom: insets.bottom + circleBottom, width: CIRCLE_SIZE, height: CIRCLE_SIZE },
               ]}
               pointerEvents="none"
             >

@@ -76,19 +76,4 @@ export const successStyles = StyleSheet.create({
     color: '#64748B',
     marginTop: 10,
   },
-  navigSection: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 100,
-    zIndex: 0,
-  },
-  navigBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
 });

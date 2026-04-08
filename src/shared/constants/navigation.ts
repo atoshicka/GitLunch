@@ -3,6 +3,9 @@ export const TAB_NAMES = {
   MENU: 'Меню',
   BASKET: 'Корзина',
   ACCOUNT: 'Аккаунт',
+  ORDERS: 'Orders',
+  PAYMENT: 'Payment',
+  SUCCESS: 'Success',
 } as const;
 
 export const SCREEN_NAMES = {

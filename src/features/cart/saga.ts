@@ -14,6 +14,8 @@ const mapBackendItem = (item: BackendCartItem): CartItem => ({
   imageUrl: item.image_url ? `${BASE_URL}${item.image_url}` : undefined,
 });
 
+//Загрузка корзины
+
 function* fetchCartSaga(apiService: ApiService) {
   try {
     yield put(actions.setCartLoading(true));
@@ -22,36 +24,66 @@ function* fetchCartSaga(apiService: ApiService) {
     yield put(actions.setCartFromBackend(items));
   } catch (error) {
     console.error('fetchCartSaga error:', error);
+    yield put(actions.setCartInitialized());
     yield put(actions.setCartError('Не удалось загрузить корзину'));
   } finally {
     yield put(actions.setCartLoading(false));
   }
 }
 
+//Добавление товара
+
 function* syncAddToCartSaga(apiService: ApiService, action: ReturnType<typeof actions.addToCart>) {
   try {
-    const { id, cartItemId } = action.payload;
+    const { id } = action.payload;
+
     const items: CartItem[] = yield select(selectors.selectCartItems);
     const existing = items.find((i) => i.id === id);
-    const resolvedCartItemId = cartItemId ?? existing?.cartItemId;
+    if (!existing) return;
 
-    if (resolvedCartItemId && existing) {
-      yield call([apiService, apiService.updateCartItem], resolvedCartItemId, existing.quantity);
+    if (existing.cartItemId) {
+      yield call([apiService, apiService.updateCartItem], existing.cartItemId, existing.quantity);
+      return;
+    }
+
+    const cart: BackendCartResponse = yield call([apiService, apiService.getCart]);
+    const backendItem = cart.items.find((i) => String(i.menu_item_id) === id);
+
+    if (backendItem) {
+      yield put(actions.setCartItemBackendId({ menuItemId: id, cartItemId: backendItem.id }));
+
+      const freshItems: CartItem[] = yield select(selectors.selectCartItems);
+      const freshItem = freshItems.find((i) => i.id === id);
+      const targetQty = freshItem?.quantity ?? existing.quantity;
+
+      yield call([apiService, apiService.updateCartItem], backendItem.id, targetQty);
     } else {
-      const cart: BackendCartResponse = yield call(
+      const updatedCart: BackendCartResponse = yield call(
         [apiService, apiService.addCartItem],
         Number(id),
         1
       );
-      const addedItem = cart.items.find((i) => String(i.menu_item_id) === id);
-      if (addedItem) {
-        yield put(actions.setCartItemBackendId({ menuItemId: id, cartItemId: addedItem.id }));
+
+      const created = updatedCart.items.find((i) => String(i.menu_item_id) === id);
+      if (!created) return;
+
+      yield put(actions.setCartItemBackendId({ menuItemId: id, cartItemId: created.id }));
+
+      const freshItems: CartItem[] = yield select(selectors.selectCartItems);
+      const freshItem = freshItems.find((i) => i.id === id);
+      const targetQty = freshItem?.quantity ?? 1;
+
+      if (targetQty !== 1) {
+        yield call([apiService, apiService.updateCartItem], created.id, targetQty);
       }
     }
   } catch (error) {
     console.error('syncAddToCartSaga error:', error);
+    yield put(actions.fetchCart());
   }
 }
+
+//Уменьшение количества
 
 function* syncDecreaseSaga(
   apiService: ApiService,
@@ -71,8 +103,11 @@ function* syncDecreaseSaga(
     }
   } catch (error) {
     console.error('syncDecreaseSaga error:', error);
+    yield put(actions.fetchCart());
   }
 }
+
+//Удаление товара
 
 function* syncRemoveSaga(
   apiService: ApiService,
@@ -84,8 +119,11 @@ function* syncRemoveSaga(
     yield call([apiService, apiService.deleteCartItem], cartItemId);
   } catch (error) {
     console.error('syncRemoveSaga error:', error);
+    yield put(actions.fetchCart());
   }
 }
+
+//Очистка корзины
 
 function* syncClearCartSaga(apiService: ApiService) {
   try {

@@ -3,64 +3,66 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SvgProps } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
-import { CartFeature } from '../../features/cart';
-import { CartItem } from '../../features/cart/types';
+import { CartFeature } from '../cart';
+import { CartItem } from '../cart/types';
 import { styles } from './dish-cart-styles';
-
-interface DishCardProps {
-  item: {
-    id: string | number;
-    name: string;
-    price: number | string;
-    imageUrl?: string;
-    imageSvg?: React.FC<SvgProps>;
-  };
-  onPress?: () => void;
-}
+import { DishCardProps } from './types';
 
 export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
   const dispatch = useDispatch();
   const dishId = String(item.id);
   const [isSyncing, setIsSyncing] = useState(false);
 
+  const isCartInitialized = useSelector(CartFeature.selectors.selectCartInitialized);
   const cartItem = useSelector(CartFeature.selectors.selectCartItemById(dishId)) as CartItem | null;
+
   const quantity = cartItem?.quantity ?? 0;
   const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
 
+  const isInteractionDisabled = isSyncing || !isCartInitialized;
+
+  const withSyncGuard = useCallback(
+    (fn: () => void) => {
+      if (isInteractionDisabled) return;
+      setIsSyncing(true);
+      fn();
+      setTimeout(() => setIsSyncing(false), 300);
+    },
+    [isInteractionDisabled]
+  );
+
   const handleAddToCart = useCallback(() => {
-    if (isSyncing) return;
-    setIsSyncing(true);
-    dispatch(
-      CartFeature.actions.addToCart({
-        id: dishId,
-        cartItemId: cartItem?.cartItemId,
-        name: item.name,
-        price: price,
-        imageSvg: item.imageSvg,
-        imageUrl: item.imageUrl,
-      })
-    );
-    setTimeout(() => setIsSyncing(false), 500);
-  }, [dispatch, dishId, item, cartItem?.cartItemId, price, isSyncing]);
+    withSyncGuard(() => {
+      dispatch(
+        CartFeature.actions.addToCart({
+          id: dishId,
+          cartItemId: cartItem?.cartItemId,
+          name: item.name,
+          price,
+          imageSvg: item.imageSvg,
+          imageUrl: item.imageUrl,
+        })
+      );
+    });
+  }, [withSyncGuard, dispatch, dishId, cartItem?.cartItemId, item, price]);
 
   const handleDecrease = useCallback(() => {
-    if (isSyncing) return;
-    setIsSyncing(true);
-    dispatch(
-      CartFeature.actions.decreaseQuantity({
-        id: dishId,
-        cartItemId: cartItem?.cartItemId,
-      })
-    );
-    setTimeout(() => setIsSyncing(false), 500);
-  }, [dispatch, dishId, cartItem?.cartItemId, isSyncing]);
+    withSyncGuard(() => {
+      dispatch(
+        CartFeature.actions.decreaseQuantity({
+          id: dishId,
+          cartItemId: cartItem?.cartItemId,
+        })
+      );
+    });
+  }, [withSyncGuard, dispatch, dishId, cartItem?.cartItemId]);
 
   const renderImage = () => {
     if (item.imageUrl) {
       return <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="contain" />;
     }
     if (item.imageSvg) {
-      const SvgImage = item.imageSvg;
+      const SvgImage = item.imageSvg as React.FC<SvgProps>;
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
     }
     return <Text style={styles.imagePlaceholder}>🍽</Text>;
@@ -71,7 +73,7 @@ export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
       activeOpacity={0.85}
       onPress={onPress}
       style={styles.wrapper}
-      disabled={isSyncing}
+      disabled={isInteractionDisabled}
     >
       <LinearGradient
         colors={['#86EFAC', '#A8F0B5', '#F4F4F4']}
@@ -94,7 +96,7 @@ export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
               <TouchableOpacity
                 style={styles.quantityButton}
                 onPress={handleDecrease}
-                disabled={isSyncing}
+                disabled={isInteractionDisabled}
               >
                 <Text style={styles.quantityButtonText}>-</Text>
               </TouchableOpacity>
@@ -102,18 +104,20 @@ export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
               <TouchableOpacity
                 style={styles.quantityButton}
                 onPress={handleAddToCart}
-                disabled={isSyncing}
+                disabled={isInteractionDisabled}
               >
                 <Text style={styles.quantityButtonText}>+</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity
-              style={styles.addToCartButton}
+              style={[styles.addToCartButton, !isCartInitialized && { opacity: 0.5 }]}
               onPress={handleAddToCart}
-              disabled={isSyncing}
+              disabled={isInteractionDisabled}
             >
-              <Text style={styles.addToCartButtonText}>В корзину</Text>
+              <Text style={styles.addToCartButtonText}>
+                {isCartInitialized ? 'В корзину' : 'Загрузка...'}
+              </Text>
             </TouchableOpacity>
           )}
         </View>

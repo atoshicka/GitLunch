@@ -5,10 +5,10 @@ import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Category, Dish } from '../../entities/api/types/menu-types';
+import { DishCard } from '../../features/dish-card';
 import { FilterChips } from '../../features/filter/filter-chips';
 import { MenuFeature } from '../../features/menu';
 import { Images } from '../../shared/constants/images';
-import { DishCard } from '../../shared/dish-cart';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';

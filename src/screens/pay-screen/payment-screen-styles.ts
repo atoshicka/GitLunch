@@ -1,8 +1,6 @@
-import { Dimensions, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
 import { Typography } from '../../shared/fontsFile/fonts';
-
-const { width } = Dimensions.get('window');
 
 export const paymentStyles = StyleSheet.create({
   container: {
@@ -132,20 +130,5 @@ export const paymentStyles = StyleSheet.create({
     ...Typography.buttonRegular,
     fontWeight: '600',
     color: '#DFFCEA',
-  },
-  navigSection: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 100,
-    zIndex: 0,
-  },
-  navigBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
 });
