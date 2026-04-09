@@ -56,7 +56,9 @@ export const styles = StyleSheet.create({
     ...AgbalumoTypography.agbalumoSmall,
     color: '#1F2937',
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: 25,
+    fontSize: 28,
+    fontWeight: '800',
   },
   emptyContainer: {
     flex: 1,
@@ -72,13 +74,61 @@ export const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 20,
   },
+
+  groupContainer: {
+    marginBottom: 24,
+  },
+  groupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  groupHeaderLeft: {
+    flex: 1,
+  },
+  groupWeekday: {
+    ...Typography.titleSmall,
+    color: '#1F2937',
+    fontWeight: '700',
+  },
+  groupDate: {
+    ...Typography.bodySmall,
+    color: '#94A3B8',
+    marginTop: 2,
+  },
+
+  // Чекбокс
+  checkbox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxSelected: {
+    backgroundColor: '#22C55E',
+    borderColor: '#22C55E',
+  },
+  checkboxTick: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 18,
+  },
+
+  // Карточка товара
   cartItem: {
     flexDirection: 'row',
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: 30,
+    padding: 14,
     marginBottom: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: '#1F2937',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -147,9 +197,11 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
     paddingHorizontal: 8,
   },
+
+  // Футер
   footer: {
-    padding: 24,
-    paddingBottom: 40,
+    padding: 20,
+    paddingBottom: 20,
     backgroundColor: '#22C55E',
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,

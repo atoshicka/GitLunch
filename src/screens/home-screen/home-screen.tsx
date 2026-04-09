@@ -18,9 +18,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
 import { DishCard } from '../../features/dish-card';
+import { DishModalFeature } from '../../features/dish-modal';
 import { HomeFeature } from '../../features/home';
 import { Images } from '../../shared/constants/images';
-import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './home-styles';
@@ -128,7 +128,6 @@ export const HomeScreen: React.FC = () => {
   const dispatch = useDispatch();
   const pagerRef = useRef<PagerView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const restaurants = useSelector(HomeFeature.selectors.selectRestaurants);
@@ -175,13 +174,20 @@ export const HomeScreen: React.FC = () => {
     [navigation]
   );
 
+  const handleDishPress = useCallback(
+    (id: string | number) => {
+      dispatch(DishModalFeature.actions.openDishModal(Number(id)));
+    },
+    [dispatch]
+  );
+
   const renderPromoItem: ListRenderItem<PromoDish> = useCallback(
     ({ item }) => (
       <View style={styles.promoCardContainer}>
-        <DishCard item={item} onPress={() => setSelectedDishId(Number(item.id))} />
+        <DishCard item={item} onPress={() => handleDishPress(item.id)} />
       </View>
     ),
-    []
+    [handleDishPress]
   );
 
   const handleScroll = useMemo(
@@ -297,12 +303,6 @@ export const HomeScreen: React.FC = () => {
           </View>
         </View>
       </Animated.ScrollView>
-
-      <DishModal
-        dishId={selectedDishId}
-        visible={selectedDishId !== null}
-        onClose={() => setSelectedDishId(null)}
-      />
     </View>
   );
 };
