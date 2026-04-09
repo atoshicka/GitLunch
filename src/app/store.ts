@@ -4,6 +4,7 @@ import { createApiService } from '../entities/api/api-interface';
 import { api } from '../entities/api/axios-config';
 import {
   CartFeature,
+  DishModalFeature,
   HomeFeature,
   LoginFeature,
   MenuFeature,
@@ -26,6 +27,7 @@ export const store = configureStore({
     ...MenuFeature.reducer,
     ...OrdersFeature.reducer,
     ...SearchFeature.reducer,
+    ...DishModalFeature.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(sagaMiddleware),

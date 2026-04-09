@@ -2,6 +2,7 @@ import { all, fork } from 'redux-saga/effects';
 import { createApiService } from '../entities/api/api-interface';
 import { api } from '../entities/api/axios-config';
 import { CartFeature } from '../features/cart';
+import { DishModalFeature } from '../features/dish-modal';
 import { HomeFeature } from '../features/home';
 import { LoginFeature } from '../features/login';
 import { MenuFeature } from '../features/menu';
@@ -15,5 +16,6 @@ export function* rootSaga() {
     fork(MenuFeature.sagas.watchMenu, apiService),
     fork(CartFeature.sagas.watchCart, apiService),
     fork(SearchFeature.sagas.watchSearch, apiService),
+    fork(DishModalFeature.sagas.watchDishModal, apiService),
   ]);
 }

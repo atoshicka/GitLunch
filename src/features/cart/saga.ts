@@ -1,9 +1,15 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { ApiService, BASE_URL } from '../../entities/api/api-interface';
 import { BackendCartItem, BackendCartResponse } from '../../entities/api/types/cart-types';
+import { Weekday } from '../../entities/api/types/menu-types';
 import { selectors } from './selectors';
 import { actions } from './slice';
 import { CartItem } from './types';
+
+const WEEKDAY_VALUES: Weekday[] = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница'];
+
+const isWeekday = (value: unknown): value is Weekday =>
+  typeof value === 'string' && (WEEKDAY_VALUES as string[]).includes(value);
 
 const mapBackendItem = (item: BackendCartItem): CartItem => ({
   id: String(item.menu_item_id),
@@ -12,9 +18,10 @@ const mapBackendItem = (item: BackendCartItem): CartItem => ({
   price: typeof item.price === 'string' ? parseFloat(item.price) : (item.price ?? 0),
   quantity: item.quantity,
   imageUrl: item.image_url ? `${BASE_URL}${item.image_url}` : undefined,
+  weekday: isWeekday((item as BackendCartItem & { weekday?: unknown }).weekday)
+    ? (item as BackendCartItem & { weekday: Weekday }).weekday
+    : 'Понедельник',
 });
-
-//Загрузка корзины
 
 function* fetchCartSaga(apiService: ApiService) {
   try {
@@ -31,12 +38,9 @@ function* fetchCartSaga(apiService: ApiService) {
   }
 }
 
-//Добавление товара
-
 function* syncAddToCartSaga(apiService: ApiService, action: ReturnType<typeof actions.addToCart>) {
   try {
     const { id } = action.payload;
-
     const items: CartItem[] = yield select(selectors.selectCartItems);
     const existing = items.find((i) => i.id === id);
     if (!existing) return;
@@ -51,11 +55,9 @@ function* syncAddToCartSaga(apiService: ApiService, action: ReturnType<typeof ac
 
     if (backendItem) {
       yield put(actions.setCartItemBackendId({ menuItemId: id, cartItemId: backendItem.id }));
-
       const freshItems: CartItem[] = yield select(selectors.selectCartItems);
       const freshItem = freshItems.find((i) => i.id === id);
       const targetQty = freshItem?.quantity ?? existing.quantity;
-
       yield call([apiService, apiService.updateCartItem], backendItem.id, targetQty);
     } else {
       const updatedCart: BackendCartResponse = yield call(
@@ -63,16 +65,13 @@ function* syncAddToCartSaga(apiService: ApiService, action: ReturnType<typeof ac
         Number(id),
         1
       );
-
       const created = updatedCart.items.find((i) => String(i.menu_item_id) === id);
       if (!created) return;
 
       yield put(actions.setCartItemBackendId({ menuItemId: id, cartItemId: created.id }));
-
       const freshItems: CartItem[] = yield select(selectors.selectCartItems);
       const freshItem = freshItems.find((i) => i.id === id);
       const targetQty = freshItem?.quantity ?? 1;
-
       if (targetQty !== 1) {
         yield call([apiService, apiService.updateCartItem], created.id, targetQty);
       }
@@ -83,8 +82,6 @@ function* syncAddToCartSaga(apiService: ApiService, action: ReturnType<typeof ac
   }
 }
 
-//Уменьшение количества
-
 function* syncDecreaseSaga(
   apiService: ApiService,
   action: ReturnType<typeof actions.decreaseQuantity>
@@ -92,10 +89,8 @@ function* syncDecreaseSaga(
   try {
     const { id, cartItemId } = action.payload;
     if (!cartItemId) return;
-
     const items: CartItem[] = yield select(selectors.selectCartItems);
     const item = items.find((i) => i.id === id);
-
     if (!item) {
       yield call([apiService, apiService.deleteCartItem], cartItemId);
     } else {
@@ -106,8 +101,6 @@ function* syncDecreaseSaga(
     yield put(actions.fetchCart());
   }
 }
-
-//Удаление товара
 
 function* syncRemoveSaga(
   apiService: ApiService,
@@ -122,8 +115,6 @@ function* syncRemoveSaga(
     yield put(actions.fetchCart());
   }
 }
-
-//Очистка корзины
 
 function* syncClearCartSaga(apiService: ApiService) {
   try {

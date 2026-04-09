@@ -3,6 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { CartFeature } from '../features/cart';
 import { LoginFeature } from '../features/login';
+import { DishModal } from '../shared/dish-modal/dish-modal';
 import { AppNavigator, AuthScreen } from './navigation/app-navigation';
 import { store } from './store';
 
@@ -29,7 +30,12 @@ const AppContent: React.FC = () => {
     );
   }
 
-  return isAuthenticated ? <AppNavigator /> : <AuthScreen />;
+  return (
+    <View style={{ flex: 1 }}>
+      {isAuthenticated ? <AppNavigator /> : <AuthScreen />}
+      <DishModal />
+    </View>
+  );
 };
 
 const App: React.FC = () => {

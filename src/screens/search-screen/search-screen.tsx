@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useCallback, useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -11,22 +12,24 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import { RootStackParamList } from '../../app/navigation/navigation-types';
+import { Dish } from '../../entities/api/types/menu-types';
 import { DishCard } from '../../features/dish-card/dish-cart';
+import { DishModalFeature } from '../../features/dish-modal';
 import { SearchFeature } from '../../features/search';
-import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './search-screen-styles';
 
+type SearchNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 export const SearchScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<SearchNavigationProp>();
   const dispatch = useDispatch();
 
   const query = useSelector(SearchFeature.selectors.selectQuery);
-  const searchResults = useSelector(SearchFeature.selectors.selectResults);
+  const searchResults = useSelector(SearchFeature.selectors.selectResults) as Dish[];
   const isSearching = useSelector(SearchFeature.selectors.selectIsSearching);
   const recentSearches = useSelector(SearchFeature.selectors.selectRecentSearches);
-
-  const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
 
   useEffect(() => {
     return () => {
@@ -49,6 +52,13 @@ export const SearchScreen: React.FC = () => {
     }
   }, [query, dispatch]);
 
+  const handleDishPress = useCallback(
+    (id: string | number) => {
+      dispatch(DishModalFeature.actions.openDishModal(Number(id)));
+    },
+    [dispatch]
+  );
+
   const renderContent = () => {
     if (isSearching) {
       return (
@@ -62,9 +72,15 @@ export const SearchScreen: React.FC = () => {
       return (
         <FlatList
           data={searchResults}
-          renderItem={({ item }) => (
+          renderItem={({ item }: { item: Dish }) => (
             <View style={styles.cardWrapper}>
-              <DishCard item={item} onPress={() => setSelectedDishId(Number(item.id))} />
+              <DishCard
+                item={{
+                  ...item,
+                  weekday: item.weekday ?? 'Понедельник',
+                }}
+                onPress={() => handleDishPress(item.id)}
+              />
             </View>
           )}
           keyExtractor={(item) => String(item.id)}
@@ -84,7 +100,7 @@ export const SearchScreen: React.FC = () => {
             <Text style={styles.recentTitle}>Недавние запросы</Text>
             <FlatList
               data={recentSearches}
-              renderItem={({ item }) => (
+              renderItem={({ item }: { item: string }) => (
                 <TouchableOpacity style={styles.recentItem} onPress={() => handleQueryChange(item)}>
                   <Text style={styles.recentText}>{item}</Text>
                 </TouchableOpacity>
@@ -123,12 +139,6 @@ export const SearchScreen: React.FC = () => {
 
         <View style={styles.content}>{renderContent()}</View>
       </KeyboardAvoidingView>
-
-      <DishModal
-        dishId={selectedDishId}
-        visible={selectedDishId !== null}
-        onClose={() => setSelectedDishId(null)}
-      />
     </SafeAreaView>
   );
 };

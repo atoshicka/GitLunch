@@ -8,16 +8,18 @@ interface State {
 
 const root = (state: State) => state[name];
 
-const selectDishes = createSelector(root, (menu) => menu.dishes);
-const selectFilteredDishes = createSelector(root, (menu) => menu.filteredDishes);
-const selectCategories = createSelector(root, (menu) => menu.categories);
-const selectSelectedFilter = createSelector(root, (menu) => menu.selectedFilter);
-const selectMenuIsLoading = createSelector(root, (menu) => menu.isLoading);
-const selectMenuError = createSelector(root, (menu) => menu.error);
+const selectDishes = createSelector(root, (s) => s.dishes);
+const selectFilteredDishes = createSelector(root, (s) => s.filteredDishes);
+const selectWeekdayGroups = createSelector(root, (s) => s.weekdayGroups);
+const selectCategories = createSelector(root, (s) => s.categories);
+const selectSelectedFilter = createSelector(root, (s) => s.selectedFilter);
+const selectMenuIsLoading = createSelector(root, (s) => s.isLoading);
+const selectMenuError = createSelector(root, (s) => s.error);
 
 export const selectors = {
   selectDishes,
   selectFilteredDishes,
+  selectWeekdayGroups,
   selectCategories,
   selectSelectedFilter,
   selectMenuIsLoading,

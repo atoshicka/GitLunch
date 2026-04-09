@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -12,22 +12,13 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-
-import { BASE_URL, createApiService } from '../../entities/api/api-interface';
-import { api } from '../../entities/api/axios-config';
-import { Dish } from '../../entities/api/types/menu-types';
+import { BASE_URL } from '../../entities/api/api-interface';
 import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
+import { DishModalFeature } from '../../features/dish-modal';
 import { styles } from './dish-modal-styles';
 
-const apiService = createApiService(api);
 const SWIPE_THRESHOLD = 80;
-
-interface DishModalProps {
-  dishId: number | null;
-  visible: boolean;
-  onClose: () => void;
-}
 
 interface NutritionItem {
   label: string;
@@ -41,13 +32,37 @@ const NutritionRow: React.FC<NutritionItem & { isLast?: boolean }> = ({ label, v
   </View>
 );
 
-export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }) => {
+export const DishModal: React.FC = () => {
   const dispatch = useDispatch();
-  const [dish, setDish] = useState<Dish | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const isOpen = useSelector(DishModalFeature.selectors.selectIsOpen);
+  const dish = useSelector(DishModalFeature.selectors.selectDish);
+  const isLoading = useSelector(DishModalFeature.selectors.selectIsLoading);
+  const error = useSelector(DishModalFeature.selectors.selectError);
+  const dishId = useSelector(DishModalFeature.selectors.selectDishId);
+
+  const cartItem = useSelector(
+    CartFeature.selectors.selectCartItemById(dish ? String(dish.id) : '')
+  ) as CartItem | null;
+  const quantity = cartItem?.quantity ?? 0;
 
   const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isOpen) {
+      translateY.setValue(0);
+    }
+  }, [isOpen, translateY]);
+
+  const handleClose = useCallback(() => {
+    dispatch(DishModalFeature.actions.closeDishModal());
+  }, [dispatch]);
+
+  const handleRetry = useCallback(() => {
+    if (dishId !== null) {
+      dispatch(DishModalFeature.actions.openDishModal(dishId));
+    }
+  }, [dispatch, dishId]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -62,44 +77,13 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
             toValue: 600,
             duration: 200,
             useNativeDriver: true,
-          }).start(onClose);
+          }).start(handleClose);
         } else {
           Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
         }
       },
     })
   ).current;
-
-  const cartItem = useSelector(
-    CartFeature.selectors.selectCartItemById(dish ? String(dish.id) : '')
-  ) as CartItem | null;
-  const quantity = cartItem?.quantity ?? 0;
-
-  const fetchDish = useCallback(async (id: number) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await apiService.getDishById(String(id));
-      setDish(result);
-    } catch {
-      setError('Не удалось загрузить блюдо');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (visible && dishId !== null) {
-      translateY.setValue(0);
-      fetchDish(dishId);
-    } else {
-      const timer = setTimeout(() => {
-        setDish(null);
-        setError(null);
-      }, 250);
-      return () => clearTimeout(timer);
-    }
-  }, [visible, dishId, fetchDish, translateY]);
 
   const handleCartAction = useCallback(
     (type: 'add' | 'decrease') => {
@@ -132,13 +116,13 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
 
   return (
     <Modal
-      visible={visible}
+      visible={isOpen}
       transparent
       animationType="none"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
       statusBarTranslucent
     >
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback onPress={handleClose}>
         <View style={styles.overlay} />
       </TouchableWithoutFeedback>
 
@@ -147,85 +131,84 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
           <View style={styles.handle} />
         </View>
 
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
           <Text style={styles.closeButtonText}>✕</Text>
         </TouchableOpacity>
 
-        {isLoading ? (
+        {isLoading && (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color="#22C55E" />
           </View>
-        ) : error ? (
+        )}
+
+        {!isLoading && error && (
           <View style={styles.centered}>
             <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity
-              style={styles.retryButton}
-              onPress={() => dishId && fetchDish(dishId)}
-            >
+            <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
               <Text style={styles.retryButtonText}>Повторить</Text>
             </TouchableOpacity>
           </View>
-        ) : (
-          dish && (
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-              bounces={false}
-            >
-              {dish.image_url ? (
-                <Image
-                  source={{ uri: `${BASE_URL}${dish.image_url}` }}
-                  style={styles.image}
-                  resizeMode="cover"
-                />
-              ) : (
-                <View style={styles.imagePlaceholder}>
-                  <Text style={styles.imagePlaceholderText}>🍽</Text>
-                </View>
-              )}
+        )}
 
-              <View style={styles.infoBlock}>
-                <Text style={styles.name}>{dish.name}</Text>
+        {!isLoading && !error && dish && (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+            bounces={false}
+          >
+            {dish.image_url ? (
+              <Image
+                source={{ uri: `${BASE_URL}${dish.image_url}` }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Text style={styles.imagePlaceholderText}>🍽</Text>
+              </View>
+            )}
 
-                <View style={styles.metaRow}>
-                  {dish.weight && (
-                    <View style={styles.metaBadge}>
-                      <Text style={styles.metaBadgeText}>{dish.weight} г</Text>
-                    </View>
-                  )}
-                  {dish.category?.name && (
-                    <View style={[styles.metaBadge, styles.metaBadgeGreen]}>
-                      <Text style={styles.metaBadgeText}>{dish.category.name}</Text>
-                    </View>
-                  )}
-                </View>
+            <View style={styles.infoBlock}>
+              <Text style={styles.name}>{dish.name}</Text>
 
-                {dish.description && <Text style={styles.description}>{dish.description}</Text>}
-
-                {dish.ingredients && (
-                  <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Состав</Text>
-                    <Text style={styles.ingredients}>{dish.ingredients}</Text>
+              <View style={styles.metaRow}>
+                {dish.weight && (
+                  <View style={styles.metaBadge}>
+                    <Text style={styles.metaBadgeText}>{dish.weight} г</Text>
                   </View>
                 )}
-
-                {nutritionData.length > 0 && (
-                  <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Пищевая ценность</Text>
-                    <View style={styles.nutritionBlock}>
-                      {nutritionData.map((item, index) => (
-                        <NutritionRow
-                          key={item.label}
-                          {...item}
-                          isLast={index === nutritionData.length - 1}
-                        />
-                      ))}
-                    </View>
+                {dish.category?.name && (
+                  <View style={[styles.metaBadge, styles.metaBadgeGreen]}>
+                    <Text style={styles.metaBadgeText}>{dish.category.name}</Text>
                   </View>
                 )}
               </View>
-            </ScrollView>
-          )
+
+              {dish.description && <Text style={styles.description}>{dish.description}</Text>}
+
+              {dish.ingredients && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Состав</Text>
+                  <Text style={styles.ingredients}>{dish.ingredients}</Text>
+                </View>
+              )}
+
+              {nutritionData.length > 0 && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Пищевая ценность</Text>
+                  <View style={styles.nutritionBlock}>
+                    {nutritionData.map((item, index) => (
+                      <NutritionRow
+                        key={item.label}
+                        {...item}
+                        isLast={index === nutritionData.length - 1}
+                      />
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+          </ScrollView>
         )}
 
         {dish && !isLoading && !error && (

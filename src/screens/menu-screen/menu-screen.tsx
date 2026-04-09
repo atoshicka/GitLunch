@@ -1,15 +1,23 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  SectionList,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
-import { Category, Dish } from '../../entities/api/types/menu-types';
+import { Dish } from '../../entities/api/types/menu-types';
 import { DishCard } from '../../features/dish-card';
+import { DishModalFeature } from '../../features/dish-modal';
 import { FilterChips } from '../../features/filter/filter-chips';
 import { MenuFeature } from '../../features/menu';
+import { WeekdayGroup } from '../../features/menu/types';
 import { Images } from '../../shared/constants/images';
-import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './menu-styles';
@@ -20,22 +28,31 @@ type MenuScreenRouteProp = RouteProp<RootStackParamList, 'Menu'>;
 const SubtractIcon = Images.home.wave;
 const AccountIcon = Images.navigation.account;
 
+const chunkDishes = (dishes: Dish[]): Dish[][] => {
+  const pairs: Dish[][] = [];
+  for (let i = 0; i < dishes.length; i += 2) {
+    pairs.push(dishes.slice(i, i + 2));
+  }
+  return pairs;
+};
+
 export const MenuScreen: React.FC = () => {
   const navigation = useNavigation<MenuScreenNavigationProp>();
   const route = useRoute<MenuScreenRouteProp>();
   const dispatch = useDispatch();
 
-  const filteredDishes = useSelector(MenuFeature.selectors.selectFilteredDishes);
+  const weekdayGroups = useSelector(MenuFeature.selectors.selectWeekdayGroups);
   const categories = useSelector(MenuFeature.selectors.selectCategories);
   const selectedFilter = useSelector(MenuFeature.selectors.selectSelectedFilter);
   const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
   const error = useSelector(MenuFeature.selectors.selectMenuError);
 
   const [restaurantTitle, setRestaurantTitle] = useState<string>('Кафе Цезарь');
-  const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
   const lastAppliedTimestamp = useRef<number | null>(null);
 
-  const filters = useMemo(() => categories.map((cat: Category) => cat.name), [categories]);
+  const filters = useMemo(() => {
+    return Array.from(new Set(categories.map((cat) => cat.name)));
+  }, [categories]);
 
   useEffect(() => {
     dispatch(MenuFeature.actions.fetchDishes());
@@ -47,28 +64,61 @@ export const MenuScreen: React.FC = () => {
       if (filterTimestamp && filterTimestamp !== lastAppliedTimestamp.current) {
         lastAppliedTimestamp.current = filterTimestamp;
         setRestaurantTitle(restaurantName ?? 'Кафе Цезарь');
-        if (mainFilter && filters.includes(mainFilter)) {
+        if (mainFilter) {
           dispatch(MenuFeature.actions.changeFilter(mainFilter));
         }
       }
-    }, [route.params, filters, dispatch])
+    }, [route.params, dispatch])
   );
 
-  const renderDishItem = useCallback(
-    ({ item }: { item: Dish }) => (
-      <View style={{ flex: 0.5, padding: 4 }}>
-        <DishCard item={item} onPress={() => setSelectedDishId(item.id)} />
+  const handleDishPress = useCallback(
+    (id: number) => {
+      dispatch(DishModalFeature.actions.openDishModal(id));
+    },
+    [dispatch]
+  );
+
+  const sections = useMemo(
+    () =>
+      weekdayGroups.map((group: WeekdayGroup) => ({
+        weekday: group.weekday,
+        date: group.date,
+        data: chunkDishes(group.dishes),
+      })),
+    [weekdayGroups]
+  );
+
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: { weekday: string; date: string } }) => (
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionWeekday}>{section.weekday}</Text>
+        <Text style={styles.sectionDate}>{section.date}</Text>
       </View>
     ),
     []
   );
 
-  if (error)
+  const renderItem = useCallback(
+    ({ item: pair }: { item: Dish[] }) => (
+      <View style={styles.row}>
+        {pair.map((dish) => (
+          <View key={dish.id} style={styles.cardWrapper}>
+            <DishCard item={dish} onPress={() => handleDishPress(dish.id)} />
+          </View>
+        ))}
+        {pair.length === 1 && <View style={styles.cardWrapper} />}
+      </View>
+    ),
+    [handleDishPress]
+  );
+
+  if (error) {
     return (
       <View style={styles.container}>
         <Text style={styles.emptyText}>{error}</Text>
       </View>
     );
+  }
 
   return (
     <View style={styles.container}>
@@ -94,40 +144,38 @@ export const MenuScreen: React.FC = () => {
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Меню</Text>
+      <View style={styles.contentContainer}>
+        <Text style={styles.menuTitle}>Меню</Text>
 
-      {filters.length > 0 && (
-        <View style={styles.filtersWrapper}>
-          <FilterChips
-            filters={filters}
-            selectedFilters={[selectedFilter]}
-            onSelectFilter={(f) => dispatch(MenuFeature.actions.changeFilter(f))}
+        {filters.length > 0 && (
+          <View style={styles.filtersWrapper}>
+            <FilterChips
+              filters={filters}
+              selectedFilters={[selectedFilter]}
+              onSelectFilter={(f) => dispatch(MenuFeature.actions.changeFilter(f))}
+            />
+          </View>
+        )}
+
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#86EFAC" style={{ marginTop: 40 }} />
+        ) : (
+          <SectionList
+            sections={sections}
+            keyExtractor={(pair, index) => pair.map((d) => String(d.id)).join('-') + index}
+            renderSectionHeader={renderSectionHeader}
+            renderItem={renderItem}
+            contentContainerStyle={[
+              styles.dishesGrid,
+              { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
+            ]}
+            ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
+            stickySectionHeadersEnabled={false}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={Platform.OS === 'android'}
           />
-        </View>
-      )}
-
-      {isLoading ? (
-        <ActivityIndicator size="large" color="#86EFAC" style={{ marginTop: 40 }} />
-      ) : (
-        <FlatList
-          data={filteredDishes}
-          numColumns={2}
-          keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={[
-            styles.dishesGrid,
-            { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
-          ]}
-          renderItem={renderDishItem}
-          ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
-          removeClippedSubviews
-        />
-      )}
-
-      <DishModal
-        dishId={selectedDishId}
-        visible={selectedDishId !== null}
-        onClose={() => setSelectedDishId(null)}
-      />
+        )}
+      </View>
     </View>
   );
 };
