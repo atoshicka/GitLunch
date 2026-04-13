@@ -240,7 +240,7 @@ export const BasketScreen: React.FC = () => {
             <Text style={styles.discountValue}>—</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Итог</Text>
+            <Text style={styles.totalLabel}>Итоговая цена:</Text>
             <Text style={styles.totalPrice}>{totalPrice} ₽</Text>
           </View>
           <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>

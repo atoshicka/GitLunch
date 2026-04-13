@@ -10,11 +10,24 @@ import {
 } from './types/cart-types';
 import { PromoDish, Restaurant } from './types/home-types';
 import { Dish, DishCategory } from './types/menu-types';
+import {
+  BackendOrder,
+  BackendOrderStatus,
+  CancelOrderResponse,
+  ConfirmPickupResponse,
+  CreateOrderPayload,
+} from './types/order-types';
 
 export const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 
 const normalizeDish = (dish: Dish): Dish => {
-  const fullImageUrl = dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined;
+  const rawImage = dish.image_url;
+  const fullImageUrl = rawImage
+    ? rawImage.startsWith('http')
+      ? rawImage
+      : `${BASE_URL}${rawImage}`
+    : undefined;
+
   const normalized: Dish = {
     ...dish,
     imageUrl: fullImageUrl,
@@ -31,20 +44,13 @@ const normalizeDish = (dish: Dish): Dish => {
 };
 
 export const createApiService = (api: AxiosInstance) => ({
-  //Блюда
+  // Блюда
   async getDishes(): Promise<Dish[]> {
     try {
       const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
-      console.log('DISHES RAW:', JSON.stringify(response.data).slice(0, 500));
-
       const dishes: Dish[] = Array.isArray(response.data)
         ? response.data
         : (response.data.menu_items ?? []);
-
-      console.log('DISHES COUNT:', dishes.length);
-      if (dishes.length > 0) {
-        console.log('FIRST DISH:', JSON.stringify(dishes[0]));
-      }
 
       return dishes.map(normalizeDish);
     } catch (error) {
@@ -58,7 +64,6 @@ export const createApiService = (api: AxiosInstance) => ({
       const response = await api.get<Dish[] | { menu_items: Dish[] }>(
         API_ENDPOINTS.DISHES_BY_CATEGORY(categoryId)
       );
-
       const dishes: Dish[] = Array.isArray(response.data)
         ? response.data
         : (response.data.menu_items ?? []);
@@ -76,10 +81,7 @@ export const createApiService = (api: AxiosInstance) => ({
         { id: number; name: string }[] | { categories: { id: number; name: string }[] }
       >(API_ENDPOINTS.CATEGORIES);
 
-      if (Array.isArray(response.data)) {
-        return response.data;
-      }
-
+      if (Array.isArray(response.data)) return response.data;
       return response.data.categories ?? [];
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -90,9 +92,7 @@ export const createApiService = (api: AxiosInstance) => ({
   async getDishById(id: string): Promise<Dish> {
     try {
       const response = await api.get<Dish | { menu_item: Dish }>(API_ENDPOINTS.DISH_DETAIL(id));
-
       const dish: Dish = 'menu_item' in response.data ? response.data.menu_item : response.data;
-
       return normalizeDish(dish);
     } catch (error) {
       console.error(`Error fetching dish ${id}:`, error);
@@ -115,8 +115,7 @@ export const createApiService = (api: AxiosInstance) => ({
     }
   },
 
-  //Рестораны
-
+  // Рестораны
   async getRestaurants(): Promise<Restaurant[]> {
     return [
       { id: '1', name: 'Цезарь' },
@@ -124,16 +123,15 @@ export const createApiService = (api: AxiosInstance) => ({
     ];
   },
 
-  //Промо
-
+  // Промо
   async getPromoDishes(): Promise<PromoDish[]> {
     const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
-
     const dishes: Dish[] = Array.isArray(response.data)
       ? response.data
       : (response.data.menu_items ?? []);
 
     const allDishes = dishes.map(normalizeDish);
+
     return allDishes
       .filter((dish: Dish) => {
         const cats: DishCategory[] = dish.categories ?? [];
@@ -142,35 +140,34 @@ export const createApiService = (api: AxiosInstance) => ({
           return name === 'акции' || name === 'promo' || name === 'акция';
         });
       })
-      .map((dish: Dish) => ({
-        id: String(dish.id),
-        name: dish.name,
-        price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
-        imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
-        imageSvg: dish.imageSvg,
-        isPromo: true,
-      }));
+      .map(
+        (dish: Dish): PromoDish => ({
+          id: dish.id,
+          name: dish.name,
+          price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
+          imageUrl: dish.imageUrl,
+          imageSvg: dish.imageSvg,
+          isPromo: true,
+          weekday: dish.weekday || 'Понедельник',
+        })
+      );
   },
 
-  //Авторизация
-
+  // Авторизация
   async login(login: string, password: string): Promise<LoginResponse> {
     const response = await api.post<LoginResponse>(API_ENDPOINTS.LOGIN, { login, password });
     return response.data;
   },
 
-  //Корзина
-
+  // Корзина
   async getCart(): Promise<BackendCart> {
     const response = await api.get<BackendCart>(API_ENDPOINTS.CART);
-    console.log('CART RESPONSE:', JSON.stringify(response.data));
     return response.data;
   },
 
   async addCartItem(menuItemId: number, quantity: number): Promise<BackendCartResponse> {
     const payload: AddCartItemPayload = { menu_item_id: menuItemId, quantity };
     const response = await api.post<BackendCartResponse>(API_ENDPOINTS.CART_ITEMS, payload);
-    console.log('ADD CART ITEM RESPONSE:', JSON.stringify(response.data));
     return response.data;
   },
 
@@ -185,6 +182,35 @@ export const createApiService = (api: AxiosInstance) => ({
 
   async deleteCartItem(cartItemId: number): Promise<void> {
     await api.delete(API_ENDPOINTS.CART_ITEM(String(cartItemId)));
+  },
+
+  async getOrders(): Promise<BackendOrder[]> {
+    const response = await api.get<BackendOrder[]>(API_ENDPOINTS.ORDERS);
+    return response.data;
+  },
+
+  async createOrder(payload?: CreateOrderPayload): Promise<BackendOrder> {
+    const response = await api.post<BackendOrder>(API_ENDPOINTS.ORDERS, payload ?? {});
+    return response.data;
+  },
+
+  async cancelOrder(orderId: number): Promise<CancelOrderResponse> {
+    const response = await api.patch<CancelOrderResponse>(
+      `${API_ENDPOINTS.ORDERS}/${orderId}/cancel`
+    );
+    return response.data;
+  },
+
+  async getOrderStatus(orderId: number): Promise<BackendOrderStatus> {
+    const response = await api.get<BackendOrderStatus>(`${API_ENDPOINTS.ORDERS}/${orderId}/status`);
+    return response.data;
+  },
+
+  async confirmPickup(orderId: number): Promise<ConfirmPickupResponse> {
+    const response = await api.post<ConfirmPickupResponse>(
+      `${API_ENDPOINTS.ORDERS}/${orderId}/confirm_pickup`
+    );
+    return response.data;
   },
 });
 

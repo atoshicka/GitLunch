@@ -3,7 +3,6 @@ import { Weekday } from '../../entities/api/types/menu-types';
 import { formatWeekdayDate, getNearestWeekday, WEEKDAYS } from '../menu/weekday-utils';
 import { CartItem, CartItemGroup, CartState } from './types';
 
-// Вспомогательная функция для сборки групп
 const buildCartGroups = (items: CartItem[], selectedWeekdays: Weekday[]): CartItemGroup[] =>
   WEEKDAYS.reduce<CartItemGroup[]>((acc, weekday) => {
     const dayItems = items.filter((i) => i.weekday === weekday);
@@ -34,7 +33,10 @@ export const { name, actions, reducer } = createSlice({
     fetchCart: () => {},
 
     setCartFromBackend(state, action: PayloadAction<CartItem[]>) {
-      state.items = action.payload;
+      state.items = action.payload.map((item) => ({
+        ...item,
+        weekday: item.weekday ?? getNearestWeekday(),
+      }));
       state.loading = false;
       state.error = null;
       state.initialized = true;
@@ -42,16 +44,15 @@ export const { name, actions, reducer } = createSlice({
     },
 
     addToCart(state, action: PayloadAction<Omit<CartItem, 'quantity'>>) {
+      const weekday: Weekday = action.payload.weekday ?? getNearestWeekday();
       const existing = state.items.find((i) => i.id === action.payload.id);
       if (existing) {
         existing.quantity += 1;
-        // Если прилетел cartItemId (например из саги), обновляем
         if (action.payload.cartItemId) {
           existing.cartItemId = action.payload.cartItemId;
         }
       } else {
-        // Добавляем новое блюдо (акции прилетят сюда)
-        state.items.push({ ...action.payload, quantity: 1 });
+        state.items.push({ ...action.payload, weekday, quantity: 1 });
       }
       state.weekdayGroups = buildCartGroups(state.items, state.selectedWeekdays);
     },
@@ -90,17 +91,17 @@ export const { name, actions, reducer } = createSlice({
       state.weekdayGroups = buildCartGroups(state.items, state.selectedWeekdays);
     },
 
-    setCartLoading: (state, action: PayloadAction<boolean>) => {
+    setCartLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
-    setCartError: (state, action: PayloadAction<string | null>) => {
+    setCartError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
       state.loading = false;
     },
-    setCartInitialized: (state) => {
+    setCartInitialized(state) {
       state.initialized = true;
     },
-    clearCart: (state) => {
+    clearCart(state) {
       state.items = [];
       state.weekdayGroups = [];
     },

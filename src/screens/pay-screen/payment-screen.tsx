@@ -22,55 +22,34 @@ export const PaymentScreen: React.FC = () => {
   const navigation = useNavigation<PaymentNavProp>();
   const dispatch = useDispatch();
 
-  const items = useSelector(CartFeature.selectors.selectCartItems);
   const totalPrice = useSelector(CartFeature.selectors.selectCartTotalPrice);
   const totalItems = useSelector(CartFeature.selectors.selectCartTotalItems);
+  const isCreating = useSelector(OrdersFeature.selectors.selectIsCreating);
 
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
 
-  const isFormValid = useMemo(() => {
-    return cardNumber.length === 16 && expiry.length === 4 && cvc.length === 3;
-  }, [cardNumber, expiry, cvc]);
+  const isFormValid = useMemo(
+    () => cardNumber.length === 16 && expiry.length === 4 && cvc.length === 3,
+    [cardNumber, expiry, cvc]
+  );
 
-  const formatCardNumber = (text: string) => {
-    return text
+  const formatCardNumber = (text: string) =>
+    text
       .replace(/\D/g, '')
       .replace(/(\d{4})(?=\d)/g, '$1 ')
       .trim();
-  };
 
   const formatExpiry = (text: string) => {
     const clean = text.replace(/\D/g, '');
-    if (clean.length >= 2) {
-      return `${clean.slice(0, 2)}/${clean.slice(2, 4)}`;
-    }
-    return clean;
+    return clean.length >= 2 ? `${clean.slice(0, 2)}/${clean.slice(2, 4)}` : clean;
   };
 
   const handlePay = () => {
-    if (!isFormValid) return;
-
-    const now = new Date();
-    const newOrder = {
-      id: Date.now().toString(),
-      date: now.toLocaleDateString('ru-RU'),
-      dayOfWeek: now.toLocaleDateString('ru-RU', { weekday: 'long' }),
-      code: Math.floor(10000 + Math.random() * 90000).toString(),
-      items: items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-      })),
-      totalPrice,
-      totalItems,
-    };
-
-    dispatch(OrdersFeature.actions.addOrder(newOrder));
+    if (!isFormValid || isCreating) return;
+    dispatch(OrdersFeature.actions.createOrder());
     dispatch(CartFeature.actions.clearCart());
-
     navigation.navigate(TAB_NAMES.SUCCESS as never);
   };
 
@@ -101,6 +80,7 @@ export const PaymentScreen: React.FC = () => {
             <Text style={paymentStyles.disabledInputText}>Чкалова 3</Text>
           </View>
         </View>
+
         <View style={{ width: '100%', marginBottom: 5 }}>
           <Text style={paymentStyles.label}>Способ оплаты</Text>
         </View>
@@ -154,12 +134,14 @@ export const PaymentScreen: React.FC = () => {
         </LinearGradient>
 
         <TouchableOpacity
-          style={[paymentStyles.orderButton, !isFormValid && { opacity: 0.5 }]}
+          style={[paymentStyles.orderButton, (!isFormValid || isCreating) && { opacity: 0.5 }]}
           onPress={handlePay}
-          disabled={!isFormValid}
+          disabled={!isFormValid || isCreating}
           activeOpacity={0.8}
         >
-          <Text style={paymentStyles.orderButtonText}>Оплатить</Text>
+          <Text style={paymentStyles.orderButtonText}>
+            {isCreating ? 'Оформляем...' : 'Оплатить'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

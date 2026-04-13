@@ -3,6 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { CartFeature } from '../features/cart';
 import { LoginFeature } from '../features/login';
+import { OrdersFeature } from '../features/orders';
 import { DishModal } from '../shared/dish-modal/dish-modal';
 import { AppNavigator, AuthScreen } from './navigation/app-navigation';
 import { store } from './store';
@@ -19,6 +20,7 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(CartFeature.actions.fetchCart());
+      dispatch(OrdersFeature.actions.fetchOrders());
     }
   }, [isAuthenticated, dispatch]);
 

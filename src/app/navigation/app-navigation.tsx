@@ -29,10 +29,7 @@ export const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {/* Главная точка входа — навигатор с табами */}
         <RootStack.Screen name={SCREEN_NAMES.TABS} component={TabNavigator} />
-
-        {/* Корзина всё еще может открываться как модалка поверх всего */}
         <RootStack.Screen
           name={TAB_NAMES.BASKET}
           component={BasketScreen}
@@ -40,9 +37,6 @@ export const AppNavigator: React.FC = () => {
         />
 
         <RootStack.Screen name={SCREEN_NAMES.SEARCH} component={SearchScreen} />
-
-        {/* ПРИМЕЧАНИЕ: Orders, Payment и Success удалены отсюда, 
-            так как они теперь внутри TabNavigator */}
       </RootStack.Navigator>
     </NavigationContainer>
   );

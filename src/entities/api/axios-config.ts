@@ -49,7 +49,8 @@ api.interceptors.response.use(
 
       if (DEBUG) {
         const message = error.response?.data?.message ?? error.message;
-        console.error(`API Error [${status}]:`, message);
+        const details = error.response?.data;
+        console.error(`API Error [${status}]:`, message, details);
       }
     }
     return Promise.reject(error);
