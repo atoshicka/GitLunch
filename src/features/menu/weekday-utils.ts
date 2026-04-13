@@ -26,7 +26,9 @@ export const formatWeekdayDate = (weekday: Weekday): string => {
 };
 
 export const getNearestWeekday = (): Weekday => {
-  const today = new Date().getDay();
-  if (today >= 1 && today <= 5) return WEEKDAYS[today - 1];
+  const todayIndex = new Date().getDay();
+  if (todayIndex >= 1 && todayIndex <= 5) {
+    return WEEKDAYS[todayIndex - 1];
+  }
   return 'Понедельник';
 };

@@ -26,6 +26,9 @@ export const API_ENDPOINTS = {
 
   ORDERS: '/orders',
   ORDER_DETAIL: (id: string) => `/orders/${id}`,
+  ORDER_STATUS: (id: string) => `/orders/${id}/status`,
+  ORDER_CANCEL: (id: string) => `/orders/${id}/cancel`,
+  ORDER_CONFIRM_PICKUP: (id: string) => `/orders/${id}/confirm_pickup`,
 
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',

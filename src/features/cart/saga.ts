@@ -116,16 +116,7 @@ function* syncRemoveSaga(
   }
 }
 
-function* syncClearCartSaga(apiService: ApiService) {
-  try {
-    const cart: BackendCartResponse = yield call([apiService, apiService.getCart]);
-    for (const item of cart.items) {
-      yield call([apiService, apiService.deleteCartItem], item.id);
-    }
-  } catch (error) {
-    console.error('syncClearCartSaga error:', error);
-  }
-}
+function* syncClearCartSaga(_apiService: ApiService) {}
 
 export function* watchCart(apiService: ApiService) {
   yield takeLatest(actions.fetchCart.type, fetchCartSaga, apiService);
