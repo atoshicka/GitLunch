@@ -12,6 +12,15 @@ import { selectors } from './selectors';
 import { actions } from './slice';
 import { Order, OrderItem, OrdersState } from './types';
 
+interface AxiosError extends Error {
+  response?: {
+    status: number;
+    data?: unknown;
+  };
+  config?: unknown;
+  code?: string;
+}
+
 const STATUS_MAP: Record<number, OrderStatus> = {
   0: 'pending',
   1: 'confirmed',
@@ -50,6 +59,24 @@ const mapBackendOrder = (order: BackendOrder): Order => ({
   ),
 });
 
+function isAxiosError(error: unknown): error is AxiosError {
+  return error instanceof Error && ('response' in error || 'config' in error);
+}
+
+function isInternalServerError(error: unknown): boolean {
+  if (!isAxiosError(error)) return false;
+
+  if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+    return true;
+  }
+
+  if (error.response?.status === 500) {
+    return true;
+  }
+
+  return false;
+}
+
 function* savePersistedState() {
   const state: OrdersState = yield select((s: { orders: OrdersState }) => s.orders);
   yield call(ordersPersistence.save, {
@@ -61,16 +88,19 @@ function* savePersistedState() {
 function* fetchOrdersSaga(apiService: ApiService) {
   try {
     yield put(actions.fetchOrdersStart());
+
     const persisted: PersistedOrdersState = yield call(ordersPersistence.load);
     yield put(actions.restorePersistedState(persisted));
 
     const backendOrders: BackendOrder[] = yield call([apiService, apiService.getOrders]);
     const orders = backendOrders.map(mapBackendOrder);
     yield put(actions.fetchOrdersSuccess(orders));
+
     const activeOrders: Order[] = yield select(selectors.selectOrders);
     for (const order of activeOrders) {
       const localStatus = persisted.localStatuses[order.id];
       const effectiveStatus = localStatus ? localStatus.status : order.status;
+
       if (
         ACTIVE_STATUSES.includes(effectiveStatus) &&
         effectiveStatus !== 'ready' &&
@@ -88,25 +118,59 @@ function* fetchOrdersSaga(apiService: ApiService) {
 function* createOrderSaga(apiService: ApiService) {
   try {
     yield put(actions.createOrderStart());
-    const backendOrder: BackendOrder = yield call([apiService, apiService.createOrder]);
-    const order = mapBackendOrder(backendOrder);
+
+    let order: Order | null = null;
+
+    try {
+      const backendOrder: BackendOrder = yield call([apiService, apiService.createOrder]);
+      order = mapBackendOrder(backendOrder);
+    } catch (createError: unknown) {
+      const is500 = isInternalServerError(createError);
+
+      if (!is500) {
+        throw createError;
+      }
+      yield delay(1000);
+
+      try {
+        const backendOrders: BackendOrder[] = yield call([apiService, apiService.getOrders]);
+        const mapped = backendOrders.map(mapBackendOrder);
+        const currentOrders: Order[] = yield select(selectors.selectOrders);
+        const knownIds = new Set(currentOrders.map((o) => o.id));
+        const newOrders = mapped.filter((o) => !knownIds.has(o.id)).sort((a, b) => b.id - a.id);
+
+        order = newOrders[0] ?? mapped.sort((a, b) => b.id - a.id)[0] ?? null;
+      } catch {}
+
+      if (!order) {
+        yield put(
+          actions.createOrderFailure(
+            'Заказ создан, но не удалось получить его данные. Откройте "Мои заказы" чтобы увидеть его.'
+          )
+        );
+        return;
+      }
+    }
 
     yield put(actions.createOrderSuccess(order));
-    try {
-      const backendOrders: BackendOrder[] = yield call([apiService, apiService.getOrders]);
-      const freshOrder = backendOrders.map(mapBackendOrder).find((o) => o.id === order.id);
-      if (freshOrder && freshOrder.items.length > 0) {
-        yield put(
-          actions.updateOrderItems({
-            orderId: freshOrder.id,
-            items: freshOrder.items,
-            totalAmount: freshOrder.totalAmount,
-          })
-        );
-      }
-    } catch {}
-    yield call(savePersistedState);
 
+    if (!order.items || order.items.length === 0) {
+      try {
+        const backendOrders: BackendOrder[] = yield call([apiService, apiService.getOrders]);
+        const freshOrder = backendOrders.map(mapBackendOrder).find((o) => o.id === order!.id);
+        if (freshOrder && freshOrder.items.length > 0) {
+          yield put(
+            actions.updateOrderItems({
+              orderId: freshOrder.id,
+              items: freshOrder.items,
+              totalAmount: freshOrder.totalAmount,
+            })
+          );
+        }
+      } catch {}
+    }
+
+    yield call(savePersistedState);
     yield put(actions.setOrderLocalStart(order.id));
     yield put(actions.pollOrderStatus(order.id));
   } catch (error: unknown) {
@@ -128,11 +192,13 @@ function* pollOrderStatusSaga(apiService: ApiService, action: PayloadAction<numb
 
   while (currentIndex < STATUS_SEQUENCE.length - 1) {
     yield delay(60_000);
+
     const freshOrders: Order[] = yield select(selectors.selectOrders);
     const freshOrder = freshOrders.find((o) => o.id === orderId);
     if (!freshOrder) return;
     if (TERMINAL_STATUSES.includes(freshOrder.status)) return;
     if (freshOrder.status === 'ready') return;
+
     try {
       const statusData: BackendOrderStatus = yield call(
         [apiService, apiService.getOrderStatus],
@@ -171,6 +237,7 @@ function* pollOrderStatusSaga(apiService: ApiService, action: PayloadAction<numb
     if (nextStatus === 'ready') return;
   }
 }
+
 function* cancelOrderSaga(_apiService: ApiService, action: PayloadAction<number>) {
   try {
     yield put(actions.cancelOrderSuccess(action.payload));
