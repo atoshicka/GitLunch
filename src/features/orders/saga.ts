@@ -13,10 +13,7 @@ import { actions } from './slice';
 import { Order, OrderItem, OrdersState } from './types';
 
 interface AxiosError extends Error {
-  response?: {
-    status: number;
-    data?: unknown;
-  };
+  response?: { status: number; data?: unknown };
   config?: unknown;
   code?: string;
 }
@@ -65,16 +62,11 @@ function isAxiosError(error: unknown): error is AxiosError {
 
 function isInternalServerError(error: unknown): boolean {
   if (!isAxiosError(error)) return false;
-
-  if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
-    return true;
-  }
-
-  if (error.response?.status === 500) {
-    return true;
-  }
-
-  return false;
+  return (
+    error.response?.status === 500 ||
+    error.message.includes('500') ||
+    error.message.includes('Internal Server Error')
+  );
 }
 
 function* savePersistedState() {
@@ -100,7 +92,6 @@ function* fetchOrdersSaga(apiService: ApiService) {
     for (const order of activeOrders) {
       const localStatus = persisted.localStatuses[order.id];
       const effectiveStatus = localStatus ? localStatus.status : order.status;
-
       if (
         ACTIVE_STATUSES.includes(effectiveStatus) &&
         effectiveStatus !== 'ready' &&
@@ -125,11 +116,10 @@ function* createOrderSaga(apiService: ApiService) {
       const backendOrder: BackendOrder = yield call([apiService, apiService.createOrder]);
       order = mapBackendOrder(backendOrder);
     } catch (createError: unknown) {
-      const is500 = isInternalServerError(createError);
-
-      if (!is500) {
+      if (!isInternalServerError(createError)) {
         throw createError;
       }
+
       yield delay(1000);
 
       try {
@@ -138,7 +128,6 @@ function* createOrderSaga(apiService: ApiService) {
         const currentOrders: Order[] = yield select(selectors.selectOrders);
         const knownIds = new Set(currentOrders.map((o) => o.id));
         const newOrders = mapped.filter((o) => !knownIds.has(o.id)).sort((a, b) => b.id - a.id);
-
         order = newOrders[0] ?? mapped.sort((a, b) => b.id - a.id)[0] ?? null;
       } catch {}
 
@@ -214,10 +203,8 @@ function* pollOrderStatusSaga(apiService: ApiService, action: PayloadAction<numb
           })
         );
         yield call(savePersistedState);
-
         const idx = STATUS_SEQUENCE.indexOf(realStatus);
         if (idx !== -1) currentIndex = idx;
-
         if (TERMINAL_STATUSES.includes(realStatus) || realStatus === 'ready') return;
         continue;
       }
@@ -233,18 +220,7 @@ function* pollOrderStatusSaga(apiService: ApiService, action: PayloadAction<numb
       })
     );
     yield call(savePersistedState);
-
     if (nextStatus === 'ready') return;
-  }
-}
-
-function* cancelOrderSaga(_apiService: ApiService, action: PayloadAction<number>) {
-  try {
-    yield put(actions.cancelOrderSuccess(action.payload));
-    yield call(savePersistedState);
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Ошибка отмены заказа';
-    yield put(actions.fetchOrdersFailure(message));
   }
 }
 
@@ -269,7 +245,6 @@ export function* watchOrders(apiService: ApiService) {
   yield takeLatest(actions.fetchOrders.type, fetchOrdersSaga, apiService);
   yield takeEvery(actions.createOrder.type, createOrderSaga, apiService);
   yield takeEvery(actions.pollOrderStatus.type, pollOrderStatusSaga.bind(null, apiService));
-  yield takeEvery(actions.cancelOrder.type, cancelOrderSaga.bind(null, apiService));
   yield takeEvery(actions.confirmPickup.type, confirmPickupSaga.bind(null, apiService));
   yield takeEvery(actions.removeOrder.type, removeOrderSaga);
 }

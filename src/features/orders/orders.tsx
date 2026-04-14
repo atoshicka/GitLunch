@@ -46,13 +46,6 @@ export const OrdersScreen: React.FC = () => {
     setModalVisible(true);
   }, []);
 
-  const handleCancel = useCallback(
-    (orderId: number) => {
-      dispatch(OrdersFeature.actions.cancelOrder(orderId));
-    },
-    [dispatch]
-  );
-
   const handleConfirmPickup = useCallback(
     (orderId: number) => {
       dispatch(OrdersFeature.actions.confirmPickup(orderId));
@@ -72,7 +65,6 @@ export const OrdersScreen: React.FC = () => {
   const renderOrderItem = useCallback(
     ({ item }: { item: Order }) => {
       const statusColor = STATUS_COLOR[item.status] ?? '#94A3B8';
-      const canCancel = item.status === 'pending';
       const canPickup = item.status === 'ready';
       const isArchived = item.status === 'delivered' || item.status === 'cancelled';
 
@@ -104,6 +96,7 @@ export const OrdersScreen: React.FC = () => {
             <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
             <Text style={[styles.statusText, { color: statusColor }]}>{item.statusLabel}</Text>
           </View>
+
           {item.items && item.items.length > 0 && (
             <View style={styles.itemsContainer}>
               {item.items.map((orderItem) => (
@@ -123,16 +116,6 @@ export const OrdersScreen: React.FC = () => {
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Итого: {item.totalAmount} ₽</Text>
           </View>
-
-          {canCancel && (
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => handleCancel(item.id)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.cancelButtonText}>Отменить заказ</Text>
-            </TouchableOpacity>
-          )}
 
           {canPickup && (
             <TouchableOpacity
@@ -156,7 +139,7 @@ export const OrdersScreen: React.FC = () => {
         </LinearGradient>
       );
     },
-    [MinQRCode, handleCancel, handleConfirmPickup, handleQrPress, handleRemoveOrder]
+    [MinQRCode, handleConfirmPickup, handleQrPress, handleRemoveOrder]
   );
 
   return (

@@ -13,7 +13,6 @@ import { Dish, DishCategory } from './types/menu-types';
 import {
   BackendOrder,
   BackendOrderStatus,
-  CancelOrderResponse,
   ConfirmPickupResponse,
   CreateOrderPayload,
 } from './types/order-types';
@@ -33,7 +32,6 @@ const normalizeDish = (dish: Dish): Dish => {
     imageUrl: fullImageUrl,
   };
 
-  // Логика с категориями
   if (!normalized.category) {
     const categories = normalized.categories ?? [];
     const primary = categories.find((c) => c.name.toLowerCase() !== 'акции') ?? categories[0];
@@ -44,14 +42,12 @@ const normalizeDish = (dish: Dish): Dish => {
 };
 
 export const createApiService = (api: AxiosInstance) => ({
-  // Блюда
   async getDishes(): Promise<Dish[]> {
     try {
       const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
       const dishes: Dish[] = Array.isArray(response.data)
         ? response.data
         : (response.data.menu_items ?? []);
-
       return dishes.map(normalizeDish);
     } catch (error) {
       console.error('Error fetching dishes:', error);
@@ -67,7 +63,6 @@ export const createApiService = (api: AxiosInstance) => ({
       const dishes: Dish[] = Array.isArray(response.data)
         ? response.data
         : (response.data.menu_items ?? []);
-
       return dishes.map(normalizeDish);
     } catch (error) {
       console.error(`Error fetching dishes for category ${categoryId}:`, error);
@@ -80,7 +75,6 @@ export const createApiService = (api: AxiosInstance) => ({
       const response = await api.get<
         { id: number; name: string }[] | { categories: { id: number; name: string }[] }
       >(API_ENDPOINTS.CATEGORIES);
-
       if (Array.isArray(response.data)) return response.data;
       return response.data.categories ?? [];
     } catch (error) {
@@ -115,7 +109,6 @@ export const createApiService = (api: AxiosInstance) => ({
     }
   },
 
-  // Рестораны
   async getRestaurants(): Promise<Restaurant[]> {
     return [
       { id: '1', name: 'Цезарь' },
@@ -123,15 +116,12 @@ export const createApiService = (api: AxiosInstance) => ({
     ];
   },
 
-  // Промо
   async getPromoDishes(): Promise<PromoDish[]> {
     const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
     const dishes: Dish[] = Array.isArray(response.data)
       ? response.data
       : (response.data.menu_items ?? []);
-
     const allDishes = dishes.map(normalizeDish);
-
     return allDishes
       .filter((dish: Dish) => {
         const cats: DishCategory[] = dish.categories ?? [];
@@ -153,13 +143,11 @@ export const createApiService = (api: AxiosInstance) => ({
       );
   },
 
-  // Авторизация
   async login(login: string, password: string): Promise<LoginResponse> {
     const response = await api.post<LoginResponse>(API_ENDPOINTS.LOGIN, { login, password });
     return response.data;
   },
 
-  // Корзина
   async getCart(): Promise<BackendCart> {
     const response = await api.get<BackendCart>(API_ENDPOINTS.CART);
     return response.data;
@@ -191,13 +179,6 @@ export const createApiService = (api: AxiosInstance) => ({
 
   async createOrder(payload?: CreateOrderPayload): Promise<BackendOrder> {
     const response = await api.post<BackendOrder>(API_ENDPOINTS.ORDERS, payload ?? {});
-    return response.data;
-  },
-
-  async cancelOrder(orderId: number): Promise<CancelOrderResponse> {
-    const response = await api.patch<CancelOrderResponse>(
-      `${API_ENDPOINTS.ORDERS}/${orderId}/cancel`
-    );
     return response.data;
   },
 
