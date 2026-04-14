@@ -17,9 +17,10 @@ export const { name, actions, reducer } = createSlice({
   reducers: {
     fetchOrders: () => {},
     createOrder: () => {},
-    cancelOrder: (_state, _action: PayloadAction<number>) => {},
     confirmPickup: (_state, _action: PayloadAction<number>) => {},
     pollOrderStatus: (_state, _action: PayloadAction<number>) => {},
+
+    // Восстановление из AsyncStorage
     restorePersistedState: (
       state,
       action: PayloadAction<{
@@ -30,6 +31,8 @@ export const { name, actions, reducer } = createSlice({
       state.removedOrderIds = action.payload.removedOrderIds;
       state.localStatuses = action.payload.localStatuses;
     },
+
+    // Загрузка списка заказов
     fetchOrdersStart: (state) => {
       state.isLoading = true;
       state.error = null;
@@ -51,6 +54,8 @@ export const { name, actions, reducer } = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
+
+    // Создание заказа
     createOrderStart: (state) => {
       state.isCreating = true;
       state.error = null;
@@ -70,6 +75,8 @@ export const { name, actions, reducer } = createSlice({
       state.isCreating = false;
       state.error = action.payload;
     },
+
+    // Обновление заказа
     updateOrderItems: (
       state,
       action: PayloadAction<{ orderId: number; items: Order['items']; totalAmount: number }>
@@ -80,6 +87,8 @@ export const { name, actions, reducer } = createSlice({
         order.totalAmount = action.payload.totalAmount;
       }
     },
+
+    // Обновление статуса
     updateOrderStatus: (
       state,
       action: PayloadAction<{ orderId: number; status: OrderStatus; statusLabel: string }>
@@ -92,14 +101,8 @@ export const { name, actions, reducer } = createSlice({
       }
       state.localStatuses[orderId] = { status, statusLabel };
     },
-    cancelOrderSuccess: (state, action: PayloadAction<number>) => {
-      const order = state.orders.find((o) => o.id === action.payload);
-      if (order) {
-        order.status = 'cancelled';
-        order.statusLabel = 'Отменён';
-      }
-      state.localStatuses[action.payload] = { status: 'cancelled', statusLabel: 'Отменён' };
-    },
+
+    // Подтверждение получения => архив
     confirmPickupSuccess: (state, action: PayloadAction<number>) => {
       const order = state.orders.find((o) => o.id === action.payload);
       if (order) {
@@ -108,6 +111,8 @@ export const { name, actions, reducer } = createSlice({
       }
       state.localStatuses[action.payload] = { status: 'delivered', statusLabel: 'Выдан' };
     },
+
+    // Удаление из списка
     removeOrder: (state, action: PayloadAction<number>) => {
       state.orders = state.orders.filter((o) => o.id !== action.payload);
       if (!state.removedOrderIds.includes(action.payload)) {
