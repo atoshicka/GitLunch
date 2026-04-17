@@ -1,15 +1,8 @@
-import { Category, Dish, Weekday } from '../../entities/api/types/menu-types';
-
-export interface WeekdayGroup {
-  weekday: Weekday;
-  date: string;
-  dishes: Dish[];
-}
+import { Category, Dish } from '../../entities/api/types/menu-types';
 
 export interface MenuState {
   dishes: Dish[];
   filteredDishes: Dish[];
-  weekdayGroups: WeekdayGroup[];
   categories: Category[];
   selectedFilter: string;
   isLoading: boolean;

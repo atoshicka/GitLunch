@@ -1,14 +1,7 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Platform,
-  SectionList,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Dish } from '../../entities/api/types/menu-types';
@@ -16,7 +9,6 @@ import { DishCard } from '../../features/dish-card';
 import { DishModalFeature } from '../../features/dish-modal';
 import { FilterChips } from '../../features/filter/filter-chips';
 import { MenuFeature } from '../../features/menu';
-import { WeekdayGroup } from '../../features/menu/types';
 import { Images } from '../../shared/constants/images';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
@@ -41,7 +33,7 @@ export const MenuScreen: React.FC = () => {
   const route = useRoute<MenuScreenRouteProp>();
   const dispatch = useDispatch();
 
-  const weekdayGroups = useSelector(MenuFeature.selectors.selectWeekdayGroups);
+  const filteredDishes = useSelector(MenuFeature.selectors.selectFilteredDishes);
   const categories = useSelector(MenuFeature.selectors.selectCategories);
   const selectedFilter = useSelector(MenuFeature.selectors.selectSelectedFilter);
   const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
@@ -50,9 +42,12 @@ export const MenuScreen: React.FC = () => {
   const [restaurantTitle, setRestaurantTitle] = useState<string>('Кафе Цезарь');
   const lastAppliedTimestamp = useRef<number | null>(null);
 
-  const filters = useMemo(() => {
-    return Array.from(new Set(categories.map((cat) => cat.name)));
-  }, [categories]);
+  const filters = useMemo(
+    () => Array.from(new Set(categories.map((cat) => cat.name))),
+    [categories]
+  );
+
+  const pairs = useMemo(() => chunkDishes(filteredDishes), [filteredDishes]);
 
   useEffect(() => {
     dispatch(MenuFeature.actions.fetchDishes());
@@ -76,26 +71,6 @@ export const MenuScreen: React.FC = () => {
       dispatch(DishModalFeature.actions.openDishModal(id));
     },
     [dispatch]
-  );
-
-  const sections = useMemo(
-    () =>
-      weekdayGroups.map((group: WeekdayGroup) => ({
-        weekday: group.weekday,
-        date: group.date,
-        data: chunkDishes(group.dishes),
-      })),
-    [weekdayGroups]
-  );
-
-  const renderSectionHeader = useCallback(
-    ({ section }: { section: { weekday: string; date: string } }) => (
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionWeekday}>{section.weekday}</Text>
-        <Text style={styles.sectionDate}>{section.date}</Text>
-      </View>
-    ),
-    []
   );
 
   const renderItem = useCallback(
@@ -160,17 +135,15 @@ export const MenuScreen: React.FC = () => {
         {isLoading ? (
           <ActivityIndicator size="large" color="#86EFAC" style={{ marginTop: 40 }} />
         ) : (
-          <SectionList
-            sections={sections}
+          <FlatList
+            data={pairs}
             keyExtractor={(pair, index) => pair.map((d) => String(d.id)).join('-') + index}
-            renderSectionHeader={renderSectionHeader}
             renderItem={renderItem}
             contentContainerStyle={[
               styles.dishesGrid,
               { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
             ]}
             ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
-            stickySectionHeadersEnabled={false}
             showsVerticalScrollIndicator={false}
             removeClippedSubviews={Platform.OS === 'android'}
           />

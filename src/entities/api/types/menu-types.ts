@@ -1,8 +1,6 @@
 import { FC } from 'react';
 import { SvgProps } from 'react-native-svg';
 
-export type Weekday = 'Понедельник' | 'Вторник' | 'Среда' | 'Четверг' | 'Пятница';
-
 export interface DishCategory {
   id: number;
   name: string;
@@ -27,7 +25,6 @@ export interface Dish {
   isPromo?: boolean;
   filterType?: string;
   imageSvg?: FC<SvgProps>;
-  weekday: Weekday;
 }
 
 export interface Category {

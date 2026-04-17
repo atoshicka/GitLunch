@@ -40,15 +40,17 @@ export const { name, actions, reducer } = createSlice({
     fetchOrdersSuccess: (state, action: PayloadAction<Order[]>) => {
       state.isLoading = false;
       const fromBackend = action.payload.filter((o) => !state.removedOrderIds.includes(o.id));
-      const merged = fromBackend.map((o) => {
-        const local = state.localStatuses[o.id];
-        return local ? { ...o, status: local.status, statusLabel: local.statusLabel } : o;
-      });
-      const backendIds = new Set(merged.map((o) => o.id));
+      // Используем статусы с бэка — localStatuses только для заказов созданных в этой сессии
+      // которых ещё нет на бэке
+      const backendIds = new Set(fromBackend.map((o) => o.id));
       const localOnly = state.orders.filter(
         (o) => !backendIds.has(o.id) && !state.removedOrderIds.includes(o.id)
       );
-      state.orders = [...localOnly, ...merged];
+      state.orders = [...localOnly, ...fromBackend];
+      // Очищаем localStatuses для заказов которые уже пришли с бэка
+      for (const order of fromBackend) {
+        delete state.localStatuses[order.id];
+      }
     },
     fetchOrdersFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
@@ -76,7 +78,7 @@ export const { name, actions, reducer } = createSlice({
       state.error = action.payload;
     },
 
-    // Обновление заказа
+    // Обновление состава заказа
     updateOrderItems: (
       state,
       action: PayloadAction<{ orderId: number; items: Order['items']; totalAmount: number }>
@@ -88,7 +90,7 @@ export const { name, actions, reducer } = createSlice({
       }
     },
 
-    // Обновление статуса
+    // Обновление статуса (только от бэка через polling)
     updateOrderStatus: (
       state,
       action: PayloadAction<{ orderId: number; status: OrderStatus; statusLabel: string }>
@@ -102,7 +104,7 @@ export const { name, actions, reducer } = createSlice({
       state.localStatuses[orderId] = { status, statusLabel };
     },
 
-    // Подтверждение получения => архив
+    // Подтверждение получения — меняем статус только при успехе (saga вызывает только если бэк ответил ОК)
     confirmPickupSuccess: (state, action: PayloadAction<number>) => {
       const order = state.orders.find((o) => o.id === action.payload);
       if (order) {
@@ -112,7 +114,12 @@ export const { name, actions, reducer } = createSlice({
       state.localStatuses[action.payload] = { status: 'delivered', statusLabel: 'Выдан' };
     },
 
-    // Удаление из списка
+    // Ошибка подтверждения (например 422 — заказ ещё не готов)
+    confirmPickupFailure: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
+    },
+
+    // Удаление из списка (оставляем для ручного управления если понадобится)
     removeOrder: (state, action: PayloadAction<number>) => {
       state.orders = state.orders.filter((o) => o.id !== action.payload);
       if (!state.removedOrderIds.includes(action.payload)) {

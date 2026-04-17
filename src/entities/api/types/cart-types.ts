@@ -1,5 +1,3 @@
-import { Weekday } from './menu-types';
-
 export interface BackendCartItem {
   id: number;
   cart_id?: number;
@@ -11,7 +9,6 @@ export interface BackendCartItem {
   total?: string;
   created_at?: string;
   updated_at?: string;
-  weekday?: Weekday;
 }
 
 export interface BackendCart {

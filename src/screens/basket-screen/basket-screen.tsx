@@ -6,9 +6,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
-import { Weekday } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
-import { CartItem, CartItemGroup } from '../../features/cart/types';
+import { CartItem } from '../../features/cart/types';
 import { DishModalFeature } from '../../features/dish-modal';
 import { Images } from '../../shared/constants/images';
 import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
@@ -41,11 +40,10 @@ export const BasketScreen: React.FC = () => {
   const navigation = useNavigation<BasketScreenNavigationProp>();
   const dispatch = useDispatch();
 
-  const weekdayGroups = useSelector(CartFeature.selectors.selectCartWeekdayGroups);
+  const items = useSelector(CartFeature.selectors.selectCartItems);
   const totalPrice = useSelector(CartFeature.selectors.selectCartTotalPrice);
   const loading = useSelector(CartFeature.selectors.selectCartLoading);
   const error = useSelector(CartFeature.selectors.selectCartError);
-  const items = useSelector(CartFeature.selectors.selectCartItems);
 
   useEffect(() => {
     dispatch(CartFeature.actions.fetchCart());
@@ -73,7 +71,6 @@ export const BasketScreen: React.FC = () => {
           price: item.price,
           imageSvg: item.imageSvg,
           imageUrl: item.imageUrl,
-          weekday: item.weekday,
         })
       );
     },
@@ -94,13 +91,6 @@ export const BasketScreen: React.FC = () => {
     [dispatch]
   );
 
-  const handleToggleWeekday = useCallback(
-    (weekday: Weekday) => {
-      dispatch(CartFeature.actions.toggleWeekday(weekday));
-    },
-    [dispatch]
-  );
-
   const handlePlaceOrder = useCallback(() => {
     if (items.length === 0) {
       Alert.alert('Корзина пуста', 'Добавьте блюда в корзину');
@@ -110,8 +100,8 @@ export const BasketScreen: React.FC = () => {
   }, [items.length, navigation]);
 
   const renderCartItem = useCallback(
-    (item: CartItem) => (
-      <TouchableOpacity key={item.id} activeOpacity={0.85} onPress={() => handleDishPress(item.id)}>
+    ({ item }: { item: CartItem }) => (
+      <TouchableOpacity activeOpacity={0.85} onPress={() => handleDishPress(item.id)}>
         <LinearGradient
           colors={['#F4F4F4', '#A8F0B5', '#86EFAC']}
           locations={[0, 0.8, 1.3]}
@@ -147,29 +137,6 @@ export const BasketScreen: React.FC = () => {
       </TouchableOpacity>
     ),
     [handleAddToCart, handleDecrease, handleDishPress, handleRemove]
-  );
-
-  const renderGroup = useCallback(
-    ({ item: group }: { item: CartItemGroup }) => (
-      <View style={styles.groupContainer}>
-        <TouchableOpacity
-          style={styles.groupHeader}
-          onPress={() => handleToggleWeekday(group.weekday)}
-          activeOpacity={0.7}
-        >
-          <View style={styles.groupHeaderLeft}>
-            <Text style={styles.groupWeekday}>{group.weekday}</Text>
-            <Text style={styles.groupDate}>{group.date}</Text>
-          </View>
-          <View style={[styles.checkbox, group.selected && styles.checkboxSelected]}>
-            {group.selected && <Text style={styles.checkboxTick}>✓</Text>}
-          </View>
-        </TouchableOpacity>
-
-        {group.items.map((item) => renderCartItem(item))}
-      </View>
-    ),
-    [handleToggleWeekday, renderCartItem]
   );
 
   return (
@@ -215,15 +182,15 @@ export const BasketScreen: React.FC = () => {
             <Text style={{ color: '#22C55E', marginTop: 12 }}>Повторить</Text>
           </TouchableOpacity>
         </View>
-      ) : weekdayGroups.length === 0 ? (
+      ) : items.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Корзина пуста</Text>
         </View>
       ) : (
         <FlatList
-          data={weekdayGroups}
-          renderItem={renderGroup}
-          keyExtractor={(group) => group.weekday}
+          data={items}
+          renderItem={renderCartItem}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
         />

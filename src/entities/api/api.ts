@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   CATEGORIES: '/categories',
   DISH_DETAIL: (id: string) => `/menu_items/${id}`,
   SEARCH: '/search',
+  MENU_BY_DAYS: '/menu_by_days',
 
   ORDERS: '/orders',
   ORDER_DETAIL: (id: string) => `/orders/${id}`,
