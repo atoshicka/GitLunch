@@ -1,15 +1,9 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { ApiService, BASE_URL } from '../../entities/api/api-interface';
 import { BackendCartItem, BackendCartResponse } from '../../entities/api/types/cart-types';
-import { Weekday } from '../../entities/api/types/menu-types';
 import { selectors } from './selectors';
 import { actions } from './slice';
 import { CartItem } from './types';
-
-const WEEKDAY_VALUES: Weekday[] = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница'];
-
-const isWeekday = (value: unknown): value is Weekday =>
-  typeof value === 'string' && (WEEKDAY_VALUES as string[]).includes(value);
 
 const mapBackendItem = (item: BackendCartItem): CartItem => ({
   id: String(item.menu_item_id),
@@ -18,9 +12,6 @@ const mapBackendItem = (item: BackendCartItem): CartItem => ({
   price: typeof item.price === 'string' ? parseFloat(item.price) : (item.price ?? 0),
   quantity: item.quantity,
   imageUrl: item.image_url ? `${BASE_URL}${item.image_url}` : undefined,
-  weekday: isWeekday((item as BackendCartItem & { weekday?: unknown }).weekday)
-    ? (item as BackendCartItem & { weekday: Weekday }).weekday
-    : 'Понедельник',
 });
 
 function* fetchCartSaga(apiService: ApiService) {

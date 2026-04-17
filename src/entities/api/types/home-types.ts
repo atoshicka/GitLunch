@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import { SvgProps } from 'react-native-svg';
-import { Weekday } from './menu-types';
 
 // Типы для API запросов
 export interface Restaurant {
@@ -16,7 +15,6 @@ export interface PromoDish {
   imageUrl?: string;
   isPromo: boolean;
   imageSvg?: FC<SvgProps>;
-  weekday: Weekday;
 }
 
 export interface HomeApiResponse {

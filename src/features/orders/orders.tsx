@@ -1,7 +1,15 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Modal, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,21 +24,13 @@ type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 
 
 const SubtractIcon = Images.home.wave;
 
-const STATUS_COLOR: Record<string, string> = {
-  pending: '#F59E0B',
-  confirmed: '#3B82F6',
-  preparing: '#8B5CF6',
-  ready: '#22C55E',
-  delivered: '#64748B',
-  cancelled: '#EF4444',
-};
-
 export const OrdersScreen: React.FC = () => {
   const navigation = useNavigation<OrdersScreenNavigationProp>();
   const dispatch = useDispatch();
 
   const orders = useSelector(OrdersFeature.selectors.selectOrders);
   const isLoading = useSelector(OrdersFeature.selectors.selectIsLoading);
+  const error = useSelector(OrdersFeature.selectors.selectError);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -40,6 +40,15 @@ export const OrdersScreen: React.FC = () => {
   useEffect(() => {
     dispatch(OrdersFeature.actions.fetchOrders());
   }, [dispatch]);
+
+  // Показываем ошибку confirmPickup (например 422)
+  const prevError = React.useRef<string | null>(null);
+  useEffect(() => {
+    if (error && error !== prevError.current) {
+      Alert.alert('Ошибка', error);
+    }
+    prevError.current = error ?? null;
+  }, [error]);
 
   const handleQrPress = useCallback((orderId: number) => {
     setSelectedOrderId(orderId);
@@ -53,20 +62,11 @@ export const OrdersScreen: React.FC = () => {
     [dispatch]
   );
 
-  const handleRemoveOrder = useCallback(
-    (orderId: number) => {
-      dispatch(OrdersFeature.actions.removeOrder(orderId));
-    },
-    [dispatch]
-  );
-
   const selectedOrder = orders.find((o) => o.id === selectedOrderId);
 
   const renderOrderItem = useCallback(
     ({ item }: { item: Order }) => {
-      const statusColor = STATUS_COLOR[item.status] ?? '#94A3B8';
-      const canPickup = item.status === 'ready';
-      const isArchived = item.status === 'delivered' || item.status === 'cancelled';
+      const isReady = item.status === 'ready';
 
       return (
         <LinearGradient
@@ -79,45 +79,55 @@ export const OrdersScreen: React.FC = () => {
           <View style={styles.dateWrapper}>
             <View style={styles.dateContainer}>
               <Text style={styles.dateText}>Заказ №{item.orderNumber}</Text>
-              <Text style={styles.dayOfWeekText}>
-                {new Date(item.createdAt).toLocaleDateString('ru-RU', {
-                  day: 'numeric',
-                  month: 'long',
-                  weekday: 'long',
-                })}
-              </Text>
             </View>
             <TouchableOpacity onPress={() => handleQrPress(item.id)} style={styles.qrCircle}>
               <MinQRCode width={20} height={20} />
             </TouchableOpacity>
           </View>
+          {item.status !== 'pending' && (
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor: isReady ? '#22C55E20' : '#94A3B820',
+                },
+              ]}
+            >
+              <View
+                style={[styles.statusDot, { backgroundColor: isReady ? '#22C55E' : '#94A3B8' }]}
+              />
+              <Text style={[styles.statusText, { color: isReady ? '#22C55E' : '#64748B' }]}>
+                {item.statusLabel}
+              </Text>
+            </View>
+          )}
 
-          <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
-            <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
-            <Text style={[styles.statusText, { color: statusColor }]}>{item.statusLabel}</Text>
-          </View>
-
-          {item.items && item.items.length > 0 && (
+          {item.items && item.items.length > 0 ? (
             <View style={styles.itemsContainer}>
               {item.items.map((orderItem) => (
                 <View key={orderItem.id} style={styles.orderItem}>
-                  <Text style={styles.itemName} numberOfLines={1}>
+                  <Text style={styles.itemName} numberOfLines={2}>
                     {orderItem.name}
                   </Text>
                   <View style={styles.itemDetails}>
-                    <Text style={styles.itemQuantity}>x{orderItem.quantity}</Text>
+                    <Text style={styles.itemQuantity}>×{orderItem.quantity}</Text>
                     <Text style={styles.itemPrice}>{orderItem.price * orderItem.quantity} ₽</Text>
                   </View>
                 </View>
               ))}
+            </View>
+          ) : (
+            <View style={styles.itemsContainer}>
+              <Text style={[styles.itemName, { color: '#94A3B8', fontStyle: 'italic' }]}>
+                Состав заказа загружается…
+              </Text>
             </View>
           )}
 
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Итого: {item.totalAmount} ₽</Text>
           </View>
-
-          {canPickup && (
+          {isReady && (
             <TouchableOpacity
               style={styles.pickupButton}
               onPress={() => handleConfirmPickup(item.id)}
@@ -126,20 +136,10 @@ export const OrdersScreen: React.FC = () => {
               <Text style={styles.pickupButtonText}>Я забрал заказ ✓</Text>
             </TouchableOpacity>
           )}
-
-          {isArchived && (
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => handleRemoveOrder(item.id)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.cancelButtonText}>Удалить из списка</Text>
-            </TouchableOpacity>
-          )}
         </LinearGradient>
       );
     },
-    [MinQRCode, handleConfirmPickup, handleQrPress, handleRemoveOrder]
+    [MinQRCode, handleConfirmPickup, handleQrPress]
   );
 
   return (

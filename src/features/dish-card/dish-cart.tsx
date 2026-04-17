@@ -41,7 +41,6 @@ export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
           price,
           imageSvg: item.imageSvg,
           imageUrl: item.imageUrl,
-          weekday: item.weekday,
         })
       );
     });

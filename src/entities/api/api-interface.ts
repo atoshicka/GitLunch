@@ -117,31 +117,45 @@ export const createApiService = (api: AxiosInstance) => ({
   },
 
   async getPromoDishes(): Promise<PromoDish[]> {
-    const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
-    const dishes: Dish[] = Array.isArray(response.data)
-      ? response.data
-      : (response.data.menu_items ?? []);
-    const allDishes = dishes.map(normalizeDish);
-    return allDishes
-      .filter((dish: Dish) => {
-        const cats: DishCategory[] = dish.categories ?? [];
-        return cats.some((c) => {
-          const name = c.name?.toLowerCase() ?? '';
-          return name === 'акции' || name === 'promo' || name === 'акция';
-        });
-      })
-      .map(
-        (dish: Dish): PromoDish => ({
-          id: dish.id,
-          name: dish.name,
-          price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
-          imageUrl: dish.imageUrl,
-          imageSvg: dish.imageSvg,
-          isPromo: true,
-          weekday: dish.weekday || 'Понедельник',
+    try {
+      const response = await api.get<Dish[] | { menu_items: Dish[] }>(API_ENDPOINTS.DISHES);
+      const dishes: Dish[] = Array.isArray(response.data)
+        ? response.data
+        : (response.data.menu_items ?? []);
+      const allDishes = dishes.map(normalizeDish);
+      return allDishes
+        .filter((dish) => {
+          const cats: DishCategory[] = dish.categories ?? [];
+          return cats.some((c) => {
+            const catName = c.name?.toLowerCase() ?? '';
+            return catName === 'акции' || catName === 'promo' || catName === 'акция';
+          });
         })
-      );
+        .map(
+          (dish): PromoDish => ({
+            id: dish.id,
+            name: dish.name,
+            price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
+            imageUrl: dish.imageUrl,
+            imageSvg: dish.imageSvg,
+            isPromo: true,
+          })
+        );
+    } catch (error) {
+      console.error('Error fetching promo dishes:', error);
+      throw error;
+    }
   },
+
+  // async getMenuByDays(): Promise<MenuByDaysResponse> {
+  //   try {
+  //     const response = await api.get<MenuByDaysResponse>(API_ENDPOINTS.MENU_BY_DAYS);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Error fetching menu by days:', error);
+  //     throw error;
+  //   }
+  // },
 
   async login(login: string, password: string): Promise<LoginResponse> {
     const response = await api.post<LoginResponse>(API_ENDPOINTS.LOGIN, { login, password });
