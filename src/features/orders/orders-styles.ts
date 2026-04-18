@@ -54,11 +54,12 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   screenTitle: {
-    ...AgbalumoTypography.agbalumoMedium,
-    fontSize: 28,
+    ...Typography.titleSmall,
     color: '#1F2937',
+    fontWeight: '800',
+    fontSize: 28,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 30,
     paddingBottom: 8,
   },
   flatList: {
@@ -257,5 +258,11 @@ export const styles = StyleSheet.create({
   modalQrText: {
     ...Typography.caption,
     color: '#666666',
+  },
+  deliveryDateText: {
+    ...Typography.bodySmall,
+    color: '#4B5563',
+    marginBottom: 8,
+    marginTop: 2,
   },
 });

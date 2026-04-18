@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
 import { Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
@@ -29,15 +30,46 @@ export const styles = StyleSheet.create({
   },
   searchWrapper: {
     paddingHorizontal: 16,
-    paddingTop: 80,
+    paddingTop: 40,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 4,
+  },
+  backButtonText: {
+    fontSize: 40,
+    color: '#1F2937',
+    lineHeight: 44,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+  },
+  searchWrapperInner: {
+    flex: 1,
+    marginRight: 8,
+  },
+  accountButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cafeTitle: {
-    ...Typography.decorativeMedium,
+    ...AgbalumoTypography.agbalumoSmall,
     color: '#1F2937',
     textAlign: 'center',
-    marginTop: 12,
     fontSize: 28,
     fontWeight: '800',
+    paddingHorizontal: 8,
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   contentContainer: {
     flex: 1,

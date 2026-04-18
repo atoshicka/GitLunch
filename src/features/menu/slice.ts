@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Category, Dish } from '../../entities/api/types/menu-types';
-import { MenuState } from './types';
+import { MenuDaySection, MenuState } from './types';
 
 const initialState: MenuState = {
   dishes: [],
   filteredDishes: [],
+  menuByDays: [],
   categories: [],
   selectedFilter: 'Все',
   isLoading: false,
@@ -32,6 +33,9 @@ export const { name, actions, reducer } = createSlice({
     },
     fetchCategoriesSuccess: (state, action: PayloadAction<Category[]>) => {
       state.categories = action.payload;
+    },
+    setMenuByDays: (state, action: PayloadAction<MenuDaySection[]>) => {
+      state.menuByDays = action.payload;
     },
     setFilteredDishes: (state, action: PayloadAction<Dish[]>) => {
       state.filteredDishes = action.payload;

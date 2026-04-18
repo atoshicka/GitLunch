@@ -15,7 +15,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#DFFCEA',
+    borderColor: '#1BB910',
+    borderWidth: 1,
     minWidth: 70,
     alignItems: 'center',
     shadowColor: '#000',
@@ -25,8 +27,8 @@ export const styles = StyleSheet.create({
     elevation: 1,
   },
   chipSelected: {
-    backgroundColor: '#22C55E',
-    shadowColor: '#22C55E',
+    backgroundColor: '#1BB910',
+    shadowColor: '#1BB910',
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
@@ -38,7 +40,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   chipTextSelected: {
-    color: '#FFFFFF',
+    color: '#1F2937',
     fontWeight: '600',
   },
   lastChip: {

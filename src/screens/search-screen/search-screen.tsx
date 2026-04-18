@@ -77,7 +77,6 @@ export const SearchScreen: React.FC = () => {
               <DishCard
                 item={{
                   ...item,
-                  weekday: item.weekday ?? 'Понедельник',
                 }}
                 onPress={() => handleDishPress(item.id)}
               />

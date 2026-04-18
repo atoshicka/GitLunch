@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#F4F4F4',
     borderRadius: 30,
     paddingHorizontal: 12,
     paddingVertical: 6,

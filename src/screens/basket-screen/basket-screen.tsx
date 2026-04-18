@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { CartFeature } from '../../features/cart';
-import { CartItem } from '../../features/cart/types';
+import { CartDayGroup, CartItem } from '../../features/cart/types';
 import { DishModalFeature } from '../../features/dish-modal';
 import { Images } from '../../shared/constants/images';
 import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
@@ -40,10 +40,12 @@ export const BasketScreen: React.FC = () => {
   const navigation = useNavigation<BasketScreenNavigationProp>();
   const dispatch = useDispatch();
 
-  const items = useSelector(CartFeature.selectors.selectCartItems);
-  const totalPrice = useSelector(CartFeature.selectors.selectCartTotalPrice);
+  const dayGroups = useSelector(CartFeature.selectors.selectDayGroups);
+  const totalPrice = useSelector(CartFeature.selectors.selectTotalPrice);
   const loading = useSelector(CartFeature.selectors.selectCartLoading);
   const error = useSelector(CartFeature.selectors.selectCartError);
+  const allItems = useSelector(CartFeature.selectors.selectAllItems);
+  const selectedDates = useSelector(CartFeature.selectors.selectSelectedDates);
 
   useEffect(() => {
     dispatch(CartFeature.actions.fetchCart());
@@ -57,22 +59,6 @@ export const BasketScreen: React.FC = () => {
   const handleDishPress = useCallback(
     (id: string) => {
       dispatch(DishModalFeature.actions.openDishModal(Number(id)));
-    },
-    [dispatch]
-  );
-
-  const handleAddToCart = useCallback(
-    (item: CartItem) => {
-      dispatch(
-        CartFeature.actions.addToCart({
-          id: item.id,
-          cartItemId: item.cartItemId,
-          name: item.name,
-          price: item.price,
-          imageSvg: item.imageSvg,
-          imageUrl: item.imageUrl,
-        })
-      );
     },
     [dispatch]
   );
@@ -91,17 +77,44 @@ export const BasketScreen: React.FC = () => {
     [dispatch]
   );
 
+  const handleToggleDay = useCallback(
+    (date: string) => {
+      dispatch(CartFeature.actions.toggleDaySelected(date));
+    },
+    [dispatch]
+  );
+
   const handlePlaceOrder = useCallback(() => {
-    if (items.length === 0) {
-      Alert.alert('Корзина пуста', 'Добавьте блюда в корзину');
+    if (selectedDates.length === 0) {
+      Alert.alert('Выберите дни', 'Отметьте хотя бы один день для заказа');
       return;
     }
     navigation.navigate(SCREEN_NAMES.PAYMENT);
-  }, [items.length, navigation]);
+  }, [selectedDates, navigation]);
+
+  const handleAddToCart = useCallback(
+    (item: CartItem) => {
+      dispatch(
+        CartFeature.actions.addToCart({
+          id: item.id,
+          cartItemId: item.cartItemId,
+          name: item.name,
+          price: item.price,
+          imageSvg: item.imageSvg,
+          imageUrl: item.imageUrl,
+        })
+      );
+    },
+    [dispatch]
+  );
 
   const renderCartItem = useCallback(
-    ({ item }: { item: CartItem }) => (
-      <TouchableOpacity activeOpacity={0.85} onPress={() => handleDishPress(item.id)}>
+    (item: CartItem) => (
+      <TouchableOpacity
+        key={item.cartItemId}
+        activeOpacity={0.85}
+        onPress={() => handleDishPress(item.id)}
+      >
         <LinearGradient
           colors={['#F4F4F4', '#A8F0B5', '#86EFAC']}
           locations={[0, 0.8, 1.3]}
@@ -136,7 +149,29 @@ export const BasketScreen: React.FC = () => {
         </LinearGradient>
       </TouchableOpacity>
     ),
-    [handleAddToCart, handleDecrease, handleDishPress, handleRemove]
+    [handleDishPress, handleDecrease, handleRemove, handleAddToCart]
+  );
+
+  const renderDayGroup = useCallback(
+    ({ item: group }: { item: CartDayGroup }) => (
+      <View style={styles.groupContainer}>
+        <TouchableOpacity
+          style={styles.groupHeader}
+          onPress={() => handleToggleDay(group.date)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.groupHeaderLeft}>
+            <Text style={styles.groupWeekday}>{group.dayName}</Text>
+            <Text style={styles.groupDate}>{group.date}</Text>
+          </View>
+          <View style={[styles.checkbox, group.selected && styles.checkboxSelected]}>
+            {group.selected && <Text style={styles.checkboxTick}>✓</Text>}
+          </View>
+        </TouchableOpacity>
+        {group.items.map((item) => renderCartItem(item))}
+      </View>
+    ),
+    [handleToggleDay, renderCartItem]
   );
 
   return (
@@ -182,33 +217,25 @@ export const BasketScreen: React.FC = () => {
             <Text style={{ color: '#22C55E', marginTop: 12 }}>Повторить</Text>
           </TouchableOpacity>
         </View>
-      ) : items.length === 0 ? (
+      ) : dayGroups.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Корзина пуста</Text>
         </View>
       ) : (
         <FlatList
-          data={items}
-          renderItem={renderCartItem}
-          keyExtractor={(item) => item.id}
+          data={dayGroups}
+          renderItem={renderDayGroup}
+          keyExtractor={(group) => group.date}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
         />
       )}
 
-      {items.length > 0 && (
+      {allItems.length > 0 && (
         <View style={styles.footer}>
-          <View style={styles.promoRow}>
-            <Text style={styles.promoLabel}>Акции</Text>
-            <Text style={styles.promoValue}>—</Text>
-          </View>
-          <View style={styles.discountRow}>
-            <Text style={styles.discountLabel}>Скидка</Text>
-            <Text style={styles.discountValue}>—</Text>
-          </View>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Итоговая цена:</Text>
-            <Text style={styles.totalPrice}>{totalPrice} ₽</Text>
+            <Text style={styles.totalPrice}>{totalPrice.toFixed(2)} ₽</Text>
           </View>
           <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
             <Text style={styles.orderButtonText}>Оплатить</Text>

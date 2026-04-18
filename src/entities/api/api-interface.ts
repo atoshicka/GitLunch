@@ -3,18 +3,18 @@ import { LoginResponse } from '../../entities/api/types/login-types';
 import { API_ENDPOINTS } from './api';
 import {
   AddCartItemPayload,
-  BackendCart,
   BackendCartItem,
   BackendCartResponse,
   UpdateCartItemPayload,
 } from './types/cart-types';
 import { PromoDish, Restaurant } from './types/home-types';
-import { Dish, DishCategory } from './types/menu-types';
+import { Dish, DishCategory, MenuByDayResponse } from './types/menu-types';
 import {
   BackendOrder,
   BackendOrderStatus,
   ConfirmPickupResponse,
   CreateOrderPayload,
+  CreateOrderResponse,
 } from './types/order-types';
 
 export const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
@@ -147,30 +147,41 @@ export const createApiService = (api: AxiosInstance) => ({
     }
   },
 
-  // async getMenuByDays(): Promise<MenuByDaysResponse> {
-  //   try {
-  //     const response = await api.get<MenuByDaysResponse>(API_ENDPOINTS.MENU_BY_DAYS);
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error('Error fetching menu by days:', error);
-  //     throw error;
-  //   }
-  // },
+  async getMenuByDays(): Promise<MenuByDayResponse[]> {
+    try {
+      const response = await api.get<MenuByDayResponse[]>(API_ENDPOINTS.MENU_BY_DAYS);
+      return response.data.map((day) => ({
+        ...day,
+        items: day.items.map(normalizeDish),
+      }));
+    } catch (error) {
+      console.error('Error fetching menu by days:', error);
+      throw error;
+    }
+  },
+
+  async getOrderDetails(orderId: number): Promise<BackendOrder> {
+    const response = await api.get<BackendOrder>(API_ENDPOINTS.ORDER_DETAIL(String(orderId)));
+    return response.data;
+  },
 
   async login(login: string, password: string): Promise<LoginResponse> {
     const response = await api.post<LoginResponse>(API_ENDPOINTS.LOGIN, { login, password });
     return response.data;
   },
 
-  async getCart(): Promise<BackendCart> {
-    const response = await api.get<BackendCart>(API_ENDPOINTS.CART);
+  async getCart(): Promise<BackendCartResponse> {
+    const response = await api.get<BackendCartResponse>(API_ENDPOINTS.CART);
     return response.data;
   },
 
-  async addCartItem(menuItemId: number, quantity: number): Promise<BackendCartResponse> {
-    const payload: AddCartItemPayload = { menu_item_id: menuItemId, quantity };
-    const response = await api.post<BackendCartResponse>(API_ENDPOINTS.CART_ITEMS, payload);
-    return response.data;
+  async addCartItem(menuItemId: number, quantity: number, deliveryDate?: string): Promise<void> {
+    const payload: AddCartItemPayload = {
+      menu_item_id: menuItemId,
+      quantity,
+      ...(deliveryDate ? { delivery_date: deliveryDate } : {}),
+    };
+    await api.post(API_ENDPOINTS.CART_ITEMS, payload);
   },
 
   async updateCartItem(cartItemId: number, quantity: number): Promise<BackendCartItem> {
@@ -191,8 +202,8 @@ export const createApiService = (api: AxiosInstance) => ({
     return response.data;
   },
 
-  async createOrder(payload?: CreateOrderPayload): Promise<BackendOrder> {
-    const response = await api.post<BackendOrder>(API_ENDPOINTS.ORDERS, payload ?? {});
+  async createOrder(payload?: CreateOrderPayload): Promise<CreateOrderResponse> {
+    const response = await api.post<CreateOrderResponse>(API_ENDPOINTS.ORDERS, payload ?? {});
     return response.data;
   },
 

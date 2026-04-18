@@ -30,9 +30,9 @@ export const styles = StyleSheet.create({
   },
   backButtonText: {
     ...Typography.buttonRegular,
-    fontSize: 32,
+    fontSize: 40,
     color: '#1F2937',
-    lineHeight: 32,
+    lineHeight: 40,
   },
   searchContainer: {
     flex: 1,
