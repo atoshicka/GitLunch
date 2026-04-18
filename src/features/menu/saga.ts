@@ -1,9 +1,10 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api/api-interface';
-import { Category, Dish } from '../../entities/api/types/menu-types';
+import { Category, Dish, MenuByDayResponse } from '../../entities/api/types/menu-types';
 import { selectors } from './selectors';
 import { actions } from './slice';
+import { MenuDaySection } from './types';
 
 function* filterDishesSaga() {
   const dishes: Dish[] = yield select(selectors.selectDishes);
@@ -28,13 +29,26 @@ function* fetchDishesSaga(apiService: ApiService) {
   try {
     yield put(actions.fetchDishesStart());
 
-    const [raw, categories]: [Dish[], Category[]] = yield all([
+    const [raw, menuByDaysRaw, categories]: [Dish[], MenuByDayResponse[], Category[]] = yield all([
       call([apiService, apiService.getDishes]),
+      call([apiService, apiService.getMenuByDays]),
       call([apiService, apiService.getCategories]),
     ]);
 
     yield put(actions.fetchDishesSuccess(raw));
     yield put(actions.fetchCategoriesSuccess(categories));
+
+    // Маппим ответ бэка { day, wday, items } → наш внутренний { day, wday, dishes }
+    const menuByDays: MenuDaySection[] = menuByDaysRaw
+      .slice()
+      .sort((a, b) => a.wday - b.wday)
+      .map((entry) => ({
+        day: entry.day,
+        wday: entry.wday,
+        dishes: entry.items,
+      }));
+
+    yield put(actions.setMenuByDays(menuByDays));
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Ошибка загрузки меню';
     yield put(actions.fetchDishesFailure(message));

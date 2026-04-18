@@ -1,3 +1,4 @@
+// screens/OrdersScreen.tsx
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -24,6 +25,17 @@ type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 
 
 const SubtractIcon = Images.home.wave;
 
+const DAYS = ['Воскресенье', 'Понедельник', 'Вторник', 'Среду', 'Четверг', 'Пятницу', 'Субботу'];
+
+const formatDeliveryDate = (deliveryDate: string): string => {
+  const date = new Date(deliveryDate);
+  const dayName = DAYS[date.getDay()];
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `Доставим в ${dayName}, ${day}.${month}.${year}`;
+};
+
 export const OrdersScreen: React.FC = () => {
   const navigation = useNavigation<OrdersScreenNavigationProp>();
   const dispatch = useDispatch();
@@ -41,7 +53,6 @@ export const OrdersScreen: React.FC = () => {
     dispatch(OrdersFeature.actions.fetchOrders());
   }, [dispatch]);
 
-  // Показываем ошибку confirmPickup (например 422)
   const prevError = React.useRef<string | null>(null);
   useEffect(() => {
     if (error && error !== prevError.current) {
@@ -50,10 +61,14 @@ export const OrdersScreen: React.FC = () => {
     prevError.current = error ?? null;
   }, [error]);
 
-  const handleQrPress = useCallback((orderId: number) => {
-    setSelectedOrderId(orderId);
-    setModalVisible(true);
-  }, []);
+  const handleQrPress = useCallback(
+    (orderId: number) => {
+      dispatch(OrdersFeature.actions.fetchOrderDetails(orderId));
+      setSelectedOrderId(orderId);
+      setModalVisible(true);
+    },
+    [dispatch]
+  );
 
   const handleConfirmPickup = useCallback(
     (orderId: number) => {
@@ -77,21 +92,19 @@ export const OrdersScreen: React.FC = () => {
           style={styles.orderCard}
         >
           <View style={styles.dateWrapper}>
-            <View style={styles.dateContainer}>
-              <Text style={styles.dateText}>Заказ №{item.orderNumber}</Text>
-            </View>
+            <View style={styles.dateContainer} />
             <TouchableOpacity onPress={() => handleQrPress(item.id)} style={styles.qrCircle}>
               <MinQRCode width={20} height={20} />
             </TouchableOpacity>
           </View>
+
+          {item.deliveryDate ? (
+            <Text style={styles.deliveryDateText}>{formatDeliveryDate(item.deliveryDate)}</Text>
+          ) : null}
+
           {item.status !== 'pending' && (
             <View
-              style={[
-                styles.statusBadge,
-                {
-                  backgroundColor: isReady ? '#22C55E20' : '#94A3B820',
-                },
-              ]}
+              style={[styles.statusBadge, { backgroundColor: isReady ? '#22C55E20' : '#94A3B820' }]}
             >
               <View
                 style={[styles.statusDot, { backgroundColor: isReady ? '#22C55E' : '#94A3B8' }]}
@@ -127,6 +140,7 @@ export const OrdersScreen: React.FC = () => {
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Итого: {item.totalAmount} ₽</Text>
           </View>
+
           {isReady && (
             <TouchableOpacity
               style={styles.pickupButton}
@@ -200,8 +214,8 @@ export const OrdersScreen: React.FC = () => {
 
             <MinQRCode width={180} height={180} />
 
-            <Text style={styles.modalCodeText}>заказ №{selectedOrder?.orderNumber ?? '—'}</Text>
-            <Text style={styles.modalQrText}>покажи этот QR при получении</Text>
+            <Text style={styles.modalCodeText}>{selectedOrder?.pickupCode ?? '—'}</Text>
+            <Text style={styles.modalQrText}>введи этот код при получении</Text>
           </View>
         </View>
       </Modal>

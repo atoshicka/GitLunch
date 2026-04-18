@@ -1,3 +1,4 @@
+// entities/api/types/order-types.ts
 export type OrderStatus =
   | 'pending'
   | 'confirmed'
@@ -28,7 +29,7 @@ export interface BackendOrderItem {
 export interface BackendOrder {
   id: number;
   order_number: string;
-  status: number;
+  status: number | string;
   status_label: string;
   total_amount: string | number;
   delivery_date?: string;
@@ -37,12 +38,14 @@ export interface BackendOrder {
   created_at: string;
   cancelled_at?: string;
   items?: BackendOrderItem[];
+  pickup_code?: string;
+  qr_code?: string;
 }
 
 export interface BackendOrderStatus {
   id: number;
   order_number: string;
-  status: number;
+  status: number | string;
   status_label: string;
   updated_at: string;
   estimated_time?: string;
@@ -51,6 +54,7 @@ export interface BackendOrderStatus {
 export interface CreateOrderPayload {
   delivery_date?: string;
   delivery_address?: string;
+  selected_dates?: string[];
 }
 
 export interface CancelOrderResponse {
@@ -60,4 +64,9 @@ export interface CancelOrderResponse {
 
 export interface ConfirmPickupResponse {
   message: string;
+}
+
+export interface CreateOrderResponse {
+  message: string;
+  orders: BackendOrder[];
 }

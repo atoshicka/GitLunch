@@ -1,7 +1,15 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Platform, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Platform,
+  SectionList,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Dish } from '../../entities/api/types/menu-types';
@@ -9,7 +17,9 @@ import { DishCard } from '../../features/dish-card';
 import { DishModalFeature } from '../../features/dish-modal';
 import { FilterChips } from '../../features/filter/filter-chips';
 import { MenuFeature } from '../../features/menu';
+import { MenuDaySection } from '../../features/menu/types';
 import { Images } from '../../shared/constants/images';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './menu-styles';
@@ -28,12 +38,18 @@ const chunkDishes = (dishes: Dish[]): Dish[][] => {
   return pairs;
 };
 
+interface MenuSection {
+  day: string;
+  wday: number;
+  data: Dish[][];
+}
+
 export const MenuScreen: React.FC = () => {
   const navigation = useNavigation<MenuScreenNavigationProp>();
   const route = useRoute<MenuScreenRouteProp>();
   const dispatch = useDispatch();
 
-  const filteredDishes = useSelector(MenuFeature.selectors.selectFilteredDishes);
+  const menuByDays = useSelector(MenuFeature.selectors.selectFilteredMenuByDays);
   const categories = useSelector(MenuFeature.selectors.selectCategories);
   const selectedFilter = useSelector(MenuFeature.selectors.selectSelectedFilter);
   const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
@@ -47,7 +63,15 @@ export const MenuScreen: React.FC = () => {
     [categories]
   );
 
-  const pairs = useMemo(() => chunkDishes(filteredDishes), [filteredDishes]);
+  const sections = useMemo<MenuSection[]>(
+    () =>
+      menuByDays.map((day: MenuDaySection) => ({
+        day: day.day,
+        wday: day.wday,
+        data: chunkDishes(day.dishes),
+      })),
+    [menuByDays]
+  );
 
   useEffect(() => {
     dispatch(MenuFeature.actions.fetchDishes());
@@ -66,11 +90,28 @@ export const MenuScreen: React.FC = () => {
     }, [route.params, dispatch])
   );
 
+  const handleBackPress = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate(SCREEN_NAMES.TABS, { screen: TAB_NAMES.HOME });
+    }
+  }, [navigation]);
+
   const handleDishPress = useCallback(
     (id: number) => {
       dispatch(DishModalFeature.actions.openDishModal(id));
     },
     [dispatch]
+  );
+
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: MenuSection }) => (
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionWeekday}>{section.day}</Text>
+      </View>
+    ),
+    []
   );
 
   const renderItem = useCallback(
@@ -101,22 +142,32 @@ export const MenuScreen: React.FC = () => {
         <View style={styles.waveBackground}>
           <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
         </View>
-        <View style={styles.searchContainer}>
+        <SafeAreaView edges={['top']} style={styles.searchContainer}>
           <View style={styles.searchWrapper}>
-            <SearchInput
-              onPress={() => navigation.navigate('Search', {})}
-              placeholder="Поиск"
-              rightElement={
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Tabs', { screen: 'Аккаунт' })}
-                >
-                  <AccountIcon width={36} height={36} />
-                </TouchableOpacity>
-              }
-            />
-            <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
+            <View style={styles.topBar}>
+              <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
+                <Text style={styles.backButtonText}>‹</Text>
+              </TouchableOpacity>
+              <View style={styles.searchWrapperInner}>
+                <SearchInput
+                  onPress={() => navigation.navigate(SCREEN_NAMES.SEARCH, {})}
+                  placeholder="Поиск"
+                />
+              </View>
+              <TouchableOpacity
+                style={styles.accountButton}
+                onPress={() =>
+                  navigation.navigate(SCREEN_NAMES.TABS, { screen: TAB_NAMES.ACCOUNT })
+                }
+              >
+                <AccountIcon width={36} height={36} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.cafeTitle} numberOfLines={2}>
+              {restaurantTitle}
+            </Text>
           </View>
-        </View>
+        </SafeAreaView>
       </View>
 
       <View style={styles.contentContainer}>
@@ -135,15 +186,17 @@ export const MenuScreen: React.FC = () => {
         {isLoading ? (
           <ActivityIndicator size="large" color="#86EFAC" style={{ marginTop: 40 }} />
         ) : (
-          <FlatList
-            data={pairs}
+          <SectionList
+            sections={sections}
             keyExtractor={(pair, index) => pair.map((d) => String(d.id)).join('-') + index}
+            renderSectionHeader={renderSectionHeader}
             renderItem={renderItem}
             contentContainerStyle={[
               styles.dishesGrid,
               { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
             ]}
             ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
+            stickySectionHeadersEnabled={false}
             showsVerticalScrollIndicator={false}
             removeClippedSubviews={Platform.OS === 'android'}
           />

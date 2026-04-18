@@ -1,5 +1,6 @@
+// features/orders/slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { OrderStatus } from '../../entities/api/types/order-types';
+import { CreateOrderPayload, OrderStatus } from '../../entities/api/types/order-types';
 import { Order, OrdersState } from './types';
 
 const initialState: OrdersState = {
@@ -16,7 +17,8 @@ export const { name, actions, reducer } = createSlice({
   initialState,
   reducers: {
     fetchOrders: () => {},
-    createOrder: () => {},
+    fetchOrderDetails: (_state, _action: PayloadAction<number>) => {},
+    createOrder: (_state, _action: PayloadAction<CreateOrderPayload>) => {},
     confirmPickup: (_state, _action: PayloadAction<number>) => {},
     pollOrderStatus: (_state, _action: PayloadAction<number>) => {},
 
@@ -40,20 +42,31 @@ export const { name, actions, reducer } = createSlice({
     fetchOrdersSuccess: (state, action: PayloadAction<Order[]>) => {
       state.isLoading = false;
       const fromBackend = action.payload.filter((o) => !state.removedOrderIds.includes(o.id));
-      // Используем статусы с бэка — localStatuses только для заказов созданных в этой сессии
-      // которых ещё нет на бэке
       const backendIds = new Set(fromBackend.map((o) => o.id));
       const localOnly = state.orders.filter(
         (o) => !backendIds.has(o.id) && !state.removedOrderIds.includes(o.id)
       );
       state.orders = [...localOnly, ...fromBackend];
-      // Очищаем localStatuses для заказов которые уже пришли с бэка
       for (const order of fromBackend) {
         delete state.localStatuses[order.id];
       }
     },
     fetchOrdersFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
+      state.error = action.payload;
+    },
+
+    // Загрузка деталей заказа
+    fetchOrderDetailsStart: (state) => {
+      state.error = null;
+    },
+    fetchOrderDetailsSuccess: (state, action: PayloadAction<Order>) => {
+      const index = state.orders.findIndex((o) => o.id === action.payload.id);
+      if (index !== -1) {
+        state.orders[index] = action.payload;
+      }
+    },
+    fetchOrderDetailsFailure: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
     },
 
@@ -104,7 +117,7 @@ export const { name, actions, reducer } = createSlice({
       state.localStatuses[orderId] = { status, statusLabel };
     },
 
-    // Подтверждение получения — меняем статус только при успехе (saga вызывает только если бэк ответил ОК)
+    // Подтверждение получения
     confirmPickupSuccess: (state, action: PayloadAction<number>) => {
       const order = state.orders.find((o) => o.id === action.payload);
       if (order) {
@@ -114,12 +127,12 @@ export const { name, actions, reducer } = createSlice({
       state.localStatuses[action.payload] = { status: 'delivered', statusLabel: 'Выдан' };
     },
 
-    // Ошибка подтверждения (например 422 — заказ ещё не готов)
+    // Ошибка подтверждения
     confirmPickupFailure: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
     },
 
-    // Удаление из списка (оставляем для ручного управления если понадобится)
+    // Удаление из списка
     removeOrder: (state, action: PayloadAction<number>) => {
       state.orders = state.orders.filter((o) => o.id !== action.payload);
       if (!state.removedOrderIds.includes(action.payload)) {

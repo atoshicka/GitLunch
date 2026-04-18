@@ -85,6 +85,12 @@ export const styles = StyleSheet.create({
     ...AgbalumoTypography.agbalumoMedium,
     color: '#1F2937',
     fontSize: 28,
+    marginBottom: 8,
+  },
+  userDescription: {
+    ...Typography.bodyRegular,
+    color: '#6B7280',
+    fontSize: 16,
     marginBottom: 32,
   },
   menuBlock: {

@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
   },
   searchWrapper: {
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 40,
   },
   topBar: {
     flexDirection: 'row',
@@ -176,7 +176,7 @@ export const styles = StyleSheet.create({
   },
   quantityButton: {
     width: 36,
-    height: 30,
+    height: 28,
     borderRadius: 8,
     backgroundColor: '#22C55E',
     justifyContent: 'center',

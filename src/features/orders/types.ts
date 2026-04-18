@@ -1,3 +1,4 @@
+// features/orders/types.ts
 import { OrderStatus } from '../../entities/api/types/order-types';
 
 export interface OrderItem {
@@ -13,6 +14,7 @@ export interface OrderItem {
 export interface Order {
   id: number;
   orderNumber: string;
+  pickupCode?: string;
   status: OrderStatus;
   statusLabel: string;
   totalAmount: number;
@@ -32,4 +34,8 @@ export interface OrdersState {
   isLoading: boolean;
   isCreating: boolean;
   error: string | null;
+}
+
+export interface CreateOrderPayload {
+  selected_dates?: string[];
 }

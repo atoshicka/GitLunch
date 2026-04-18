@@ -22,8 +22,9 @@ export const PaymentScreen: React.FC = () => {
   const navigation = useNavigation<PaymentNavProp>();
   const dispatch = useDispatch();
 
-  const totalPrice = useSelector(CartFeature.selectors.selectCartTotalPrice);
-  const totalItems = useSelector(CartFeature.selectors.selectCartTotalItems);
+  const totalPrice = useSelector(CartFeature.selectors.selectTotalPrice);
+  const totalItems = useSelector(CartFeature.selectors.selectTotalItemsCount);
+  const selectedDates = useSelector(CartFeature.selectors.selectSelectedDates);
   const isCreating = useSelector(OrdersFeature.selectors.selectIsCreating);
 
   const [cardNumber, setCardNumber] = useState('');
@@ -48,8 +49,8 @@ export const PaymentScreen: React.FC = () => {
 
   const handlePay = () => {
     if (!isFormValid || isCreating) return;
-    dispatch(OrdersFeature.actions.createOrder());
-    dispatch(CartFeature.actions.clearCart());
+    dispatch(OrdersFeature.actions.createOrder({ selected_dates: selectedDates }));
+    dispatch(CartFeature.actions.clearSelectedDays(selectedDates));
     navigation.navigate(TAB_NAMES.SUCCESS as never);
   };
 

@@ -1,25 +1,36 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { ApiService, BASE_URL } from '../../entities/api/api-interface';
-import { BackendCartItem, BackendCartResponse } from '../../entities/api/types/cart-types';
-import { selectors } from './selectors';
+import { BackendCartDayGroup, BackendCartResponse } from '../../entities/api/types/cart-types';
 import { actions } from './slice';
-import { CartItem } from './types';
+import { CartDayGroup, CartItem } from './types';
 
-const mapBackendItem = (item: BackendCartItem): CartItem => ({
-  id: String(item.menu_item_id),
-  cartItemId: item.id,
-  name: item.name ?? '',
-  price: typeof item.price === 'string' ? parseFloat(item.price) : (item.price ?? 0),
-  quantity: item.quantity,
-  imageUrl: item.image_url ? `${BASE_URL}${item.image_url}` : undefined,
+const mapBackendGroup = (group: BackendCartDayGroup): CartDayGroup => ({
+  date: group.date,
+  dayName: group.day_name,
+  total: parseFloat(group.total),
+  selected: false,
+  items: group.items.map(
+    (item): CartItem => ({
+      id: String(item.menu_item_id),
+      cartItemId: item.id,
+      name: item.name,
+      price: parseFloat(item.price),
+      quantity: item.quantity,
+      imageUrl: item.image_url
+        ? item.image_url.startsWith('http')
+          ? item.image_url
+          : `${BASE_URL}${item.image_url}`
+        : undefined,
+    })
+  ),
 });
 
 function* fetchCartSaga(apiService: ApiService) {
   try {
     yield put(actions.setCartLoading(true));
     const cart: BackendCartResponse = yield call([apiService, apiService.getCart]);
-    const items: CartItem[] = cart.items.map(mapBackendItem);
-    yield put(actions.setCartFromBackend(items));
+    const dayGroups: CartDayGroup[] = cart.items_by_day.map(mapBackendGroup);
+    yield put(actions.setCartFromBackend(dayGroups));
   } catch (error) {
     console.error('fetchCartSaga error:', error);
     yield put(actions.setCartInitialized());
@@ -29,44 +40,21 @@ function* fetchCartSaga(apiService: ApiService) {
   }
 }
 
+function* fetchCartSilentSaga(apiService: ApiService) {
+  try {
+    const cart: BackendCartResponse = yield call([apiService, apiService.getCart]);
+    const dayGroups: CartDayGroup[] = cart.items_by_day.map(mapBackendGroup);
+    yield put(actions.setCartFromBackend(dayGroups));
+  } catch (error) {
+    console.error('fetchCartSilentSaga error:', error);
+  }
+}
+
 function* syncAddToCartSaga(apiService: ApiService, action: ReturnType<typeof actions.addToCart>) {
   try {
     const { id } = action.payload;
-    const items: CartItem[] = yield select(selectors.selectCartItems);
-    const existing = items.find((i) => i.id === id);
-    if (!existing) return;
-
-    if (existing.cartItemId) {
-      yield call([apiService, apiService.updateCartItem], existing.cartItemId, existing.quantity);
-      return;
-    }
-
-    const cart: BackendCartResponse = yield call([apiService, apiService.getCart]);
-    const backendItem = cart.items.find((i) => String(i.menu_item_id) === id);
-
-    if (backendItem) {
-      yield put(actions.setCartItemBackendId({ menuItemId: id, cartItemId: backendItem.id }));
-      const freshItems: CartItem[] = yield select(selectors.selectCartItems);
-      const freshItem = freshItems.find((i) => i.id === id);
-      const targetQty = freshItem?.quantity ?? existing.quantity;
-      yield call([apiService, apiService.updateCartItem], backendItem.id, targetQty);
-    } else {
-      const updatedCart: BackendCartResponse = yield call(
-        [apiService, apiService.addCartItem],
-        Number(id),
-        1
-      );
-      const created = updatedCart.items.find((i) => String(i.menu_item_id) === id);
-      if (!created) return;
-
-      yield put(actions.setCartItemBackendId({ menuItemId: id, cartItemId: created.id }));
-      const freshItems: CartItem[] = yield select(selectors.selectCartItems);
-      const freshItem = freshItems.find((i) => i.id === id);
-      const targetQty = freshItem?.quantity ?? 1;
-      if (targetQty !== 1) {
-        yield call([apiService, apiService.updateCartItem], created.id, targetQty);
-      }
-    }
+    yield call([apiService, apiService.addCartItem], Number(id), 1);
+    yield put(actions.fetchCartSilent());
   } catch (error) {
     console.error('syncAddToCartSaga error:', error);
     yield put(actions.fetchCart());
@@ -80,13 +68,19 @@ function* syncDecreaseSaga(
   try {
     const { id, cartItemId } = action.payload;
     if (!cartItemId) return;
-    const items: CartItem[] = yield select(selectors.selectCartItems);
-    const item = items.find((i) => i.id === id);
-    if (!item) {
+
+    const dayGroups: CartDayGroup[] = yield select(
+      (state: { cart: { dayGroups: CartDayGroup[] } }) => state.cart.dayGroups
+    );
+    const item = dayGroups.flatMap((g) => g.items).find((i) => i.id === id);
+
+    if (!item || item.quantity <= 1) {
       yield call([apiService, apiService.deleteCartItem], cartItemId);
     } else {
-      yield call([apiService, apiService.updateCartItem], cartItemId, item.quantity);
+      yield call([apiService, apiService.updateCartItem], cartItemId, item.quantity - 1);
     }
+
+    yield put(actions.fetchCartSilent());
   } catch (error) {
     console.error('syncDecreaseSaga error:', error);
     yield put(actions.fetchCart());
@@ -101,18 +95,17 @@ function* syncRemoveSaga(
     const { cartItemId } = action.payload;
     if (!cartItemId) return;
     yield call([apiService, apiService.deleteCartItem], cartItemId);
+    yield put(actions.fetchCartSilent());
   } catch (error) {
     console.error('syncRemoveSaga error:', error);
     yield put(actions.fetchCart());
   }
 }
 
-function* syncClearCartSaga(_apiService: ApiService) {}
-
 export function* watchCart(apiService: ApiService) {
   yield takeLatest(actions.fetchCart.type, fetchCartSaga, apiService);
+  yield takeLatest(actions.fetchCartSilent.type, fetchCartSilentSaga, apiService);
   yield takeEvery(actions.addToCart.type, syncAddToCartSaga, apiService);
   yield takeEvery(actions.decreaseQuantity.type, syncDecreaseSaga, apiService);
   yield takeEvery(actions.removeFromCart.type, syncRemoveSaga, apiService);
-  yield takeEvery(actions.clearCart.type, syncClearCartSaga, apiService);
 }

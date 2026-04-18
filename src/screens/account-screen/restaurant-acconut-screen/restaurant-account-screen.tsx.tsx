@@ -3,29 +3,32 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootStackParamList } from '../../../app/navigation/navigation-types';
-import { LoginFeature } from '../../../features/login';
-import { Images } from '../../../shared/constants/images';
-import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar';
-import { styles } from './cezar-account-screen-styles';
+import { useDispatch } from 'react-redux';
+import { RootStackParamList } from '../../../app/navigation/navigation-types.ts';
+import { LoginFeature } from '../../../features/login/index.ts';
+import { Images } from '../../../shared/constants/images.ts';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar.tsx';
+import { styles } from './restaurant-account-styles.ts';
 
-const MENU_ITEMS = [
-  { id: '1', title: 'Наше меню' },
+const RESTAURANT_MENU_ITEMS = [
+  { id: '1', title: 'Меню' },
   { id: '2', title: 'Поддержка' },
   { id: '3', title: 'Уведомления' },
   { id: '4', title: 'О сервисе' },
 ] as const;
 
-type MenuItemTitle = (typeof MENU_ITEMS)[number]['title'];
-type AccountScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+type RestaurantMenuItemTitle = (typeof RESTAURANT_MENU_ITEMS)[number]['title'];
+type RestaurantAccountScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
 const SubtractIcon = Images.home.wave;
 
-export const AccountScreen: React.FC = () => {
-  const navigation = useNavigation<AccountScreenNavigationProp>();
+export const RestaurantAccountScreen: React.FC = () => {
+  const navigation = useNavigation<RestaurantAccountScreenNavigationProp>();
   const dispatch = useDispatch();
-  const userName = useSelector(LoginFeature.selectors.selectUserName);
+
+  // мок
+  const restaurantName = 'Цезарь';
+  const restaurantDescription = 'Каждый день разное меню';
 
   const handleSettingsPress = () => {
     console.log('Настройки');
@@ -53,14 +56,9 @@ export const AccountScreen: React.FC = () => {
     );
   };
 
-  const handleMenuItemPress = (itemTitle: MenuItemTitle) => {
-    switch (itemTitle) {
-      case 'Наше меню':
-        navigation.navigate('Orders');
-        break;
-      default:
-        console.log(`Нажат пункт: ${itemTitle}`);
-    }
+  const handleMenuItemPress = (itemTitle: RestaurantMenuItemTitle) => {
+    // заглушка
+    console.log(`Нажат пункт: ${itemTitle}`);
   };
 
   const SettingsIcon = Images.account.setting;
@@ -97,10 +95,11 @@ export const AccountScreen: React.FC = () => {
               <AccountIcon width={80} height={80} />
             </View>
           </View>
-          <Text style={styles.userName}>{userName ?? 'Гость'}</Text>
+          <Text style={styles.userName}>{restaurantName}</Text>
+          <Text style={styles.userDescription}>{restaurantDescription}</Text>
 
           <View style={styles.menuBlock}>
-            {MENU_ITEMS.map((item) => (
+            {RESTAURANT_MENU_ITEMS.map((item) => (
               <TouchableOpacity
                 key={item.id}
                 style={styles.menuItem}

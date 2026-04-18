@@ -80,7 +80,7 @@ export const styles = StyleSheet.create({
   },
   quantityButton: {
     backgroundColor: '#22C55E',
-    width: 32,
+    width: 36,
     height: 28,
     borderRadius: 10,
     justifyContent: 'center',
