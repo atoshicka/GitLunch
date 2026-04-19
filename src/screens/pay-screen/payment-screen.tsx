@@ -49,7 +49,16 @@ export const PaymentScreen: React.FC = () => {
 
   const handlePay = () => {
     if (!isFormValid || isCreating) return;
-    dispatch(OrdersFeature.actions.createOrder({ selected_dates: selectedDates }));
+
+    const isoSelectedDates = selectedDates.map((date) => {
+      const parts = date.split('.');
+      if (parts.length === 3) {
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+      return date;
+    });
+
+    dispatch(OrdersFeature.actions.createOrder({ selected_dates: isoSelectedDates }));
     dispatch(CartFeature.actions.clearSelectedDays(selectedDates));
     navigation.navigate(TAB_NAMES.SUCCESS as never);
   };

@@ -175,6 +175,10 @@ export const createApiService = (api: AxiosInstance) => ({
     return response.data;
   },
 
+  async destroyAllOrders(): Promise<void> {
+    await api.delete(API_ENDPOINTS.ORDERS_DESTROY_ALL);
+  },
+
   async addCartItem(menuItemId: number, quantity: number, deliveryDate?: string): Promise<void> {
     const payload: AddCartItemPayload = {
       menu_item_id: menuItemId,

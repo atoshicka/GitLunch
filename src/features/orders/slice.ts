@@ -1,4 +1,3 @@
-// features/orders/slice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CreateOrderPayload, OrderStatus } from '../../entities/api/types/order-types';
 import { Order, OrdersState } from './types';
@@ -21,8 +20,8 @@ export const { name, actions, reducer } = createSlice({
     createOrder: (_state, _action: PayloadAction<CreateOrderPayload>) => {},
     confirmPickup: (_state, _action: PayloadAction<number>) => {},
     pollOrderStatus: (_state, _action: PayloadAction<number>) => {},
+    destroyAllOrders: () => {},
 
-    // Восстановление из AsyncStorage
     restorePersistedState: (
       state,
       action: PayloadAction<{
@@ -34,7 +33,6 @@ export const { name, actions, reducer } = createSlice({
       state.localStatuses = action.payload.localStatuses;
     },
 
-    // Загрузка списка заказов
     fetchOrdersStart: (state) => {
       state.isLoading = true;
       state.error = null;
@@ -56,7 +54,6 @@ export const { name, actions, reducer } = createSlice({
       state.error = action.payload;
     },
 
-    // Загрузка деталей заказа
     fetchOrderDetailsStart: (state) => {
       state.error = null;
     },
@@ -70,7 +67,6 @@ export const { name, actions, reducer } = createSlice({
       state.error = action.payload;
     },
 
-    // Создание заказа
     createOrderStart: (state) => {
       state.isCreating = true;
       state.error = null;
@@ -91,7 +87,6 @@ export const { name, actions, reducer } = createSlice({
       state.error = action.payload;
     },
 
-    // Обновление состава заказа
     updateOrderItems: (
       state,
       action: PayloadAction<{ orderId: number; items: Order['items']; totalAmount: number }>
@@ -103,7 +98,6 @@ export const { name, actions, reducer } = createSlice({
       }
     },
 
-    // Обновление статуса (только от бэка через polling)
     updateOrderStatus: (
       state,
       action: PayloadAction<{ orderId: number; status: OrderStatus; statusLabel: string }>
@@ -117,7 +111,6 @@ export const { name, actions, reducer } = createSlice({
       state.localStatuses[orderId] = { status, statusLabel };
     },
 
-    // Подтверждение получения
     confirmPickupSuccess: (state, action: PayloadAction<number>) => {
       const order = state.orders.find((o) => o.id === action.payload);
       if (order) {
@@ -126,19 +119,25 @@ export const { name, actions, reducer } = createSlice({
       }
       state.localStatuses[action.payload] = { status: 'delivered', statusLabel: 'Выдан' };
     },
-
-    // Ошибка подтверждения
     confirmPickupFailure: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
     },
 
-    // Удаление из списка
     removeOrder: (state, action: PayloadAction<number>) => {
       state.orders = state.orders.filter((o) => o.id !== action.payload);
       if (!state.removedOrderIds.includes(action.payload)) {
         state.removedOrderIds.push(action.payload);
       }
       delete state.localStatuses[action.payload];
+    },
+
+    destroyAllOrdersSuccess: (state) => {
+      state.orders = [];
+      state.removedOrderIds = [];
+      state.localStatuses = {};
+    },
+    destroyAllOrdersFailure: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
     },
 
     setOrderLocalStart: (state, action: PayloadAction<number>) => {

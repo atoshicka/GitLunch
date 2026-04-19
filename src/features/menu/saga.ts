@@ -38,7 +38,6 @@ function* fetchDishesSaga(apiService: ApiService) {
     yield put(actions.fetchDishesSuccess(raw));
     yield put(actions.fetchCategoriesSuccess(categories));
 
-    // Маппим ответ бэка { day, wday, items } → наш внутренний { day, wday, dishes }
     const menuByDays: MenuDaySection[] = menuByDaysRaw
       .slice()
       .sort((a, b) => a.wday - b.wday)

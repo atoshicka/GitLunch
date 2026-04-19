@@ -1,4 +1,3 @@
-// screens/OrdersScreen.tsx
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -26,18 +25,39 @@ type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 
 
 const SubtractIcon = Images.home.wave;
 
-const DAYS = ['Понедельник', 'Вторник', 'Среду', 'Четверг', 'Пятницу'];
+const DAY_NAMES: Record<number, string> = {
+  1: 'понедельник',
+  2: 'вторник',
+  3: 'среду',
+  4: 'четверг',
+  5: 'пятницу',
+};
 
-const formatDeliveryDate = (deliveryDate: string): string => {
-  const date = new Date(deliveryDate);
-  const dayName = DAYS[date.getDay()];
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  if (dayName === 'Вторник') {
-    return `Доставим во ${dayName}, ${day}.${month}`;
-  } else {
-    return `Доставим в ${dayName}, ${day}.${month}`;
+const isWeekend = (dayIndex: number): boolean => dayIndex === 0 || dayIndex === 6;
+
+const formatDeliveryInfo = (deliveryInfo: string): string => {
+  if (deliveryInfo === 'Доставлено') return 'Доставлено';
+
+  const parts = deliveryInfo.split('.');
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const year = parseInt(parts[2], 10);
+    const date = new Date(year, month, day);
+
+    if (!isNaN(date.getTime())) {
+      const dayIndex = date.getDay();
+
+      if (isWeekend(dayIndex)) {
+        return '';
+      }
+
+      const dayName = DAY_NAMES[dayIndex];
+      const prefix = dayName === 'вторник' || dayName === 'среду' ? 'во' : 'в';
+      return `Доставим ${prefix} ${dayName}, ${deliveryInfo}`;
+    }
   }
+  return deliveryInfo;
 };
 
 export const OrdersScreen: React.FC = () => {
@@ -91,8 +111,31 @@ export const OrdersScreen: React.FC = () => {
     [dispatch]
   );
 
+  const handleDestroyAll = useCallback(() => {
+    Alert.alert('Удалить все заказы', 'Это действие нельзя отменить. Продолжить?', [
+      { text: 'Отмена', style: 'cancel' },
+      {
+        text: 'Удалить',
+        style: 'destructive',
+        onPress: () => dispatch(OrdersFeature.actions.destroyAllOrders()),
+      },
+    ]);
+  }, [dispatch]);
+
   const renderOrderItem = useCallback(
     ({ item }: { item: Order }) => {
+      const parts = item.deliveryInfo?.split('.') || [];
+      if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        const date = new Date(year, month, day);
+
+        if (isWeekend(date.getDay())) {
+          return null;
+        }
+      }
+
       const isReady = item.status === 'ready';
 
       return (
@@ -105,7 +148,7 @@ export const OrdersScreen: React.FC = () => {
         >
           <View style={styles.dateWrapper}>
             <Text style={styles.deliveryDateText}>
-              {item.deliveryDate ? formatDeliveryDate(item.deliveryDate) : ''}
+              {item.deliveryInfo ? formatDeliveryInfo(item.deliveryInfo) : ''}
             </Text>
             <TouchableOpacity onPress={() => handleQrPress(item.id)} style={styles.qrCircle}>
               <MinQRCode width={20} height={20} />
@@ -180,7 +223,9 @@ export const OrdersScreen: React.FC = () => {
             <Text style={styles.backButtonText}>‹</Text>
           </TouchableOpacity>
           <Text style={styles.brandTitle}>GitLunch</Text>
-          <View style={styles.topBarButton} />
+          <TouchableOpacity style={styles.topBarButton} onPress={handleDestroyAll}>
+            <Text style={{ color: '#EF4444', fontSize: 12 }}>DEL ALL</Text>
+          </TouchableOpacity>
         </View>
         <Text style={styles.screenTitle}>Мои заказы</Text>
       </SafeAreaView>
@@ -224,22 +269,16 @@ export const OrdersScreen: React.FC = () => {
 
             {isLoadingDetails ? (
               <ActivityIndicator size="large" color="#22C55E" />
-            ) : (
+            ) : selectedOrder?.pickupCode ? (
               <>
-                {selectedOrder?.pickupCode ? (
-                  <>
-                    <QRCode value={selectedOrder.pickupCode} size={180} />
-                    <Text style={styles.modalCodeText}>
-                      Код для получения: {selectedOrder.pickupCode}
-                    </Text>
-                    <Text style={styles.modalQrText}>или этот QR-код</Text>
-                  </>
-                ) : (
-                  <Text style={styles.modalCodeText}>
-                    Код для получения: {selectedOrder?.pickupCode ?? '—'}
-                  </Text>
-                )}
+                <QRCode value={selectedOrder.pickupCode} size={180} />
+                <Text style={styles.modalCodeText}>
+                  Код для получения: {selectedOrder.pickupCode}
+                </Text>
+                <Text style={styles.modalQrText}>или этот QR-код</Text>
               </>
+            ) : (
+              <Text style={styles.modalCodeText}>Код для получения: —</Text>
             )}
           </View>
         </View>

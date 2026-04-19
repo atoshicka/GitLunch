@@ -41,9 +41,8 @@ export interface MenuResponse {
   total: number;
 }
 
-// Ответ от GET /api/v1/menu_by_days
 export interface MenuByDayResponse {
-  day: string; // "Понедельник", "Вторник" и т.д.
-  wday: number; // 1 = пн, 2 = вт, ...
+  day: string;
+  wday: number;
   items: Dish[];
 }

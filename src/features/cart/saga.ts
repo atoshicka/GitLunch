@@ -4,26 +4,29 @@ import { BackendCartDayGroup, BackendCartResponse } from '../../entities/api/typ
 import { actions } from './slice';
 import { CartDayGroup, CartItem } from './types';
 
-const mapBackendGroup = (group: BackendCartDayGroup): CartDayGroup => ({
-  date: group.date,
-  dayName: group.day_name,
-  total: parseFloat(group.total),
-  selected: false,
-  items: group.items.map(
-    (item): CartItem => ({
-      id: String(item.menu_item_id),
-      cartItemId: item.id,
-      name: item.name,
-      price: parseFloat(item.price),
-      quantity: item.quantity,
-      imageUrl: item.image_url
-        ? item.image_url.startsWith('http')
-          ? item.image_url
-          : `${BASE_URL}${item.image_url}`
-        : undefined,
-    })
-  ),
-});
+const mapBackendGroup = (group: BackendCartDayGroup): CartDayGroup => {
+  console.log('CART GROUP DATE:', group.date, group.day_name);
+  return {
+    date: group.date,
+    dayName: group.day_name,
+    total: parseFloat(group.total),
+    selected: false,
+    items: group.items.map(
+      (item): CartItem => ({
+        id: String(item.menu_item_id),
+        cartItemId: item.id,
+        name: item.name,
+        price: parseFloat(item.price),
+        quantity: item.quantity,
+        imageUrl: item.image_url
+          ? item.image_url.startsWith('http')
+            ? item.image_url
+            : `${BASE_URL}${item.image_url}`
+          : undefined,
+      })
+    ),
+  };
+};
 
 function* fetchCartSaga(apiService: ApiService) {
   try {
