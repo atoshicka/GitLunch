@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import QRCode from 'react-native-qrcode-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
@@ -25,15 +26,18 @@ type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 
 
 const SubtractIcon = Images.home.wave;
 
-const DAYS = ['Воскресенье', 'Понедельник', 'Вторник', 'Среду', 'Четверг', 'Пятницу', 'Субботу'];
+const DAYS = ['Понедельник', 'Вторник', 'Среду', 'Четверг', 'Пятницу'];
 
 const formatDeliveryDate = (deliveryDate: string): string => {
   const date = new Date(deliveryDate);
   const dayName = DAYS[date.getDay()];
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  return `Доставим в ${dayName}, ${day}.${month}.${year}`;
+  if (dayName === 'Вторник') {
+    return `Доставим во ${dayName}, ${day}.${month}`;
+  } else {
+    return `Доставим в ${dayName}, ${day}.${month}`;
+  }
 };
 
 export const OrdersScreen: React.FC = () => {
@@ -46,6 +50,7 @@ export const OrdersScreen: React.FC = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
   const MinQRCode = Images.account.minQRCode;
 
@@ -61,8 +66,17 @@ export const OrdersScreen: React.FC = () => {
     prevError.current = error ?? null;
   }, [error]);
 
+  const selectedOrder = orders.find((o) => o.id === selectedOrderId);
+
+  useEffect(() => {
+    if (selectedOrder?.pickupCode) {
+      setIsLoadingDetails(false);
+    }
+  }, [selectedOrder?.pickupCode]);
+
   const handleQrPress = useCallback(
     (orderId: number) => {
+      setIsLoadingDetails(true);
       dispatch(OrdersFeature.actions.fetchOrderDetails(orderId));
       setSelectedOrderId(orderId);
       setModalVisible(true);
@@ -77,8 +91,6 @@ export const OrdersScreen: React.FC = () => {
     [dispatch]
   );
 
-  const selectedOrder = orders.find((o) => o.id === selectedOrderId);
-
   const renderOrderItem = useCallback(
     ({ item }: { item: Order }) => {
       const isReady = item.status === 'ready';
@@ -92,15 +104,13 @@ export const OrdersScreen: React.FC = () => {
           style={styles.orderCard}
         >
           <View style={styles.dateWrapper}>
-            <View style={styles.dateContainer} />
+            <Text style={styles.deliveryDateText}>
+              {item.deliveryDate ? formatDeliveryDate(item.deliveryDate) : ''}
+            </Text>
             <TouchableOpacity onPress={() => handleQrPress(item.id)} style={styles.qrCircle}>
               <MinQRCode width={20} height={20} />
             </TouchableOpacity>
           </View>
-
-          {item.deliveryDate ? (
-            <Text style={styles.deliveryDateText}>{formatDeliveryDate(item.deliveryDate)}</Text>
-          ) : null}
 
           {item.status !== 'pending' && (
             <View
@@ -212,10 +222,25 @@ export const OrdersScreen: React.FC = () => {
               <Text style={styles.modalCloseText}>✕</Text>
             </TouchableOpacity>
 
-            <MinQRCode width={180} height={180} />
-
-            <Text style={styles.modalCodeText}>{selectedOrder?.pickupCode ?? '—'}</Text>
-            <Text style={styles.modalQrText}>введи этот код при получении</Text>
+            {isLoadingDetails ? (
+              <ActivityIndicator size="large" color="#22C55E" />
+            ) : (
+              <>
+                {selectedOrder?.pickupCode ? (
+                  <>
+                    <QRCode value={selectedOrder.pickupCode} size={180} />
+                    <Text style={styles.modalCodeText}>
+                      Код для получения: {selectedOrder.pickupCode}
+                    </Text>
+                    <Text style={styles.modalQrText}>или этот QR-код</Text>
+                  </>
+                ) : (
+                  <Text style={styles.modalCodeText}>
+                    Код для получения: {selectedOrder?.pickupCode ?? '—'}
+                  </Text>
+                )}
+              </>
+            )}
           </View>
         </View>
       </Modal>

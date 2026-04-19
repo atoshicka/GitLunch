@@ -91,6 +91,7 @@ export const styles = StyleSheet.create({
     ...Typography.titleMedium,
     color: '#1F2937',
     marginBottom: 12,
+    fontWeight: '800',
   },
   metaRow: {
     flexDirection: 'row',
@@ -134,7 +135,7 @@ export const styles = StyleSheet.create({
   },
   nutritionBlock: {
     backgroundColor: '#DFFCEA',
-    borderRadius: 20,
+    borderRadius: 28,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderWidth: 1,
@@ -174,14 +175,14 @@ export const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: '#22C55E',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
+    paddingHorizontal: 30,
+    paddingVertical: 12,
     borderRadius: 14,
   },
   addButtonText: {
     ...Typography.buttonLarge,
     color: '#1F2937',
-    fontWeight: '600',
+    fontWeight: '800',
   },
   quantityControl: {
     flexDirection: 'row',

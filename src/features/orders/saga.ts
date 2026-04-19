@@ -88,19 +88,24 @@ function* fetchOrdersSaga(apiService: ApiService) {
     yield put(actions.fetchOrdersStart());
     const persisted: PersistedOrdersState = yield call(ordersPersistence.load);
     yield put(actions.restorePersistedState(persisted));
-    const backendOrders: BackendOrder[] = yield call([apiService, apiService.getOrders]);
-    yield put(actions.fetchOrdersSuccess(backendOrders.map(mapBackendOrder)));
 
-    const activeOrders: Order[] = yield select(selectors.selectOrders);
-    const toPool = activeOrders.filter((o) => o.id && !isTerminalOrReady(o.status)).slice(0, 3);
+    try {
+      const backendOrders: BackendOrder[] = yield call([apiService, apiService.getOrders]);
+      yield put(actions.fetchOrdersSuccess(backendOrders.map(mapBackendOrder)));
 
-    for (const order of toPool) {
-      yield put(actions.pollOrderStatus(order.id));
+      const activeOrders: Order[] = yield select(selectors.selectOrders);
+      const toPool = activeOrders.filter((o) => o.id && !isTerminalOrReady(o.status)).slice(0, 3);
+
+      for (const order of toPool) {
+        yield put(actions.pollOrderStatus(order.id));
+      }
+    } catch (fetchError: unknown) {
+      console.error('fetchOrdersSaga fetch error:', fetchError);
+      const message = fetchError instanceof Error ? fetchError.message : 'Ошибка загрузки заказов';
+      yield put(actions.fetchOrdersFailure(message));
     }
   } catch (error: unknown) {
-    console.error('fetchOrdersSaga full error:', error);
-    const message = error instanceof Error ? error.message : 'Ошибка загрузки заказов';
-    yield put(actions.fetchOrdersFailure(message));
+    console.error('fetchOrdersSaga outer error:', error);
   }
 }
 
