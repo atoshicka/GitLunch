@@ -30,6 +30,7 @@ export const API_ENDPOINTS = {
   ORDER_STATUS: (id: string) => `/orders/${id}/status`,
   ORDER_CANCEL: (id: string) => `/orders/${id}/cancel`,
   ORDER_CONFIRM_PICKUP: (id: string) => `/orders/${id}/confirm_pickup`,
+  ORDERS_DESTROY_ALL: '/orders/destroy_all',
 
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',

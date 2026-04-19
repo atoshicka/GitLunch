@@ -1,4 +1,3 @@
-// features/orders/types.ts
 import { OrderStatus } from '../../entities/api/types/order-types';
 
 export interface OrderItem {
@@ -18,7 +17,7 @@ export interface Order {
   status: OrderStatus;
   statusLabel: string;
   totalAmount: number;
-  deliveryDate?: string;
+  deliveryInfo?: string;
   deliveryAddress?: string;
   itemsCount: number;
   createdAt: string;

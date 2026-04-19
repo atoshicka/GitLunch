@@ -1,4 +1,3 @@
-// features/orders/sagas.ts
 import { PayloadAction } from '@reduxjs/toolkit';
 import { call, delay, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api/api-interface';
@@ -46,7 +45,7 @@ const mapBackendOrder = (order: BackendOrder): Order => ({
   statusLabel: order.status_label,
   totalAmount:
     typeof order.total_amount === 'string' ? parseFloat(order.total_amount) : order.total_amount,
-  deliveryDate: order.delivery_date,
+  deliveryInfo: order.delivery_info,
   deliveryAddress: order.delivery_address,
   itemsCount: order.items_count,
   createdAt: order.created_at,
@@ -133,20 +132,22 @@ function* createOrderSaga(apiService: ApiService, action: PayloadAction<CreateOr
       action.payload
     );
 
-    const backendOrder = response.orders?.[0];
+    console.log('CREATE ORDER RESPONSE:', JSON.stringify(response, null, 2));
+    console.log('CREATE ORDER PAYLOAD:', JSON.stringify(action.payload, null, 2));
 
-    if (!backendOrder?.id) {
-      yield put(actions.createOrderFailure('Не удалось получить данные заказа'));
+    if (!response.orders || response.orders.length === 0) {
+      yield put(actions.createOrderFailure('Не удалось получить данные заказов'));
       return;
     }
+    for (const backendOrder of response.orders) {
+      const order = mapBackendOrder(backendOrder);
+      yield put(actions.createOrderSuccess(order));
+      yield call(savePersistedState);
+      yield put(actions.setOrderLocalStart(order.id));
 
-    const order = mapBackendOrder(backendOrder);
-    yield put(actions.createOrderSuccess(order));
-    yield call(savePersistedState);
-    yield put(actions.setOrderLocalStart(order.id));
-
-    if (!isTerminalOrReady(order.status)) {
-      yield put(actions.pollOrderStatus(order.id));
+      if (!isTerminalOrReady(order.status)) {
+        yield put(actions.pollOrderStatus(order.id));
+      }
     }
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Ошибка создания заказа';
@@ -206,6 +207,17 @@ function* removeOrderSaga() {
   yield call(savePersistedState);
 }
 
+function* destroyAllOrdersSaga(apiService: ApiService) {
+  try {
+    yield call([apiService, apiService.destroyAllOrders]);
+    yield put(actions.destroyAllOrdersSuccess());
+    yield call(savePersistedState);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Ошибка удаления заказов';
+    yield put(actions.destroyAllOrdersFailure(message));
+  }
+}
+
 export function* watchOrders(apiService: ApiService) {
   yield takeLatest(actions.fetchOrders.type, fetchOrdersSaga, apiService);
   yield takeEvery(actions.fetchOrderDetails.type, fetchOrderDetailsSaga, apiService);
@@ -213,4 +225,5 @@ export function* watchOrders(apiService: ApiService) {
   yield takeEvery(actions.pollOrderStatus.type, pollOrderStatusSaga.bind(null, apiService));
   yield takeEvery(actions.confirmPickup.type, confirmPickupSaga.bind(null, apiService));
   yield takeEvery(actions.removeOrder.type, removeOrderSaga);
+  yield takeLatest(actions.destroyAllOrders.type, destroyAllOrdersSaga, apiService);
 }

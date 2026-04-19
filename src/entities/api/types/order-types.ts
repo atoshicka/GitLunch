@@ -1,4 +1,3 @@
-// entities/api/types/order-types.ts
 export type OrderStatus =
   | 'pending'
   | 'confirmed'
@@ -8,7 +7,7 @@ export type OrderStatus =
   | 'cancelled';
 
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
-  pending: 'Ожидает подтверждения',
+  pending: 'Ожидает',
   confirmed: 'Подтверждён',
   preparing: 'Готовится',
   ready: 'Готов к получению',
@@ -32,7 +31,7 @@ export interface BackendOrder {
   status: number | string;
   status_label: string;
   total_amount: string | number;
-  delivery_date?: string;
+  delivery_info?: string;
   delivery_address?: string;
   items_count: number;
   created_at: string;
