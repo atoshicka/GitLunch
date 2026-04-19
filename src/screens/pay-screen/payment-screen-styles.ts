@@ -80,7 +80,7 @@ export const paymentStyles = StyleSheet.create({
   },
   disabledInputText: {
     ...Typography.bodyRegular,
-    color: '#64748B',
+    color: '#495E7C',
   },
   sbpContainer: {
     width: '100%',
@@ -121,7 +121,7 @@ export const paymentStyles = StyleSheet.create({
   },
   orderButton: {
     backgroundColor: '#1F2937',
-    width: '100%',
+    width: '90%',
     paddingVertical: 18,
     borderRadius: 40,
     alignItems: 'center',
@@ -129,6 +129,7 @@ export const paymentStyles = StyleSheet.create({
   orderButtonText: {
     ...Typography.buttonRegular,
     fontWeight: '600',
+    fontSize: 18,
     color: '#DFFCEA',
   },
 });

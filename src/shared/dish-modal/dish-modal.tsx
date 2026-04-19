@@ -177,6 +177,11 @@ export const DishModal: React.FC = () => {
                     <Text style={styles.metaBadgeText}>{dish.weight} г</Text>
                   </View>
                 )}
+                {dish.calories && (
+                  <View style={styles.metaBadge}>
+                    <Text style={styles.metaBadgeText}>{dish.calories} ккал</Text>
+                  </View>
+                )}
                 {dish.category?.name && (
                   <View style={[styles.metaBadge, styles.metaBadgeGreen]}>
                     <Text style={styles.metaBadgeText}>{dish.category.name}</Text>

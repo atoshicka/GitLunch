@@ -113,7 +113,7 @@ export const PaymentScreen: React.FC = () => {
           <View style={paymentStyles.row}>
             <TextInput
               style={[paymentStyles.input, { flex: 1 }]}
-              placeholder="ММ/ГГ"
+              placeholder="M/D"
               placeholderTextColor="#94A3B8"
               keyboardType="numeric"
               maxLength={5}

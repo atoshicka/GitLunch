@@ -165,7 +165,7 @@ export const BasketScreen: React.FC = () => {
             <Text style={styles.groupDate}>{group.date}</Text>
           </View>
           <View style={[styles.checkbox, group.selected && styles.checkboxSelected]}>
-            {group.selected && <Text style={styles.checkboxTick}>✓</Text>}
+            {group.selected && <View style={styles.checkboxTick} />}
           </View>
         </TouchableOpacity>
         {group.items.map((item) => renderCartItem(item))}

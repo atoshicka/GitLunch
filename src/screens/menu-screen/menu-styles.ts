@@ -102,11 +102,6 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
     fontWeight: '700',
   },
-  sectionDate: {
-    ...Typography.bodySmall,
-    color: '#94A3B8',
-    marginTop: 2,
-  },
   row: {
     flexDirection: 'row',
     gap: 8,

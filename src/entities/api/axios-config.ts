@@ -8,7 +8,7 @@ const { BASE_URL, DEBUG } = getApiConfig();
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -21,7 +21,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     if (DEBUG) {
-      console.log(`API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+      console.log(`🔗 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
     }
     return config;
   },
@@ -31,27 +31,30 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     if (DEBUG) {
-      console.log(`API Response: ${response.status} ${response.config.url}`);
+      console.log(`✅ API Response: ${response.status} ${response.config.url}`);
     }
     return response;
   },
   async (error: unknown) => {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
+      const message = error.response?.data?.message ?? error.message;
+
+      if (DEBUG) {
+        console.error(`❌ API Error [${status ?? 'NETWORK'}]: ${message}`);
+      }
 
       if (status === 401) {
-        console.warn('Токен протух (401). Запускаем процесс выхода...');
-
+        console.warn('Токен протух');
         await AsyncStorage.multiRemove(['token', 'user']);
-
         store.dispatch(LoginFeature.actions.logout());
       }
 
-      if (DEBUG) {
-        const message = error.response?.data?.message ?? error.message;
-        const details = error.response?.data;
-        console.error(`API Error [${status}]:`, message, details);
-      }
+      return Promise.reject(error);
+    }
+
+    if (DEBUG) {
+      console.error(`❌ Network Error:`, error);
     }
     return Promise.reject(error);
   }

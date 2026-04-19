@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
-import { Typography } from '../../shared/fontsFile/fonts';
+import { Fonts, Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
   container: {
@@ -99,6 +99,7 @@ export const styles = StyleSheet.create({
   },
   dateContainer: {
     flex: 1,
+    justifyContent: 'center',
   },
   dateText: {
     ...Typography.buttonSmall,
@@ -157,6 +158,7 @@ export const styles = StyleSheet.create({
   },
   itemName: {
     ...Typography.caption,
+    fontSize: 14,
     color: '#1F2937',
     flex: 1,
     marginRight: 8,
@@ -168,7 +170,7 @@ export const styles = StyleSheet.create({
   },
   itemQuantity: {
     ...Typography.caption,
-    color: '#666666',
+    color: '#1F2937',
   },
   itemPrice: {
     ...Typography.caption,
@@ -222,7 +224,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F4F4F4',
     borderRadius: 20,
     padding: 24,
     paddingTop: 32,
@@ -260,8 +262,10 @@ export const styles = StyleSheet.create({
     color: '#666666',
   },
   deliveryDateText: {
-    ...Typography.bodySmall,
-    color: '#4B5563',
+    fontFamily: Fonts.robotoMedium,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1F2937',
     marginBottom: 8,
     marginTop: 2,
   },

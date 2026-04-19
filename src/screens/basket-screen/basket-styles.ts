@@ -74,7 +74,6 @@ export const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 20,
   },
-
   groupContainer: {
     marginBottom: 24,
   },
@@ -86,6 +85,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   groupHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
     flex: 1,
   },
   groupWeekday: {
@@ -94,38 +96,33 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
   },
   groupDate: {
-    ...Typography.bodySmall,
-    color: '#94A3B8',
-    marginTop: 2,
+    ...Typography.bodyRegular,
+    color: '#1F2937',
   },
-
-  // Чекбокс
   checkbox: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    borderWidth: 2,
-    borderColor: '#CBD5E1',
+    borderWidth: 1.5,
+    borderColor: '#22C55E',
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#22C55E',
+    backgroundColor: '#fff',
     borderColor: '#22C55E',
   },
   checkboxTick: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
-    lineHeight: 18,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#22C55E',
   },
-
-  // Карточка товара
   cartItem: {
     flexDirection: 'row',
     borderRadius: 30,
-    padding: 14,
+    padding: 12,
     marginBottom: 12,
     elevation: 2,
     shadowColor: '#1F2937',
@@ -134,12 +131,12 @@ export const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   imageContainer: {
-    width: 90,
-    height: 90,
+    width: 85,
+    height: 85,
     borderRadius: 16,
     marginRight: 16,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: 'hidden',
   },
   imagePlaceholder: {
     fontSize: 40,
@@ -165,7 +162,7 @@ export const styles = StyleSheet.create({
   },
   itemPrice: {
     ...Typography.buttonRegular,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#1F2937',
     marginVertical: 4,
   },
@@ -175,16 +172,16 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   quantityButton: {
-    width: 36,
-    height: 28,
+    width: 32,
+    height: 26,
     borderRadius: 8,
     backgroundColor: '#22C55E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   quantityButtonText: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '400',
     color: '#1F2937',
   },
   quantityText: {
@@ -197,11 +194,9 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
     paddingHorizontal: 8,
   },
-
-  // Футер
   footer: {
     padding: 20,
-    paddingBottom: 20,
+    paddingBottom: 50,
     backgroundColor: '#22C55E',
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
