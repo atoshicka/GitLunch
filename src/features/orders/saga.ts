@@ -1,5 +1,16 @@
 import { PayloadAction } from '@reduxjs/toolkit';
-import { call, delay, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { Task } from 'redux-saga';
+import {
+  call,
+  cancel,
+  delay,
+  fork,
+  put,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from 'redux-saga/effects';
 import { ApiService } from '../../entities/api/api-interface';
 import {
   BackendOrder,
@@ -7,6 +18,7 @@ import {
   CreateOrderResponse,
   OrderStatus,
 } from '../../entities/api/types/order-types';
+import { actions as loginActions } from '../login/slice';
 import { ordersPersistence, PersistedOrdersState } from './orders-persistence';
 import { selectors } from './selectors';
 import { actions } from './slice';
@@ -135,9 +147,7 @@ function* createOrderSaga(apiService: ApiService, action: PayloadAction<CreateOr
   }
 }
 
-function* pollOrderStatusSaga(apiService: ApiService, action: PayloadAction<number>) {
-  const orderId = action.payload;
-
+function* pollOrderStatusSaga(apiService: ApiService, orderId: number) {
   while (true) {
     yield delay(30_000);
 
@@ -161,9 +171,19 @@ function* pollOrderStatusSaga(apiService: ApiService, action: PayloadAction<numb
       yield call(savePersistedState);
       if (isTerminal(realStatus)) return;
     } catch (error: unknown) {
-      if (getHttpStatus(error) === 404) return;
+      if (getHttpStatus(error) === 404 || getHttpStatus(error) === 401) return;
     }
   }
+}
+
+function* pollManagerSaga(apiService: ApiService, action: PayloadAction<number>) {
+  const orderId = action.payload;
+
+  const task: Task = yield fork(pollOrderStatusSaga, apiService, orderId);
+
+  yield take([loginActions.logout.type, loginActions.logoutRequest.type]);
+
+  yield cancel(task);
 }
 
 function* removeOrderSaga() {
@@ -185,7 +205,7 @@ export function* watchOrders(apiService: ApiService) {
   yield takeLatest(actions.fetchOrders.type, fetchOrdersSaga, apiService);
   yield takeEvery(actions.fetchOrderDetails.type, fetchOrderDetailsSaga, apiService);
   yield takeEvery(actions.createOrder.type, createOrderSaga, apiService);
-  yield takeEvery(actions.pollOrderStatus.type, pollOrderStatusSaga.bind(null, apiService));
+  yield takeEvery(actions.pollOrderStatus.type, pollManagerSaga.bind(null, apiService));
   yield takeEvery(actions.removeOrder.type, removeOrderSaga);
   yield takeLatest(actions.destroyAllOrders.type, destroyAllOrdersSaga, apiService);
 }

@@ -22,7 +22,7 @@ const AccountIcon = Images.navigation.account;
 
 export const RestaurantAccountScreen: React.FC = () => {
   const dispatch = useDispatch();
-  const restaurantName = useSelector(LoginFeature.selectors.selectUserName);
+  const restaurantName = useSelector(LoginFeature.selectors.selectRestaurantName);
   const restaurantDescription = useSelector(LoginFeature.selectors.selectRestaurantDescription);
 
   const handleSettingsPress = useCallback(() => {

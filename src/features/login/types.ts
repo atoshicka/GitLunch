@@ -13,6 +13,7 @@ export interface LoginState {
   login: string;
   password: string;
   userName: string | null;
+  restaurantName: string | null;
   role: string | null;
   restaurantDescription: string | null;
   errors: LoginFormErrors;

@@ -15,3 +15,12 @@ export const authStyles = StyleSheet.create({
     paddingVertical: 20,
   },
 });
+
+export const layoutStyles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+});

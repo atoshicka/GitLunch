@@ -1,7 +1,7 @@
+import { LoginForm } from '../../screens/login-screen/login-form';
 import { watchLogin } from './saga';
 import { selectors } from './selectors';
 import { actions, name, reducer } from './slice';
-import { LoginForm } from './ui/login-form';
 import { validateLoginForm } from './utils';
 
 export const LoginFeature = {
