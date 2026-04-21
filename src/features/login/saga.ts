@@ -39,7 +39,7 @@ function* handleSubmitLogin(apiService: ApiService) {
           apiService,
           apiService.getRestaurantProfile,
         ]);
-        console.log('RESTAURANT PROFILE:', JSON.stringify(profile, null, 2));
+        yield put(actions.setRestaurantName(profile.name ?? null));
         yield put(actions.setRestaurantDescription(profile.description ?? null));
       } catch (e) {
         console.log('RESTAURANT PROFILE ERROR:', e);
@@ -85,6 +85,7 @@ function* handleRestoreSession(apiService: ApiService) {
           apiService,
           apiService.getRestaurantProfile,
         ]);
+        yield put(actions.setRestaurantName(profile.name ?? null));
         yield put(actions.setRestaurantDescription(profile.description ?? null));
       } catch {}
     }

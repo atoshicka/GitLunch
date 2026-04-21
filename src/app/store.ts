@@ -1,7 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
-import { createApiService } from '../entities/api/api-interface';
-import { api } from '../entities/api/axios-config';
 import {
   CartFeature,
   DishModalFeature,
@@ -13,11 +11,7 @@ import {
 } from '../features';
 import { rootSaga } from './saga';
 
-const apiService = createApiService(api);
-
-const sagaMiddleware = createSagaMiddleware({
-  context: { apiService },
-});
+const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
   reducer: {

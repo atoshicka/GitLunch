@@ -5,6 +5,7 @@ const initialState: LoginState = {
   login: '',
   password: '',
   userName: null,
+  restaurantName: null,
   role: null,
   restaurantDescription: null,
   errors: {},
@@ -52,10 +53,14 @@ export const { name, actions, reducer } = createSlice({
     setRestaurantDescription: (state, action: PayloadAction<string | null>) => {
       state.restaurantDescription = action.payload;
     },
+    setRestaurantName: (state, action: PayloadAction<string | null>) => {
+      state.restaurantName = action.payload;
+    },
     logoutRequest: () => {},
     logout: (state) => {
       state.isAuthenticated = false;
       state.userName = null;
+      state.restaurantName = null;
       state.role = null;
       state.restaurantDescription = null;
       state.token = null;
@@ -76,6 +81,7 @@ export const { name, actions, reducer } = createSlice({
       state.isAuthenticated = false;
       state.token = null;
       state.userName = null;
+      state.restaurantName = null;
       state.role = null;
       state.restaurantDescription = null;
       state.isRestoring = false;

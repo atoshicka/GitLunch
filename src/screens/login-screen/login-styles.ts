@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { AgbalumoTypography } from '../../../shared/fontsFile/agbalumoFonts';
+import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
 
 export const styles = StyleSheet.create({
   container: {
