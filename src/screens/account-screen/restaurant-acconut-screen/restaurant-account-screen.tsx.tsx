@@ -1,44 +1,35 @@
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch } from 'react-redux';
-import { RootStackParamList } from '../../../app/navigation/navigation-types.ts';
-import { LoginFeature } from '../../../features/login/index.ts';
-import { Images } from '../../../shared/constants/images.ts';
-import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar.tsx';
+import { useDispatch, useSelector } from 'react-redux';
+import { LoginFeature } from '../../../features/login';
+import { Images } from '../../../shared/constants/images';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../../shared/TabBar/TabBar';
 import { styles } from './restaurant-account-styles.ts';
 
 const RESTAURANT_MENU_ITEMS = [
-  { id: '1', title: 'Меню' },
+  { id: '1', title: 'Наше меню' },
   { id: '2', title: 'Поддержка' },
   { id: '3', title: 'Уведомления' },
   { id: '4', title: 'О сервисе' },
 ] as const;
 
 type RestaurantMenuItemTitle = (typeof RESTAURANT_MENU_ITEMS)[number]['title'];
-type RestaurantAccountScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
 const SubtractIcon = Images.home.wave;
+const SettingsIcon = Images.account.setting;
+const AccountIcon = Images.navigation.account;
 
 export const RestaurantAccountScreen: React.FC = () => {
-  const navigation = useNavigation<RestaurantAccountScreenNavigationProp>();
   const dispatch = useDispatch();
+  const restaurantName = useSelector(LoginFeature.selectors.selectUserName);
+  const restaurantDescription = useSelector(LoginFeature.selectors.selectRestaurantDescription);
 
-  // мок
-  const restaurantName = 'Цезарь';
-  const restaurantDescription = 'Каждый день разное меню';
-
-  const handleSettingsPress = () => {
+  const handleSettingsPress = useCallback(() => {
     console.log('Настройки');
-  };
+  }, []);
 
-  const handleBackPress = () => {
-    navigation.goBack();
-  };
-
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     Alert.alert(
       'Выход из аккаунта',
       'Вы уверены, что хотите выйти?',
@@ -47,22 +38,16 @@ export const RestaurantAccountScreen: React.FC = () => {
         {
           text: 'Да',
           style: 'destructive',
-          onPress: () => {
-            dispatch(LoginFeature.actions.logoutRequest());
-          },
+          onPress: () => dispatch(LoginFeature.actions.logoutRequest()),
         },
       ],
       { cancelable: true }
     );
-  };
+  }, [dispatch]);
 
-  const handleMenuItemPress = (itemTitle: RestaurantMenuItemTitle) => {
-    // заглушка
+  const handleMenuItemPress = useCallback((itemTitle: RestaurantMenuItemTitle) => {
     console.log(`Нажат пункт: ${itemTitle}`);
-  };
-
-  const SettingsIcon = Images.account.setting;
-  const AccountIcon = Images.navigation.account;
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -74,9 +59,7 @@ export const RestaurantAccountScreen: React.FC = () => {
 
       <SafeAreaView edges={['top']} style={styles.waveContent}>
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.topBarButton} onPress={handleBackPress}>
-            <Text style={styles.backButtonText}>‹</Text>
-          </TouchableOpacity>
+          <View style={styles.topBarButton} />
           <Text style={styles.brandTitle}>GitLunch</Text>
           <TouchableOpacity style={styles.topBarButton} onPress={handleSettingsPress}>
             <SettingsIcon width={26} height={26} fill="#1F2937" />
@@ -95,8 +78,11 @@ export const RestaurantAccountScreen: React.FC = () => {
               <AccountIcon width={80} height={80} />
             </View>
           </View>
-          <Text style={styles.userName}>{restaurantName}</Text>
-          <Text style={styles.userDescription}>{restaurantDescription}</Text>
+
+          <Text style={styles.userName}>{restaurantName ?? 'Ресторан'}</Text>
+          {restaurantDescription ? (
+            <Text style={styles.userDescription}>{restaurantDescription}</Text>
+          ) : null}
 
           <View style={styles.menuBlock}>
             {RESTAURANT_MENU_ITEMS.map((item) => (

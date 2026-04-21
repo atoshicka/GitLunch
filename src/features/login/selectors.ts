@@ -8,22 +8,26 @@ interface State {
 
 const root = (state: State) => state[name];
 
-const selectLogin = createSelector(root, (loginSlice) => loginSlice.login);
-const selectPassword = createSelector(root, (loginSlice) => loginSlice.password);
-const selectUserName = createSelector(root, (loginSlice) => loginSlice.userName);
-const selectErrors = createSelector(root, (loginSlice) => loginSlice.errors);
-const selectLoginError = createSelector(root, (loginSlice) => loginSlice.errors.login);
-const selectPasswordError = createSelector(root, (loginSlice) => loginSlice.errors.password);
-const selectGeneralError = createSelector(root, (loginSlice) => loginSlice.errors.general);
-const selectIsLoading = createSelector(root, (loginSlice) => loginSlice.isLoading);
-const selectIsAuthenticated = createSelector(root, (loginSlice) => loginSlice.isAuthenticated);
-const selectToken = createSelector(root, (loginSlice) => loginSlice.token);
-const selectIsRestoring = createSelector(root, (loginSlice) => loginSlice.isRestoring);
+const selectLogin = createSelector(root, (s) => s.login);
+const selectPassword = createSelector(root, (s) => s.password);
+const selectUserName = createSelector(root, (s) => s.userName);
+const selectRole = createSelector(root, (s) => s.role);
+const selectRestaurantDescription = createSelector(root, (s) => s.restaurantDescription);
+const selectErrors = createSelector(root, (s) => s.errors);
+const selectLoginError = createSelector(root, (s) => s.errors.login);
+const selectPasswordError = createSelector(root, (s) => s.errors.password);
+const selectGeneralError = createSelector(root, (s) => s.errors.general);
+const selectIsLoading = createSelector(root, (s) => s.isLoading);
+const selectIsAuthenticated = createSelector(root, (s) => s.isAuthenticated);
+const selectToken = createSelector(root, (s) => s.token);
+const selectIsRestoring = createSelector(root, (s) => s.isRestoring);
 
 export const selectors = {
   selectLogin,
   selectPassword,
   selectUserName,
+  selectRole,
+  selectRestaurantDescription,
   selectErrors,
   selectLoginError,
   selectPasswordError,

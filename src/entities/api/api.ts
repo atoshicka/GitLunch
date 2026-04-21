@@ -35,6 +35,7 @@ export const API_ENDPOINTS = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   PROFILE: '/users/profile',
+  RESTAURANT_PROFILE: '/restaurant/profile',
 
   CART: '/cart',
   CART_ITEMS: '/cart/items',

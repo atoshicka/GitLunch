@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { LoginResponse } from '../../entities/api/types/login-types';
 import { API_ENDPOINTS } from './api';
 import {
@@ -16,6 +16,7 @@ import {
   CreateOrderPayload,
   CreateOrderResponse,
 } from './types/order-types';
+import { BackendRestaurantProfile } from './types/restaurant-types';
 
 export const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
 
@@ -170,6 +171,11 @@ export const createApiService = (api: AxiosInstance) => ({
     return response.data;
   },
 
+  async getRestaurantProfile(): Promise<BackendRestaurantProfile> {
+    const response = await api.get<BackendRestaurantProfile>(API_ENDPOINTS.RESTAURANT_PROFILE);
+    return response.data;
+  },
+
   async getCart(): Promise<BackendCartResponse> {
     const response = await api.get<BackendCartResponse>(API_ENDPOINTS.CART);
     return response.data;
@@ -225,3 +231,13 @@ export const createApiService = (api: AxiosInstance) => ({
 });
 
 export type ApiService = ReturnType<typeof createApiService>;
+
+export const axiosInstance = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
+});
+
+export const apiService = createApiService(axiosInstance);
