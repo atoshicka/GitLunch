@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CreateOrderPayload, OrderStatus } from '../../entities/api/types/order-types';
-import { Order, OrdersState } from './types';
+import { OrderStatus } from '../../entities/api/types/order-types';
+import { CreateOrderPayload, Order, OrdersState } from './types';
 
 const initialState: OrdersState = {
   orders: [],
@@ -18,7 +18,6 @@ export const { name, actions, reducer } = createSlice({
     fetchOrders: () => {},
     fetchOrderDetails: (_state, _action: PayloadAction<number>) => {},
     createOrder: (_state, _action: PayloadAction<CreateOrderPayload>) => {},
-    confirmPickup: (_state, _action: PayloadAction<number>) => {},
     pollOrderStatus: (_state, _action: PayloadAction<number>) => {},
     destroyAllOrders: () => {},
 
@@ -87,17 +86,6 @@ export const { name, actions, reducer } = createSlice({
       state.error = action.payload;
     },
 
-    updateOrderItems: (
-      state,
-      action: PayloadAction<{ orderId: number; items: Order['items']; totalAmount: number }>
-    ) => {
-      const order = state.orders.find((o) => o.id === action.payload.orderId);
-      if (order) {
-        order.items = action.payload.items;
-        order.totalAmount = action.payload.totalAmount;
-      }
-    },
-
     updateOrderStatus: (
       state,
       action: PayloadAction<{ orderId: number; status: OrderStatus; statusLabel: string }>
@@ -109,18 +97,6 @@ export const { name, actions, reducer } = createSlice({
         order.statusLabel = statusLabel;
       }
       state.localStatuses[orderId] = { status, statusLabel };
-    },
-
-    confirmPickupSuccess: (state, action: PayloadAction<number>) => {
-      const order = state.orders.find((o) => o.id === action.payload);
-      if (order) {
-        order.status = 'delivered';
-        order.statusLabel = 'Выдан';
-      }
-      state.localStatuses[action.payload] = { status: 'delivered', statusLabel: 'Выдан' };
-    },
-    confirmPickupFailure: (state, action: PayloadAction<string>) => {
-      state.error = action.payload;
     },
 
     removeOrder: (state, action: PayloadAction<number>) => {

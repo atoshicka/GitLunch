@@ -1,5 +1,7 @@
 import { OrderStatus } from '../../entities/api/types/order-types';
 
+export type { OrderStatus };
+
 export interface OrderItem {
   id: string;
   menuItemId: number;

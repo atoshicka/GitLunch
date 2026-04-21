@@ -5,8 +5,8 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LoginForm } from '../../features/login/ui/login-form';
-import { RestaurantAccountScreen } from '../../screens/account-screen/restaurant-acconut-screen/restaurant-account-screen.tsx';
 import { BasketScreen } from '../../screens/basket-screen/basket-screen';
+import { RestaurantAccountScreen } from '../../screens/restaurant-acconut-screen/restaurant-account-screen.tsx.tsx';
 import { SearchScreen } from '../../screens/search-screen/search-screen';
 import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
 import { TabNavigator } from '../../shared/constants/TabNavigator';

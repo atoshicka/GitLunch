@@ -47,10 +47,7 @@ const formatDeliveryInfo = (deliveryInfo: string): string => {
 
     if (!isNaN(date.getTime())) {
       const dayIndex = date.getDay();
-
-      if (isWeekend(dayIndex)) {
-        return '';
-      }
+      if (isWeekend(dayIndex)) return '';
 
       const dayName = DAY_NAMES[dayIndex];
       const prefix = dayName === 'вторник' || dayName === 'среду' ? 'во' : 'в';
@@ -104,13 +101,6 @@ export const OrdersScreen: React.FC = () => {
     [dispatch]
   );
 
-  const handleConfirmPickup = useCallback(
-    (orderId: number) => {
-      dispatch(OrdersFeature.actions.confirmPickup(orderId));
-    },
-    [dispatch]
-  );
-
   const handleDestroyAll = useCallback(() => {
     Alert.alert('Удалить все заказы', 'Это действие нельзя отменить. Продолжить?', [
       { text: 'Отмена', style: 'cancel' },
@@ -130,13 +120,10 @@ export const OrdersScreen: React.FC = () => {
         const month = parseInt(parts[1], 10) - 1;
         const year = parseInt(parts[2], 10);
         const date = new Date(year, month, day);
-
-        if (isWeekend(date.getDay())) {
-          return null;
-        }
+        if (isWeekend(date.getDay())) return null;
       }
 
-      const isReady = item.status === 'ready';
+      const isDelivered = item.status === 'delivered';
 
       return (
         <LinearGradient
@@ -148,26 +135,16 @@ export const OrdersScreen: React.FC = () => {
         >
           <View style={styles.dateWrapper}>
             <Text style={styles.deliveryDateText}>
-              {item.deliveryInfo ? formatDeliveryInfo(item.deliveryInfo) : ''}
+              {isDelivered
+                ? 'Доставлено'
+                : item.deliveryInfo
+                  ? formatDeliveryInfo(item.deliveryInfo)
+                  : ''}
             </Text>
             <TouchableOpacity onPress={() => handleQrPress(item.id)} style={styles.qrCircle}>
               <MinQRCode width={20} height={20} />
             </TouchableOpacity>
           </View>
-
-          {item.status !== 'pending' && (
-            <View
-              style={[styles.statusBadge, { backgroundColor: isReady ? '#22C55E20' : '#94A3B820' }]}
-            >
-              <View
-                style={[styles.statusDot, { backgroundColor: isReady ? '#22C55E' : '#94A3B8' }]}
-              />
-              <Text style={[styles.statusText, { color: isReady ? '#22C55E' : '#64748B' }]}>
-                {item.statusLabel}
-              </Text>
-            </View>
-          )}
-
           {item.items && item.items.length > 0 ? (
             <View style={styles.itemsContainer}>
               {item.items.map((orderItem) => (
@@ -189,24 +166,13 @@ export const OrdersScreen: React.FC = () => {
               </Text>
             </View>
           )}
-
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Итого: {item.totalAmount} ₽</Text>
           </View>
-
-          {isReady && (
-            <TouchableOpacity
-              style={styles.pickupButton}
-              onPress={() => handleConfirmPickup(item.id)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.pickupButtonText}>Я забрал заказ ✓</Text>
-            </TouchableOpacity>
-          )}
         </LinearGradient>
       );
     },
-    [MinQRCode, handleConfirmPickup, handleQrPress]
+    [MinQRCode, handleQrPress]
   );
 
   return (
