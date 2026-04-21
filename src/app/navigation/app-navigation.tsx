@@ -1,3 +1,4 @@
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { ScrollView, View } from 'react-native';
@@ -9,11 +10,12 @@ import { BasketScreen } from '../../screens/basket-screen/basket-screen';
 import { SearchScreen } from '../../screens/search-screen/search-screen';
 import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
 import { TabNavigator } from '../../shared/constants/TabNavigator';
+import { CustomTabBar } from '../../shared/TabBar/TabBar';
 import { authStyles } from './navigation-styles';
 
 const AuthStack = createNativeStackNavigator();
 const ClientStack = createNativeStackNavigator();
-const RestaurantStack = createNativeStackNavigator();
+const RestaurantTab = createBottomTabNavigator();
 
 export const AuthNavigator: React.FC = () => {
   return (
@@ -51,11 +53,14 @@ export const ClientNavigator: React.FC = () => {
 
 export const RestaurantNavigator: React.FC = () => {
   return (
-    <RestaurantStack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
-      <RestaurantStack.Screen
+    <RestaurantTab.Navigator
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
+      <RestaurantTab.Screen
         name={SCREEN_NAMES.RESTAURANT_MAIN}
         component={RestaurantAccountScreen}
       />
-    </RestaurantStack.Navigator>
+    </RestaurantTab.Navigator>
   );
 };

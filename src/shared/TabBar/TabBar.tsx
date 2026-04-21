@@ -4,7 +4,7 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
 import { Images } from '../constants/images';
-import { TAB_NAMES, TabName } from '../constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../constants/navigation';
 import { styles } from './tab-bar-styles';
 
 const { width } = Dimensions.get('window');
@@ -57,15 +57,16 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
     [navigation, state.routes]
   );
 
-  const currentRouteName = state.routes[state.index].name as TabName;
+  const currentRouteName = state.routes[state.index].name;
 
   if (currentRouteName === TAB_NAMES.BASKET) return null;
 
-  const SPECIAL_SCREENS: TabName[] = [
+  const SPECIAL_SCREENS: string[] = [
     TAB_NAMES.ACCOUNT,
     TAB_NAMES.ORDERS,
     TAB_NAMES.PAYMENT,
     TAB_NAMES.SUCCESS,
+    SCREEN_NAMES.RESTAURANT_MAIN,
   ];
 
   const isSpecialScreen = SPECIAL_SCREENS.includes(currentRouteName);
@@ -74,7 +75,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
     (MAIN_TABS as readonly string[]).includes(name);
 
   if (isMainTab(currentRouteName)) {
-    previousMainTab.current = currentRouteName;
+    previousMainTab.current = currentRouteName as MainTabName;
   }
 
   const getLayout = (): TabLayout => {
