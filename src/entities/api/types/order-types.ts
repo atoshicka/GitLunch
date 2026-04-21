@@ -1,19 +1,5 @@
-export type OrderStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'preparing'
-  | 'ready'
-  | 'delivered'
-  | 'cancelled';
-
-export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
-  pending: 'Ожидает',
-  confirmed: 'Подтверждён',
-  preparing: 'Готовится',
-  ready: 'Готов к получению',
-  delivered: 'Выдан',
-  cancelled: 'Отменён',
-};
+// ✅ Единственный источник типов для заказов
+export type OrderStatus = 'pending' | 'delivered';
 
 export interface BackendOrderItem {
   id: number;
@@ -56,6 +42,12 @@ export interface CreateOrderPayload {
   selected_dates?: string[];
 }
 
+export interface CreateOrderResponse {
+  message: string;
+  orders: BackendOrder[];
+}
+
+// ✅ Оставляем для совместимости с api-interface, но не используем в бизнес-логике
 export interface CancelOrderResponse {
   message: string;
   order: BackendOrder;
@@ -63,9 +55,4 @@ export interface CancelOrderResponse {
 
 export interface ConfirmPickupResponse {
   message: string;
-}
-
-export interface CreateOrderResponse {
-  message: string;
-  orders: BackendOrder[];
 }

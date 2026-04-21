@@ -12,30 +12,14 @@ import { selectors } from './selectors';
 import { actions } from './slice';
 import { CreateOrderPayload, Order, OrderItem, OrdersState } from './types';
 
-const STATUS_MAP: Record<number, OrderStatus> = {
-  0: 'pending',
-  1: 'confirmed',
-  2: 'preparing',
-  3: 'ready',
-  4: 'delivered',
-  5: 'cancelled',
-};
-
 const normalizeStatus = (status: number | string): OrderStatus => {
-  if (typeof status === 'number') return STATUS_MAP[status] ?? 'pending';
-  const strMap: Record<string, OrderStatus> = {
-    pending: 'pending',
-    confirmed: 'confirmed',
-    preparing: 'preparing',
-    ready: 'ready',
-    delivered: 'delivered',
-    cancelled: 'cancelled',
-  };
-  return strMap[status] ?? 'pending';
+  const num = typeof status === 'string' ? parseInt(status, 10) : status;
+  if (num === 4) return 'delivered';
+  if (status === 'delivered') return 'delivered';
+  return 'pending';
 };
 
-const isTerminalOrReady = (status: OrderStatus) =>
-  status === 'ready' || status === 'delivered' || status === 'cancelled';
+const isTerminal = (status: OrderStatus): boolean => status === 'delivered';
 
 const mapBackendOrder = (order: BackendOrder): Order => ({
   id: order.id,
@@ -93,13 +77,12 @@ function* fetchOrdersSaga(apiService: ApiService) {
       yield put(actions.fetchOrdersSuccess(backendOrders.map(mapBackendOrder)));
 
       const activeOrders: Order[] = yield select(selectors.selectOrders);
-      const toPool = activeOrders.filter((o) => o.id && !isTerminalOrReady(o.status)).slice(0, 3);
+      const toPool = activeOrders.filter((o) => o.id && !isTerminal(o.status)).slice(0, 3);
 
       for (const order of toPool) {
         yield put(actions.pollOrderStatus(order.id));
       }
     } catch (fetchError: unknown) {
-      console.error('fetchOrdersSaga fetch error:', fetchError);
       const message = fetchError instanceof Error ? fetchError.message : 'Ошибка загрузки заказов';
       yield put(actions.fetchOrdersFailure(message));
     }
@@ -117,7 +100,6 @@ function* fetchOrderDetailsSaga(apiService: ApiService, action: PayloadAction<nu
     );
     yield put(actions.fetchOrderDetailsSuccess(mapBackendOrder(backendOrder)));
   } catch (error: unknown) {
-    console.error('fetchOrderDetailsSaga error:', error);
     const message = error instanceof Error ? error.message : 'Ошибка загрузки деталей заказа';
     yield put(actions.fetchOrderDetailsFailure(message));
   }
@@ -132,20 +114,18 @@ function* createOrderSaga(apiService: ApiService, action: PayloadAction<CreateOr
       action.payload
     );
 
-    console.log('CREATE ORDER RESPONSE:', JSON.stringify(response, null, 2));
-    console.log('CREATE ORDER PAYLOAD:', JSON.stringify(action.payload, null, 2));
-
     if (!response.orders || response.orders.length === 0) {
       yield put(actions.createOrderFailure('Не удалось получить данные заказов'));
       return;
     }
+
     for (const backendOrder of response.orders) {
       const order = mapBackendOrder(backendOrder);
       yield put(actions.createOrderSuccess(order));
       yield call(savePersistedState);
       yield put(actions.setOrderLocalStart(order.id));
 
-      if (!isTerminalOrReady(order.status)) {
+      if (!isTerminal(order.status)) {
         yield put(actions.pollOrderStatus(order.id));
       }
     }
@@ -163,7 +143,7 @@ function* pollOrderStatusSaga(apiService: ApiService, action: PayloadAction<numb
 
     const freshOrders: Order[] = yield select(selectors.selectOrders);
     const freshOrder = freshOrders.find((o) => o.id === orderId);
-    if (!freshOrder || isTerminalOrReady(freshOrder.status)) return;
+    if (!freshOrder || isTerminal(freshOrder.status)) return;
 
     try {
       const statusData: BackendOrderStatus = yield call(
@@ -179,27 +159,10 @@ function* pollOrderStatusSaga(apiService: ApiService, action: PayloadAction<numb
         })
       );
       yield call(savePersistedState);
-      if (isTerminalOrReady(realStatus)) return;
+      if (isTerminal(realStatus)) return;
     } catch (error: unknown) {
       if (getHttpStatus(error) === 404) return;
     }
-  }
-}
-
-function* confirmPickupSaga(apiService: ApiService, action: PayloadAction<number>) {
-  try {
-    yield call([apiService, apiService.confirmPickup], action.payload);
-    yield put(actions.confirmPickupSuccess(action.payload));
-    yield call(savePersistedState);
-  } catch (error: unknown) {
-    const httpStatus = getHttpStatus(error);
-    const message =
-      httpStatus === 422
-        ? 'Заказ ещё не готов к выдаче'
-        : error instanceof Error
-          ? error.message
-          : 'Ошибка подтверждения получения';
-    yield put(actions.confirmPickupFailure(message));
   }
 }
 
@@ -223,7 +186,6 @@ export function* watchOrders(apiService: ApiService) {
   yield takeEvery(actions.fetchOrderDetails.type, fetchOrderDetailsSaga, apiService);
   yield takeEvery(actions.createOrder.type, createOrderSaga, apiService);
   yield takeEvery(actions.pollOrderStatus.type, pollOrderStatusSaga.bind(null, apiService));
-  yield takeEvery(actions.confirmPickup.type, confirmPickupSaga.bind(null, apiService));
   yield takeEvery(actions.removeOrder.type, removeOrderSaga);
   yield takeLatest(actions.destroyAllOrders.type, destroyAllOrdersSaga, apiService);
 }

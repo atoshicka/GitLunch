@@ -18,7 +18,19 @@ export const ordersPersistence = {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
       if (!raw) return defaultState;
-      return JSON.parse(raw) as PersistedOrdersState;
+      const parsed = JSON.parse(raw) as PersistedOrdersState;
+
+      const sanitizedStatuses: PersistedOrdersState['localStatuses'] = {};
+      for (const [key, value] of Object.entries(parsed.localStatuses ?? {})) {
+        const raw = value.status as string;
+        const status: OrderStatus = raw === 'delivered' ? 'delivered' : 'pending';
+        sanitizedStatuses[Number(key)] = { status, statusLabel: value.statusLabel };
+      }
+
+      return {
+        removedOrderIds: parsed.removedOrderIds ?? [],
+        localStatuses: sanitizedStatuses,
+      };
     } catch {
       return defaultState;
     }

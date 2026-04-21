@@ -22,7 +22,7 @@ const AppContent: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isAuthenticated && userRole === 'client') {
+    if (isAuthenticated && userRole === 'student') {
       dispatch(CartFeature.actions.fetchCart());
       dispatch(OrdersFeature.actions.fetchOrders());
     }
@@ -76,7 +76,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <NavigationContainer key="client">
+    <NavigationContainer key="student">
       <View style={{ flex: 1 }}>
         <ClientNavigator />
         <DishModal />
