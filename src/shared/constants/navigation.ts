@@ -14,6 +14,7 @@ export const SCREEN_NAMES = {
   ORDERS: 'Orders',
   PAYMENT: 'Payment',
   SUCCESS: 'Success',
+  RESTAURANT_MAIN: 'RestaurantAccount',
 } as const;
 
 export type TabName = (typeof TAB_NAMES)[keyof typeof TAB_NAMES];
