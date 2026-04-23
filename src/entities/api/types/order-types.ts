@@ -1,4 +1,4 @@
-export type OrderStatus = 'pending' | 'delivered';
+export type OrderStatus = 'pending' | 'ready' | 'delivered';
 
 export interface BackendOrderItem {
   id: number;
@@ -20,6 +20,7 @@ export interface BackendOrder {
   delivery_address?: string;
   items_count: number;
   created_at: string;
+  updated_at: string;
   cancelled_at?: string;
   items?: BackendOrderItem[];
   pickup_code?: string;

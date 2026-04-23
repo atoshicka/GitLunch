@@ -23,6 +23,7 @@ export interface Order {
   deliveryAddress?: string;
   itemsCount: number;
   createdAt: string;
+  updatedAt: string;
   cancelledAt?: string;
   items: OrderItem[];
   localStartedAt?: number;
@@ -32,9 +33,11 @@ export interface OrdersState {
   orders: Order[];
   removedOrderIds: number[];
   localStatuses: Record<number, { status: OrderStatus; statusLabel: string }>;
+  notifiedOrderIds: number[];
   isLoading: boolean;
   isCreating: boolean;
   error: string | null;
+  lastSyncAt: string | null;
 }
 
 export interface CreateOrderPayload {
