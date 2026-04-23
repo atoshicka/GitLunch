@@ -8,11 +8,11 @@ interface State {
 
 const root = (state: State) => state[name];
 
-const selectIsOpen = createSelector(root, (s) => s.isOpen);
-const selectDishId = createSelector(root, (s) => s.dishId);
-const selectDish = createSelector(root, (s) => s.dish);
-const selectIsLoading = createSelector(root, (s) => s.isLoading);
-const selectError = createSelector(root, (s) => s.error);
+const selectIsOpen = createSelector(root, (modal) => modal.isOpen);
+const selectDishId = createSelector(root, (modal) => modal.dishId);
+const selectDish = createSelector(root, (modal) => modal.dish);
+const selectIsLoading = createSelector(root, (modal) => modal.isLoading);
+const selectError = createSelector(root, (modal) => modal.error);
 
 export const selectors = {
   selectIsOpen,
