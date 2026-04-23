@@ -19,6 +19,7 @@ import { OrdersFeature } from '../../features/orders';
 import { Order } from '../../features/orders/types';
 import { Images } from '../../shared/constants/images';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
+import { showOrderDeliveredNotification } from '../../shared/utils/notifications';
 import { styles } from './orders-styles';
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
@@ -100,6 +101,10 @@ export const OrdersScreen: React.FC = () => {
     },
     [dispatch]
   );
+
+  const handleTestNotification = useCallback(() => {
+    showOrderDeliveredNotification('тест');
+  }, []);
 
   const handleDestroyAll = useCallback(() => {
     Alert.alert('Удалить все заказы', 'Это действие нельзя отменить. Продолжить?', [
@@ -188,10 +193,22 @@ export const OrdersScreen: React.FC = () => {
           <TouchableOpacity style={styles.topBarButton} onPress={() => navigation.goBack()}>
             <Text style={styles.backButtonText}>‹</Text>
           </TouchableOpacity>
+
           <Text style={styles.brandTitle}>GitLunch</Text>
-          <TouchableOpacity style={styles.topBarButton} onPress={handleDestroyAll}>
-            <Text style={{ color: '#EF4444', fontSize: 12 }}>DEL ALL</Text>
-          </TouchableOpacity>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {/* КНОПКА ТЕСТА */}
+            <TouchableOpacity
+              style={[styles.topBarButton, { marginRight: 12 }]}
+              onPress={handleTestNotification}
+            >
+              <Text style={{ fontSize: 18 }}>🔔</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.topBarButton} onPress={handleDestroyAll}>
+              <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: 'bold' }}>DEL ALL</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <Text style={styles.screenTitle}>Мои заказы</Text>
       </SafeAreaView>

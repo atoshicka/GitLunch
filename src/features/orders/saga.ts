@@ -18,6 +18,7 @@ import {
   CreateOrderResponse,
   OrderStatus,
 } from '../../entities/api/types/order-types';
+import { showOrderDeliveredNotification } from '../../shared/utils/notifications';
 import { actions as loginActions } from '../login/slice';
 import { ordersPersistence, PersistedOrdersState } from './orders-persistence';
 import { selectors } from './selectors';
@@ -161,6 +162,7 @@ function* pollOrderStatusSaga(apiService: ApiService, orderId: number) {
         orderId
       );
       const realStatus = normalizeStatus(statusData.status);
+
       yield put(
         actions.updateOrderStatus({
           orderId,
@@ -169,6 +171,13 @@ function* pollOrderStatusSaga(apiService: ApiService, orderId: number) {
         })
       );
       yield call(savePersistedState);
+
+      if (realStatus === 'delivered') {
+        // Показываем уведомление
+        yield call(showOrderDeliveredNotification, freshOrder.orderNumber);
+        return;
+      }
+
       if (isTerminal(realStatus)) return;
     } catch (error: unknown) {
       if (getHttpStatus(error) === 404 || getHttpStatus(error) === 401) return;

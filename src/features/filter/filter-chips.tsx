@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { LayoutChangeEvent, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { FilterChipsProps } from '../../app/navigation/navigation-types';
 import { styles } from './filter-chips-styles';
 
@@ -10,6 +10,19 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
   style,
   disableSort = false,
 }) => {
+  const scrollRef = useRef<ScrollView>(null);
+  const itemOffsets = useRef<Record<string, number>>({});
+
+  useEffect(() => {
+    const activeFilter = selectedFilters[0];
+    if (activeFilter && itemOffsets.current[activeFilter] !== undefined) {
+      scrollRef.current?.scrollTo({
+        x: Math.max(0, itemOffsets.current[activeFilter] - 16),
+        animated: true,
+      });
+    }
+  }, [selectedFilters]);
+
   const handlePress = useCallback(
     (filter: string) => {
       onSelectFilter(filter);
@@ -21,7 +34,6 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
     if (disableSort || !filters.length) {
       return filters;
     }
-
     return filters;
   }, [filters, disableSort]);
 
@@ -31,6 +43,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
 
   return (
     <ScrollView
+      ref={scrollRef}
       horizontal
       showsHorizontalScrollIndicator={false}
       style={[styles.container, style]}
@@ -39,7 +52,12 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
       {displayedFilters.map((filter) => {
         const isSelected = selectedFilters.includes(filter);
         return (
-          <View key={filter}>
+          <View
+            key={filter}
+            onLayout={(event: LayoutChangeEvent) => {
+              itemOffsets.current[filter] = event.nativeEvent.layout.x;
+            }}
+          >
             <TouchableOpacity
               style={[
                 styles.chip,

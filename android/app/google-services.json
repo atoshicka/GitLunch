@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "300401286389",
+    "project_id": "gitlunch",
+    "storage_bucket": "gitlunch.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300401286389:android:6dc778870aee16f73f79bc",
+        "android_client_info": {
+          "package_name": "com.gitlunch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFsk3Hq4EdaJcz1WciefjYPwWdWs7z6Ks"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

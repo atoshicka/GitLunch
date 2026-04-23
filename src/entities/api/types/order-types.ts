@@ -1,4 +1,3 @@
-// ✅ Единственный источник типов для заказов
 export type OrderStatus = 'pending' | 'delivered';
 
 export interface BackendOrderItem {
@@ -47,7 +46,6 @@ export interface CreateOrderResponse {
   orders: BackendOrder[];
 }
 
-// ✅ Оставляем для совместимости с api-interface, но не используем в бизнес-логике
 export interface CancelOrderResponse {
   message: string;
   order: BackendOrder;
