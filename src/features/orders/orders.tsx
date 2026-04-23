@@ -16,10 +16,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { OrdersFeature } from '../../features/orders';
-import { Order } from '../../features/orders/types';
+import { Order, OrderStatus } from '../../features/orders/types';
 import { Images } from '../../shared/constants/images';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
-import { showOrderDeliveredNotification } from '../../shared/utils/notifications';
+import { showOrderReadyNotification } from '../../shared/utils/notifications';
 import { styles } from './orders-styles';
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
@@ -36,9 +36,13 @@ const DAY_NAMES: Record<number, string> = {
 
 const isWeekend = (dayIndex: number): boolean => dayIndex === 0 || dayIndex === 6;
 
-const formatDeliveryInfo = (deliveryInfo: string): string => {
-  if (deliveryInfo === 'Доставлено') return 'Доставлено';
+const formatDeliveryInfo = (deliveryInfo: string | undefined, status: OrderStatus): string => {
+  if (!deliveryInfo) return '';
 
+  if (status === 'ready') return 'Готов к выдаче';
+  if (status === 'delivered') return 'Доставлен';
+
+  // pending — показываем дату
   const parts = deliveryInfo.split('.');
   if (parts.length === 3) {
     const day = parseInt(parts[0], 10);
@@ -103,7 +107,7 @@ export const OrdersScreen: React.FC = () => {
   );
 
   const handleTestNotification = useCallback(() => {
-    showOrderDeliveredNotification('тест');
+    showOrderReadyNotification('тест');
   }, []);
 
   const handleDestroyAll = useCallback(() => {
@@ -128,8 +132,6 @@ export const OrdersScreen: React.FC = () => {
         if (isWeekend(date.getDay())) return null;
       }
 
-      const isDelivered = item.status === 'delivered';
-
       return (
         <LinearGradient
           colors={['#F4F4F4', '#A8F0B5', '#86EFAC']}
@@ -140,15 +142,13 @@ export const OrdersScreen: React.FC = () => {
         >
           <View style={styles.dateWrapper}>
             <Text style={styles.deliveryDateText}>
-              {isDelivered
-                ? 'Доставлено'
-                : item.deliveryInfo
-                  ? formatDeliveryInfo(item.deliveryInfo)
-                  : ''}
+              {formatDeliveryInfo(item.deliveryInfo, item.status)}
             </Text>
-            <TouchableOpacity onPress={() => handleQrPress(item.id)} style={styles.qrCircle}>
-              <MinQRCode width={20} height={20} />
-            </TouchableOpacity>
+            {item.status !== 'delivered' && (
+              <TouchableOpacity onPress={() => handleQrPress(item.id)} style={styles.qrCircle}>
+                <MinQRCode width={20} height={20} />
+              </TouchableOpacity>
+            )}
           </View>
           {item.items && item.items.length > 0 ? (
             <View style={styles.itemsContainer}>
@@ -197,7 +197,6 @@ export const OrdersScreen: React.FC = () => {
           <Text style={styles.brandTitle}>GitLunch</Text>
 
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {/* КНОПКА ТЕСТА */}
             <TouchableOpacity
               style={[styles.topBarButton, { marginRight: 12 }]}
               onPress={handleTestNotification}

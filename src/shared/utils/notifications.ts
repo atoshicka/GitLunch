@@ -16,7 +16,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   return true;
 };
 
-export const showOrderDeliveredNotification = async (orderNumber: string): Promise<void> => {
+export const showOrderReadyNotification = async (orderNumber: string): Promise<void> => {
   const channelId = await notifee.createChannel({
     id: 'orders',
     name: 'Заказы',
@@ -24,8 +24,8 @@ export const showOrderDeliveredNotification = async (orderNumber: string): Promi
   });
 
   await notifee.displayNotification({
-    title: 'Заказ доставлен!',
-    body: `Ваш заказ №${orderNumber} доставлен. Заберите его сегодня в колледже.`,
+    title: 'Заказ готов!',
+    body: `Ваш заказ готов к получению. Заберите его сегодня в колледже.`,
     android: {
       channelId,
       importance: AndroidImportance.HIGH,

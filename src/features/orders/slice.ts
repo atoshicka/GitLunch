@@ -6,9 +6,11 @@ const initialState: OrdersState = {
   orders: [],
   removedOrderIds: [],
   localStatuses: {},
+  notifiedOrderIds: [],
   isLoading: false,
   isCreating: false,
   error: null,
+  lastSyncAt: null,
 };
 
 export const { name, actions, reducer } = createSlice({
@@ -18,7 +20,8 @@ export const { name, actions, reducer } = createSlice({
     fetchOrders: () => {},
     fetchOrderDetails: (_state, _action: PayloadAction<number>) => {},
     createOrder: (_state, _action: PayloadAction<CreateOrderPayload>) => {},
-    pollOrderStatus: (_state, _action: PayloadAction<number>) => {},
+    startGlobalPolling: () => {},
+    stopGlobalPolling: () => {},
     destroyAllOrders: () => {},
 
     restorePersistedState: (
@@ -26,10 +29,14 @@ export const { name, actions, reducer } = createSlice({
       action: PayloadAction<{
         removedOrderIds: number[];
         localStatuses: Record<number, { status: OrderStatus; statusLabel: string }>;
+        notifiedOrderIds: number[];
+        lastSyncAt: string | null;
       }>
     ) => {
       state.removedOrderIds = action.payload.removedOrderIds;
       state.localStatuses = action.payload.localStatuses;
+      state.notifiedOrderIds = action.payload.notifiedOrderIds;
+      state.lastSyncAt = action.payload.lastSyncAt;
     },
 
     fetchOrdersStart: (state) => {
@@ -99,6 +106,16 @@ export const { name, actions, reducer } = createSlice({
       state.localStatuses[orderId] = { status, statusLabel };
     },
 
+    markOrderAsNotified: (state, action: PayloadAction<number>) => {
+      if (!state.notifiedOrderIds.includes(action.payload)) {
+        state.notifiedOrderIds.push(action.payload);
+      }
+    },
+
+    setLastSyncAt: (state, action: PayloadAction<string>) => {
+      state.lastSyncAt = action.payload;
+    },
+
     removeOrder: (state, action: PayloadAction<number>) => {
       state.orders = state.orders.filter((o) => o.id !== action.payload);
       if (!state.removedOrderIds.includes(action.payload)) {
@@ -111,6 +128,8 @@ export const { name, actions, reducer } = createSlice({
       state.orders = [];
       state.removedOrderIds = [];
       state.localStatuses = {};
+      state.notifiedOrderIds = [];
+      state.lastSyncAt = null;
     },
     destroyAllOrdersFailure: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
