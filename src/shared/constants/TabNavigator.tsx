@@ -4,6 +4,7 @@ import React from 'react';
 import { OrdersScreen } from '../../features/orders/orders';
 import { AccountScreen } from '../../screens/account-screen/account-screen';
 import { BasketScreen } from '../../screens/basket-screen/basket-screen';
+import { ErrorScreen } from '../../screens/error-screen/error-screen';
 import { HomeScreen } from '../../screens/home-screen/home-screen';
 import { MenuScreen } from '../../screens/menu-screen/menu-screen';
 import { CustomTabBar } from '../TabBar/TabBar';
@@ -20,6 +21,7 @@ export type TabStackParamList = {
   [TAB_NAMES.ORDERS]: undefined;
   [TAB_NAMES.PAYMENT]: undefined;
   [TAB_NAMES.SUCCESS]: undefined;
+  [TAB_NAMES.ERROR]: undefined;
 };
 
 const Tab = createBottomTabNavigator<TabStackParamList>();
@@ -37,6 +39,7 @@ export const TabNavigator: React.FC = () => {
       <Tab.Screen name={TAB_NAMES.ACCOUNT} component={AccountScreen} />
       <Tab.Screen name={TAB_NAMES.PAYMENT} component={PaymentScreen} />
       <Tab.Screen name={TAB_NAMES.SUCCESS} component={SuccessScreen} />
+      <Tab.Screen name={TAB_NAMES.ERROR} component={ErrorScreen} />
     </Tab.Navigator>
   );
 };

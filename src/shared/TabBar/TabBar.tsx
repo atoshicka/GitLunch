@@ -66,6 +66,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
     TAB_NAMES.ORDERS,
     TAB_NAMES.PAYMENT,
     TAB_NAMES.SUCCESS,
+    TAB_NAMES.ERROR,
     SCREEN_NAMES.RESTAURANT_MAIN,
   ];
 

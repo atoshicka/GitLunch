@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +10,10 @@ import { CartFeature } from '../../features/cart';
 import { OrdersFeature } from '../../features/orders';
 import { Images } from '../../shared/constants/images';
 import { TAB_NAMES } from '../../shared/constants/navigation';
+import {
+  showOrderCreatedNotification,
+  showOrderErrorNotification,
+} from '../../shared/utils/notifications';
 import { paymentStyles } from './payment-screen-styles';
 
 type PaymentNavProp = NativeStackNavigationProp<RootStackParamList>;
@@ -26,15 +30,34 @@ export const PaymentScreen: React.FC = () => {
   const totalItems = useSelector(CartFeature.selectors.selectTotalItemsCount);
   const selectedDates = useSelector(CartFeature.selectors.selectSelectedDates);
   const isCreating = useSelector(OrdersFeature.selectors.selectIsCreating);
+  const error = useSelector(OrdersFeature.selectors.selectError);
 
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
 
+  const isPendingRef = useRef(false);
+
   const isFormValid = useMemo(
     () => cardNumber.length === 16 && expiry.length === 4 && cvc.length === 3,
     [cardNumber, expiry, cvc]
   );
+
+  useEffect(() => {
+    if (!isPendingRef.current) return;
+
+    if (isCreating) return;
+
+    isPendingRef.current = false;
+
+    if (error) {
+      showOrderErrorNotification();
+      navigation.navigate(TAB_NAMES.ERROR as never);
+    } else {
+      showOrderCreatedNotification();
+      navigation.navigate(TAB_NAMES.SUCCESS as never);
+    }
+  }, [isCreating, error, navigation]);
 
   const formatCardNumber = (text: string) =>
     text
@@ -58,9 +81,9 @@ export const PaymentScreen: React.FC = () => {
       return date;
     });
 
+    isPendingRef.current = true;
     dispatch(OrdersFeature.actions.createOrder({ selected_dates: isoSelectedDates }));
     dispatch(CartFeature.actions.clearSelectedDays(selectedDates));
-    navigation.navigate(TAB_NAMES.SUCCESS as never);
   };
 
   return (
