@@ -6,6 +6,7 @@ export const TAB_NAMES = {
   ORDERS: 'Orders',
   PAYMENT: 'Payment',
   SUCCESS: 'Success',
+  ERROR: 'Error',
 } as const;
 
 export const SCREEN_NAMES = {
@@ -14,6 +15,7 @@ export const SCREEN_NAMES = {
   ORDERS: 'Orders',
   PAYMENT: 'Payment',
   SUCCESS: 'Success',
+  ERROR: 'Error',
   RESTAURANT_MAIN: 'RestaurantAccount',
 } as const;
 
