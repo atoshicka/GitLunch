@@ -42,7 +42,6 @@ const formatDeliveryInfo = (deliveryInfo: string | undefined, status: OrderStatu
   if (status === 'ready') return 'Готов к выдаче';
   if (status === 'delivered') return 'Доставлен';
 
-  // pending — показываем дату
   const parts = deliveryInfo.split('.');
   if (parts.length === 3) {
     const day = parseInt(parts[0], 10);

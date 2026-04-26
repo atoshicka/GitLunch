@@ -212,7 +212,6 @@ export const createApiService = (api: AxiosInstance) => ({
     return response.data;
   },
 
-  // Запрашивает только заказы, у которых updated_at > since
   async getOrdersSince(since: string): Promise<BackendOrder[]> {
     const response = await api.get<BackendOrder[]>(API_ENDPOINTS.ORDERS, {
       params: { since },

@@ -8,20 +8,23 @@ interface State {
 
 const root = (state: State) => state[name];
 
-const selectLogin = createSelector(root, (s) => s.login);
-const selectPassword = createSelector(root, (s) => s.password);
-const selectUserName = createSelector(root, (s) => s.userName);
-const selectRestaurantName = createSelector(root, (s) => s.restaurantName);
-const selectRole = createSelector(root, (s) => s.role);
-const selectRestaurantDescription = createSelector(root, (s) => s.restaurantDescription);
-const selectErrors = createSelector(root, (s) => s.errors);
-const selectLoginError = createSelector(root, (s) => s.errors.login);
-const selectPasswordError = createSelector(root, (s) => s.errors.password);
-const selectGeneralError = createSelector(root, (s) => s.errors.general);
-const selectIsLoading = createSelector(root, (s) => s.isLoading);
-const selectIsAuthenticated = createSelector(root, (s) => s.isAuthenticated);
-const selectToken = createSelector(root, (s) => s.token);
-const selectIsRestoring = createSelector(root, (s) => s.isRestoring);
+const selectLogin = createSelector(root, (rootData) => rootData.login);
+const selectPassword = createSelector(root, (rootData) => rootData.password);
+const selectUserName = createSelector(root, (rootData) => rootData.userName);
+const selectRestaurantName = createSelector(root, (rootData) => rootData.restaurantName);
+const selectRole = createSelector(root, (rootData) => rootData.role);
+const selectRestaurantDescription = createSelector(
+  root,
+  (rootData) => rootData.restaurantDescription
+);
+const selectErrors = createSelector(root, (rootData) => rootData.errors);
+const selectLoginError = createSelector(root, (rootData) => rootData.errors.login);
+const selectPasswordError = createSelector(root, (rootData) => rootData.errors.password);
+const selectGeneralError = createSelector(root, (rootData) => rootData.errors.general);
+const selectIsLoading = createSelector(root, (rootData) => rootData.isLoading);
+const selectIsAuthenticated = createSelector(root, (rootData) => rootData.isAuthenticated);
+const selectToken = createSelector(root, (rootData) => rootData.token);
+const selectIsRestoring = createSelector(root, (rootData) => rootData.isRestoring);
 
 export const selectors = {
   selectLogin,
