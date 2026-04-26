@@ -21,7 +21,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     if (DEBUG) {
-      console.log(`🔗 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+      console.log(`API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
     }
     return config;
   },
@@ -31,7 +31,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     if (DEBUG) {
-      console.log(`✅ API Response: ${response.status} ${response.config.url}`);
+      console.log(`API Response: ${response.status} ${response.config.url}`);
     }
     return response;
   },
@@ -41,7 +41,7 @@ api.interceptors.response.use(
       const message = error.response?.data?.message ?? error.message;
 
       if (DEBUG) {
-        console.error(`❌ API Error [${status ?? 'NETWORK'}]: ${message}`);
+        console.error(`API Error [${status ?? 'NETWORK'}]: ${message}`);
       }
 
       if (status === 401) {
@@ -54,7 +54,7 @@ api.interceptors.response.use(
     }
 
     if (DEBUG) {
-      console.error(`❌ Network Error:`, error);
+      console.error(`Network Error:`, error);
     }
     return Promise.reject(error);
   }

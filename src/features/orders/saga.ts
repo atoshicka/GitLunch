@@ -105,19 +105,6 @@ function* fetchOrdersSaga(apiService: ApiService) {
 
     try {
       const backendOrders: BackendOrder[] = yield call([apiService, apiService.getOrders]);
-
-      console.log(
-        'RAW ORDERS:',
-        JSON.stringify(
-          backendOrders.map((o) => ({
-            id: o.id,
-            status: o.status,
-            status_label: o.status_label,
-            updated_at: o.updated_at,
-          }))
-        )
-      );
-
       const mappedOrders = backendOrders.map(mapBackendOrder);
       yield put(actions.fetchOrdersSuccess(mappedOrders));
 
@@ -129,7 +116,6 @@ function* fetchOrdersSaga(apiService: ApiService) {
         const oldStatus = lastKnownStatuses[order.id];
 
         if (!alreadyNotified && oldStatus === 'pending' && order.status === 'ready') {
-          console.log('🔔 Уведомление при загрузке для заказа', order.orderNumber);
           yield call(showOrderReadyNotification, order.orderNumber);
           yield put(actions.markOrderAsNotified(order.id));
         }
@@ -203,14 +189,11 @@ function* createOrderSaga(apiService: ApiService, action: PayloadAction<CreateOr
 }
 
 function* globalPollingWorker(apiService: ApiService) {
-  console.log('🔄 Глобальный поллинг запущен');
-
   while (true) {
     yield delay(POLL_INTERVAL);
 
     const activeOrders: Order[] = yield select(selectors.selectActiveOrders);
     if (activeOrders.length === 0) {
-      console.log('✅ Нет активных заказов, поллинг останавливается');
       return;
     }
 
@@ -221,10 +204,8 @@ function* globalPollingWorker(apiService: ApiService) {
 
       if (lastSyncAt && apiService.getOrdersSince) {
         updatedOrders = yield call([apiService, apiService.getOrdersSince], lastSyncAt);
-        console.log(`📡 Поллинг since ${lastSyncAt}: получено ${updatedOrders.length} заказов`);
       } else {
         updatedOrders = yield call([apiService, apiService.getOrders]);
-        console.log(`📡 Поллинг (full): получено ${updatedOrders.length} заказов`);
       }
 
       if (updatedOrders.length === 0) continue;
@@ -252,8 +233,6 @@ function* globalPollingWorker(apiService: ApiService) {
         }
 
         if (oldStatus !== newStatus) {
-          console.log(`📦 Заказ #${backendOrder.order_number}: ${oldStatus} → ${newStatus}`);
-
           yield put(
             actions.updateOrderStatus({
               orderId: backendOrder.id,
@@ -266,7 +245,6 @@ function* globalPollingWorker(apiService: ApiService) {
 
           const alreadyNotified = notifiedIds.has(backendOrder.id);
           if (oldStatus === 'pending' && newStatus === 'ready' && !alreadyNotified) {
-            console.log('🔔 Показываем уведомление для заказа', backendOrder.order_number);
             yield call(showOrderReadyNotification, backendOrder.order_number);
             yield put(actions.markOrderAsNotified(backendOrder.id));
             notifiedIds.add(backendOrder.id);
@@ -284,10 +262,9 @@ function* globalPollingWorker(apiService: ApiService) {
     } catch (error: unknown) {
       const httpStatus = getHttpStatus(error);
       if (httpStatus === 401) {
-        console.log('🚫 Поллинг: 401, останавливаемся');
         return;
       }
-      console.warn('⚠️ Поллинг ошибка:', error);
+      console.warn('Polling error:', error);
     }
   }
 }
@@ -314,7 +291,6 @@ function* globalPollingManagerSaga(apiService: ApiService) {
     if (globalPollingTask) {
       yield cancel(globalPollingTask);
       globalPollingTask = null;
-      console.log('⏹️ Глобальный поллинг остановлен');
     }
   }
 }
