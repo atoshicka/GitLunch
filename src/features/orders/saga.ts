@@ -1,5 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit';
-import { Task } from 'redux-saga';
+import { AxiosError } from 'axios';
+import { SagaIterator, Task } from 'redux-saga';
 import {
   call,
   cancel,
@@ -26,18 +27,14 @@ import { CreateOrderPayload, Order, OrdersState } from './types';
 
 const POLL_INTERVAL = __DEV__ ? 10_000 : 30_000;
 
-const normalizeStatus = (status: number | string): OrderStatus => {
+export const normalizeStatus = (status: number | string): OrderStatus => {
   const num = typeof status === 'string' ? parseInt(status, 10) : status;
   if (num === 1) return 'ready';
   if (num === 2) return 'delivered';
-  if (status === 'ready') return 'ready';
-  if (status === 'delivered') return 'delivered';
-  return 'pending';
+  return status === 'ready' || status === 'delivered' ? status : 'pending';
 };
 
-const isTerminal = (status: OrderStatus): boolean => status === 'delivered';
-
-const mapBackendOrder = (order: BackendOrder): Order => ({
+export const mapBackendOrder = (order: BackendOrder): Order => ({
   id: order.id,
   orderNumber: order.order_number,
   pickupCode: order.pickup_code,
@@ -62,24 +59,12 @@ const mapBackendOrder = (order: BackendOrder): Order => ({
   })),
 });
 
-function getHttpStatus(error: unknown): number | null {
-  if (error && typeof error === 'object') {
-    const r = (error as Record<string, unknown>).response;
-    if (r && typeof r === 'object') {
-      const status = (r as Record<string, unknown>).status;
-      if (typeof status === 'number') return status;
-    }
-  }
-  return null;
-}
-
-function* savePersistedState() {
+function* savePersistedState(): SagaIterator {
   const state: OrdersState = yield select((s: { orders: OrdersState }) => s.orders);
-
   const lastKnownStatuses: Record<number, OrderStatus> = {};
-  for (const order of state.orders) {
+  state.orders.forEach((order) => {
     lastKnownStatuses[order.id] = order.status;
-  }
+  });
 
   yield call(ordersPersistence.save, {
     removedOrderIds: state.removedOrderIds,
@@ -90,63 +75,56 @@ function* savePersistedState() {
   });
 }
 
-function* fetchOrdersSaga(apiService: ApiService) {
+export function* fetchOrdersSaga(apiService: ApiService): SagaIterator {
   try {
     yield put(actions.fetchOrdersStart());
     const persisted: PersistedOrdersState = yield call(ordersPersistence.load);
+
     yield put(
       actions.restorePersistedState({
-        removedOrderIds: persisted.removedOrderIds,
-        localStatuses: persisted.localStatuses,
-        notifiedOrderIds: persisted.notifiedOrderIds,
-        lastSyncAt: persisted.lastSyncAt,
+        removedOrderIds: persisted.removedOrderIds ?? [],
+        localStatuses: persisted.localStatuses ?? {},
+        notifiedOrderIds: persisted.notifiedOrderIds ?? [],
+        lastSyncAt: persisted.lastSyncAt ?? null,
       })
     );
 
     try {
       const backendOrders: BackendOrder[] = yield call([apiService, apiService.getOrders]);
-      const mappedOrders = backendOrders.map(mapBackendOrder);
+      const mappedOrders: Order[] = backendOrders.map(mapBackendOrder);
       yield put(actions.fetchOrdersSuccess(mappedOrders));
 
-      const notifiedIds: number[] = persisted.notifiedOrderIds ?? [];
-      const lastKnownStatuses = persisted.lastKnownStatuses ?? {};
+      const notifiedIds = persisted.notifiedOrderIds ?? [];
+      const lastKnown = persisted.lastKnownStatuses ?? {};
 
       for (const order of mappedOrders) {
-        const alreadyNotified = notifiedIds.includes(order.id);
-        const oldStatus = lastKnownStatuses[order.id];
-
-        if (!alreadyNotified && oldStatus === 'pending' && order.status === 'ready') {
+        if (
+          !notifiedIds.includes(order.id) &&
+          lastKnown[order.id] === 'pending' &&
+          order.status === 'ready'
+        ) {
           yield call(showOrderReadyNotification, order.orderNumber);
           yield put(actions.markOrderAsNotified(order.id));
         }
       }
 
-      if (backendOrders.length > 0) {
-        const latestUpdatedAt = backendOrders.reduce((max, o) => {
-          const t = o.updated_at ?? o.created_at ?? '';
-          return t > max ? t : max;
-        }, '');
-        if (latestUpdatedAt) {
-          yield put(actions.setLastSyncAt(latestUpdatedAt));
-        }
-      }
-
       yield call(savePersistedState);
-
       const activeOrders: Order[] = yield select(selectors.selectActiveOrders);
-      if (activeOrders.length > 0) {
-        yield put(actions.startGlobalPolling());
-      }
-    } catch (fetchError: unknown) {
-      const message = fetchError instanceof Error ? fetchError.message : 'Ошибка загрузки заказов';
+      if (activeOrders.length > 0) yield put(actions.startGlobalPolling());
+    } catch (e: unknown) {
+      if (e instanceof AxiosError && e.response?.status === 401) return;
+      const message = e instanceof Error ? e.message : 'Unknown error';
       yield put(actions.fetchOrdersFailure(message));
     }
-  } catch (error: unknown) {
-    console.error('fetchOrdersSaga outer error:', error);
+  } catch (err: unknown) {
+    console.error('fetchOrdersSaga critical error', err);
   }
 }
 
-function* fetchOrderDetailsSaga(apiService: ApiService, action: PayloadAction<number>) {
+export function* fetchOrderDetailsSaga(
+  apiService: ApiService,
+  action: PayloadAction<number>
+): SagaIterator {
   try {
     yield put(actions.fetchOrderDetailsStart());
     const backendOrder: BackendOrder = yield call(
@@ -154,169 +132,107 @@ function* fetchOrderDetailsSaga(apiService: ApiService, action: PayloadAction<nu
       action.payload
     );
     yield put(actions.fetchOrderDetailsSuccess(mapBackendOrder(backendOrder)));
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Ошибка загрузки деталей заказа';
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Ошибка загрузки деталей заказа';
     yield put(actions.fetchOrderDetailsFailure(message));
   }
 }
 
-function* createOrderSaga(apiService: ApiService, action: PayloadAction<CreateOrderPayload>) {
+export function* createOrderSaga(
+  apiService: ApiService,
+  action: PayloadAction<CreateOrderPayload>
+): SagaIterator {
   try {
     yield put(actions.createOrderStart());
-
     const response: CreateOrderResponse = yield call(
       [apiService, apiService.createOrder],
       action.payload
     );
 
-    if (!response.orders || response.orders.length === 0) {
-      yield put(actions.createOrderFailure('Не удалось получить данные заказов'));
-      return;
-    }
-
-    for (const backendOrder of response.orders) {
-      const order = mapBackendOrder(backendOrder);
-      yield put(actions.createOrderSuccess(order));
+    if (response.orders && response.orders.length > 0) {
+      for (const bOrder of response.orders) {
+        const order = mapBackendOrder(bOrder);
+        yield put(actions.createOrderSuccess(order));
+        yield put(actions.setOrderLocalStart(order.id));
+      }
       yield call(savePersistedState);
-      yield put(actions.setOrderLocalStart(order.id));
+      yield put(actions.startGlobalPolling());
+    } else {
+      yield put(actions.createOrderFailure('Не удалось получить данные заказов'));
     }
-
-    yield put(actions.startGlobalPolling());
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Ошибка создания заказа';
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Ошибка создания заказа';
     yield put(actions.createOrderFailure(message));
   }
 }
 
-function* globalPollingWorker(apiService: ApiService) {
+export function* globalPollingWorker(apiService: ApiService): SagaIterator {
   while (true) {
     yield delay(POLL_INTERVAL);
-
     const activeOrders: Order[] = yield select(selectors.selectActiveOrders);
-    if (activeOrders.length === 0) {
-      return;
-    }
+    if (activeOrders.length === 0) return;
 
     const lastSyncAt: string | null = yield select(selectors.selectLastSyncAt);
 
     try {
-      let updatedOrders: BackendOrder[];
-
-      if (lastSyncAt && apiService.getOrdersSince) {
-        updatedOrders = yield call([apiService, apiService.getOrdersSince], lastSyncAt);
-      } else {
-        updatedOrders = yield call([apiService, apiService.getOrders]);
-      }
+      const updatedOrders: BackendOrder[] =
+        lastSyncAt && apiService.getOrdersSince
+          ? yield call([apiService, apiService.getOrdersSince], lastSyncAt)
+          : yield call([apiService, apiService.getOrders]);
 
       if (updatedOrders.length === 0) continue;
 
-      const currentOrders: Order[] = yield select(selectors.selectOrders);
-      const currentOrderMap = new Map(currentOrders.map((o) => [o.id, o]));
-
       const state: OrdersState = yield select((s: { orders: OrdersState }) => s.orders);
-      const removedIds = new Set(state.removedOrderIds);
       const notifiedIds = new Set(state.notifiedOrderIds);
+      let latestTime = lastSyncAt ?? '';
 
-      let hasChanges = false;
-      let latestUpdatedAt = lastSyncAt ?? '';
+      for (const bOrder of updatedOrders) {
+        const newStatus = normalizeStatus(bOrder.status);
+        const orderTime = bOrder.updated_at ?? bOrder.created_at ?? '';
+        if (orderTime > latestTime) latestTime = orderTime;
 
-      for (const backendOrder of updatedOrders) {
-        if (removedIds.has(backendOrder.id)) continue;
+        yield put(
+          actions.updateOrderStatus({
+            orderId: bOrder.id,
+            status: newStatus,
+            statusLabel: bOrder.status_label,
+            deliveryInfo: bOrder.delivery_info,
+          })
+        );
 
-        const newStatus = normalizeStatus(backendOrder.status);
-        const currentOrder = currentOrderMap.get(backendOrder.id);
-        const oldStatus = currentOrder?.status;
-
-        const orderUpdatedAt = backendOrder.updated_at ?? backendOrder.created_at ?? '';
-        if (orderUpdatedAt > latestUpdatedAt) {
-          latestUpdatedAt = orderUpdatedAt;
-        }
-
-        if (oldStatus !== newStatus) {
-          yield put(
-            actions.updateOrderStatus({
-              orderId: backendOrder.id,
-              status: newStatus,
-              statusLabel: backendOrder.status_label,
-            })
-          );
-
-          hasChanges = true;
-
-          const alreadyNotified = notifiedIds.has(backendOrder.id);
-          if (oldStatus === 'pending' && newStatus === 'ready' && !alreadyNotified) {
-            yield call(showOrderReadyNotification, backendOrder.order_number);
-            yield put(actions.markOrderAsNotified(backendOrder.id));
-            notifiedIds.add(backendOrder.id);
-          }
+        if (newStatus === 'ready' && !notifiedIds.has(bOrder.id)) {
+          yield call(showOrderReadyNotification, bOrder.order_number);
+          yield put(actions.markOrderAsNotified(bOrder.id));
         }
       }
 
-      if (latestUpdatedAt && latestUpdatedAt !== lastSyncAt) {
-        yield put(actions.setLastSyncAt(latestUpdatedAt));
-      }
-
-      if (hasChanges) {
-        yield call(savePersistedState);
-      }
-    } catch (error: unknown) {
-      const httpStatus = getHttpStatus(error);
-      if (httpStatus === 401) {
-        return;
-      }
-      console.warn('Polling error:', error);
+      yield put(actions.setLastSyncAt(latestTime));
+      yield call(savePersistedState);
+    } catch (e: unknown) {
+      if (e instanceof AxiosError && e.response?.status === 401) return;
     }
   }
 }
 
-let globalPollingTask: Task | null = null;
+let pollingTask: Task | null = null;
 
-function* globalPollingManagerSaga(apiService: ApiService) {
+function* pollingManager(apiService: ApiService): SagaIterator {
   while (true) {
     yield take(actions.startGlobalPolling.type);
+    if (pollingTask) yield cancel(pollingTask);
+    pollingTask = yield fork(globalPollingWorker, apiService);
 
-    if (globalPollingTask) {
-      yield cancel(globalPollingTask);
-      globalPollingTask = null;
-    }
-
-    globalPollingTask = yield fork(globalPollingWorker, apiService);
-
-    yield take([
-      actions.stopGlobalPolling.type,
-      loginActions.logout.type,
-      loginActions.logoutRequest.type,
-    ]);
-
-    if (globalPollingTask) {
-      yield cancel(globalPollingTask);
-      globalPollingTask = null;
+    yield take([actions.stopGlobalPolling.type, loginActions.logout.type]);
+    if (pollingTask) {
+      yield cancel(pollingTask);
+      pollingTask = null;
     }
   }
 }
 
-function* removeOrderSaga() {
-  yield call(savePersistedState);
-}
-
-function* destroyAllOrdersSaga(apiService: ApiService) {
-  try {
-    yield call([apiService, apiService.destroyAllOrders]);
-    yield put(actions.destroyAllOrdersSuccess());
-    yield put(actions.stopGlobalPolling());
-    yield call(savePersistedState);
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Ошибка удаления заказов';
-    yield put(actions.destroyAllOrdersFailure(message));
-  }
-}
-
-export function* watchOrders(apiService: ApiService) {
-  yield fork(globalPollingManagerSaga, apiService);
-
+export function* watchOrders(apiService: ApiService): SagaIterator {
+  yield fork(pollingManager, apiService);
   yield takeLatest(actions.fetchOrders.type, fetchOrdersSaga, apiService);
   yield takeEvery(actions.fetchOrderDetails.type, fetchOrderDetailsSaga, apiService);
   yield takeEvery(actions.createOrder.type, createOrderSaga, apiService);
-  yield takeEvery(actions.removeOrder.type, removeOrderSaga);
-  yield takeLatest(actions.destroyAllOrders.type, destroyAllOrdersSaga, apiService);
 }

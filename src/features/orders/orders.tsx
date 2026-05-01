@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,7 +19,6 @@ import { OrdersFeature } from '../../features/orders';
 import { Order, OrderStatus } from '../../features/orders/types';
 import { Images } from '../../shared/constants/images';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
-import { showOrderReadyNotification } from '../../shared/utils/notifications';
 import { styles } from './orders-styles';
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
@@ -73,16 +72,19 @@ export const OrdersScreen: React.FC = () => {
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
+  const prevPickupCodeRef = useRef<string | undefined>(undefined);
+
   const MinQRCode = Images.account.minQRCode;
 
   useEffect(() => {
     dispatch(OrdersFeature.actions.fetchOrders());
   }, [dispatch]);
 
-  const prevError = React.useRef<string | null>(null);
+  const prevError = useRef<string | null>(null);
   useEffect(() => {
     if (error && error !== prevError.current) {
       Alert.alert('Ошибка', error);
+      setIsLoadingDetails(false);
     }
     prevError.current = error ?? null;
   }, [error]);
@@ -90,13 +92,23 @@ export const OrdersScreen: React.FC = () => {
   const selectedOrder = orders.find((o) => o.id === selectedOrderId);
 
   useEffect(() => {
-    if (selectedOrder?.pickupCode) {
+    if (!isLoadingDetails) return;
+    const pickupCode = selectedOrder?.pickupCode;
+    if (pickupCode && pickupCode !== prevPickupCodeRef.current) {
+      prevPickupCodeRef.current = pickupCode;
       setIsLoadingDetails(false);
     }
-  }, [selectedOrder?.pickupCode]);
+  }, [selectedOrder?.pickupCode, isLoadingDetails]);
+
+  const handleCloseModal = useCallback(() => {
+    setModalVisible(false);
+    setIsLoadingDetails(false);
+    prevPickupCodeRef.current = undefined;
+  }, []);
 
   const handleQrPress = useCallback(
     (orderId: number) => {
+      prevPickupCodeRef.current = undefined;
       setIsLoadingDetails(true);
       dispatch(OrdersFeature.actions.fetchOrderDetails(orderId));
       setSelectedOrderId(orderId);
@@ -104,10 +116,6 @@ export const OrdersScreen: React.FC = () => {
     },
     [dispatch]
   );
-
-  const handleTestNotification = useCallback(() => {
-    showOrderReadyNotification('тест');
-  }, []);
 
   const handleDestroyAll = useCallback(() => {
     Alert.alert('Удалить все заказы', 'Это действие нельзя отменить. Продолжить?', [
@@ -195,18 +203,9 @@ export const OrdersScreen: React.FC = () => {
 
           <Text style={styles.brandTitle}>GitLunch</Text>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity
-              style={[styles.topBarButton, { marginRight: 12 }]}
-              onPress={handleTestNotification}
-            >
-              <Text style={{ fontSize: 18 }}>🔔</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.topBarButton} onPress={handleDestroyAll}>
-              <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: 'bold' }}>DEL ALL</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.topBarButton} onPress={handleDestroyAll}>
+            <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: 'bold' }}>DEL ALL</Text>
+          </TouchableOpacity>
         </View>
         <Text style={styles.screenTitle}>Мои заказы</Text>
       </SafeAreaView>
@@ -237,14 +236,11 @@ export const OrdersScreen: React.FC = () => {
         animationType="fade"
         transparent
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={handleCloseModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <TouchableOpacity
-              style={styles.modalCloseButton}
-              onPress={() => setModalVisible(false)}
-            >
+            <TouchableOpacity style={styles.modalCloseButton} onPress={handleCloseModal}>
               <Text style={styles.modalCloseText}>✕</Text>
             </TouchableOpacity>
 
@@ -259,7 +255,7 @@ export const OrdersScreen: React.FC = () => {
                 <Text style={styles.modalQrText}>или этот QR-код</Text>
               </>
             ) : (
-              <Text style={styles.modalCodeText}>Код для получения: —</Text>
+              <Text style={styles.modalCodeText}>Код для получения недоступен</Text>
             )}
           </View>
         </View>

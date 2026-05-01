@@ -55,6 +55,7 @@
     "@react-native/eslint-config": "0.83.1",
     "@react-native/metro-config": "0.83.1",
     "@react-native/typescript-config": "0.83.1",
+    "@redux-saga/testing-utils": "^1.2.1",
     "@types/jest": "^29.5.13",
     "@types/react": "^19.2.0",
     "@types/react-native-vector-icons": "^6.4.18",
@@ -70,6 +71,7 @@
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "react-test-renderer": "19.2.0",
+    "redux-saga-test-plan": "^4.0.6",
     "typescript": "^5.8.3"
   },
   "engines": {

@@ -95,13 +95,21 @@ export const { name, actions, reducer } = createSlice({
 
     updateOrderStatus: (
       state,
-      action: PayloadAction<{ orderId: number; status: OrderStatus; statusLabel: string }>
+      action: PayloadAction<{
+        orderId: number;
+        status: OrderStatus;
+        statusLabel: string;
+        deliveryInfo?: string;
+      }>
     ) => {
-      const { orderId, status, statusLabel } = action.payload;
+      const { orderId, status, statusLabel, deliveryInfo } = action.payload;
       const order = state.orders.find((o) => o.id === orderId);
       if (order) {
         order.status = status;
         order.statusLabel = statusLabel;
+        if (deliveryInfo !== undefined) {
+          order.deliveryInfo = deliveryInfo;
+        }
       }
       state.localStatuses[orderId] = { status, statusLabel };
     },
