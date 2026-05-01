@@ -1,12 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError } from 'axios';
+import { SagaIterator } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api';
+import { api } from '../../entities/api/axios-config';
 import { BackendRestaurantProfile } from '../../entities/api/types/restaurant-types';
 import { LoginFeature } from './';
 import { actions } from './slice';
 
-function* handleSubmitLogin(apiService: ApiService) {
+function* handleSubmitLogin(apiService: ApiService): SagaIterator {
   try {
     const login: string = yield select(LoginFeature.selectors.selectLogin);
     const password: string = yield select(LoginFeature.selectors.selectPassword);
@@ -25,6 +27,8 @@ function* handleSubmitLogin(apiService: ApiService) {
     yield call([AsyncStorage, 'setItem'], 'token', result.token);
     yield call([AsyncStorage, 'setItem'], 'user', JSON.stringify(result.user));
 
+    api.defaults.headers.Authorization = `Bearer ${result.token}`;
+
     yield put(
       actions.loginSuccess({
         token: result.token,
@@ -41,8 +45,8 @@ function* handleSubmitLogin(apiService: ApiService) {
         ]);
         yield put(actions.setRestaurantName(profile.name ?? null));
         yield put(actions.setRestaurantDescription(profile.description ?? null));
-      } catch (e) {
-        console.log('RESTAURANT PROFILE ERROR:', e);
+      } catch (error) {
+        console.log('RESTAURANT PROFILE ERROR:', error);
       }
     }
   } catch (error: unknown) {
@@ -54,13 +58,14 @@ function* handleSubmitLogin(apiService: ApiService) {
   }
 }
 
-function* handleLogout() {
+function* handleLogout(): SagaIterator {
   yield call([AsyncStorage, 'removeItem'], 'token');
   yield call([AsyncStorage, 'removeItem'], 'user');
+  delete api.defaults.headers.Authorization;
   yield put(actions.logout());
 }
 
-function* handleRestoreSession(apiService: ApiService) {
+function* handleRestoreSession(apiService: ApiService): SagaIterator {
   try {
     const token: string | null = yield call([AsyncStorage, 'getItem'], 'token');
     const userJson: string | null = yield call([AsyncStorage, 'getItem'], 'user');
@@ -71,6 +76,19 @@ function* handleRestoreSession(apiService: ApiService) {
     }
 
     const user = JSON.parse(userJson);
+
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+
+    try {
+      if (user.role === 'admin') {
+        yield call([apiService, apiService.getRestaurantProfile]);
+      } else {
+        yield call([apiService, apiService.getOrders]);
+      }
+    } catch (error) {
+      throw error;
+    }
+
     yield put(
       actions.restoreSessionSuccess({
         token,
@@ -92,11 +110,12 @@ function* handleRestoreSession(apiService: ApiService) {
   } catch {
     yield call([AsyncStorage, 'removeItem'], 'token');
     yield call([AsyncStorage, 'removeItem'], 'user');
+    delete api.defaults.headers.Authorization;
     yield put(actions.restoreSessionFailure());
   }
 }
 
-export function* watchLogin(apiService: ApiService) {
+export function* watchLogin(apiService: ApiService): SagaIterator {
   yield takeLatest(actions.submitLogin.type, handleSubmitLogin, apiService);
   yield takeLatest(actions.logoutRequest.type, handleLogout);
   yield takeLatest(actions.restoreSession.type, handleRestoreSession, apiService);

@@ -12,6 +12,7 @@ import { AuthNavigator, ClientNavigator, RestaurantNavigator } from './app-navig
 
 export const RootNavigator: React.FC = () => {
   const dispatch = useDispatch();
+
   const isAuthenticated = useSelector(LoginFeature.selectors.selectIsAuthenticated);
   const isRestoring = useSelector(LoginFeature.selectors.selectIsRestoring);
   const userRole = useSelector(LoginFeature.selectors.selectRole);
@@ -31,19 +32,19 @@ export const RootNavigator: React.FC = () => {
     return <LoadingScreen />;
   }
 
-  if (!isAuthenticated) {
-    return (
-      <NavigationContainer key="auth">
-        <AuthNavigator />
-      </NavigationContainer>
-    );
-  }
-
   return (
-    <NavigationContainer key={userRole}>
+    <NavigationContainer key={userRole ?? 'guest'}>
       <View style={{ flex: 1 }}>
-        {userRole === 'admin' ? <RestaurantNavigator /> : <ClientNavigator />}
-        {userRole === 'student' && <DishModal />}
+        {userRole === 'admin' ? (
+          <RestaurantNavigator />
+        ) : isAuthenticated ? (
+          <>
+            <ClientNavigator />
+            <DishModal />
+          </>
+        ) : (
+          <AuthNavigator />
+        )}
       </View>
     </NavigationContainer>
   );

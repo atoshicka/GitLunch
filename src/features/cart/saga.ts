@@ -5,7 +5,6 @@ import { actions } from './slice';
 import { CartDayGroup, CartItem } from './types';
 
 const mapBackendGroup = (group: BackendCartDayGroup): CartDayGroup => {
-  console.log('CART GROUP DATE:', group.date, group.day_name);
   return {
     date: group.date,
     dayName: group.day_name,
