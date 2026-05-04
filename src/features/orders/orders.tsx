@@ -53,7 +53,7 @@ const formatDeliveryInfo = (deliveryInfo: string | undefined, status: OrderStatu
       if (isWeekend(dayIndex)) return '';
 
       const dayName = DAY_NAMES[dayIndex];
-      const prefix = dayName === 'вторник' || dayName === 'среду' ? 'во' : 'в';
+      const prefix = dayName === 'вторник' ? 'во' : 'в';
       return `Доставим ${prefix} ${dayName}, ${deliveryInfo}`;
     }
   }
