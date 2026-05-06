@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { authStyles } from '../../app/navigation/navigation-styles';
 import { LoginFeature } from '../../features/login';
-import { LoginFormData } from '../../features/login/types';
 import { Images } from '../../shared/constants/images';
 import { Typography } from '../../shared/fontsFile/fonts';
 import { styles } from './login-styles';
@@ -25,31 +24,10 @@ export const LoginForm: React.FC = () => {
   const fieldErrors = useSelector(LoginFeature.selectors.selectErrors);
   const isSubmitting = useSelector(LoginFeature.selectors.selectIsLoading);
 
-  const handleLoginChange = useCallback(
-    (text: string) => dispatch(LoginFeature.actions.setLogin(text)),
-    [dispatch]
-  );
-
-  const handlePasswordChange = useCallback(
-    (text: string) => dispatch(LoginFeature.actions.setPassword(text)),
-    [dispatch]
-  );
-
   const handleLoginSubmit = useCallback(() => {
-    const formData: LoginFormData = {
-      login: loginValue,
-      password: passwordValue,
-    };
-    const validationErrors = LoginFeature.utils.validateLoginForm(formData);
-
-    if (Object.keys(validationErrors).length > 0) {
-      dispatch(LoginFeature.actions.loginFailure(validationErrors));
-      return;
-    }
-
     Keyboard.dismiss();
     dispatch(LoginFeature.actions.submitLogin());
-  }, [dispatch, loginValue, passwordValue]);
+  }, [dispatch]);
 
   const Vector1Svg = Images.auth.vector1;
   const Vector2Svg = Images.auth.vector2;
@@ -80,7 +58,7 @@ export const LoginForm: React.FC = () => {
                     placeholder="Login"
                     placeholderTextColor="#94A3B8"
                     value={loginValue}
-                    onChangeText={handleLoginChange}
+                    onChangeText={(text) => dispatch(LoginFeature.actions.setLogin(text))}
                     autoCapitalize="none"
                     editable={!isSubmitting}
                   />
@@ -99,7 +77,7 @@ export const LoginForm: React.FC = () => {
                     placeholder="Password"
                     placeholderTextColor="#94A3B8"
                     value={passwordValue}
-                    onChangeText={handlePasswordChange}
+                    onChangeText={(text) => dispatch(LoginFeature.actions.setPassword(text))}
                     secureTextEntry
                     editable={!isSubmitting}
                   />

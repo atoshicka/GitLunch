@@ -41,7 +41,11 @@ api.interceptors.response.use(
   async (error) => {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
-      if (status === 401) {
+      const url = error.config?.url ?? '';
+
+      const isAuthRequest = url.includes('/login') || url.includes('/auth');
+
+      if (status === 401 && !isAuthRequest) {
         console.warn('Сессия истекла (401). Чистим всё.');
         await AsyncStorage.multiRemove(['token', 'user']);
         delete api.defaults.headers.Authorization;

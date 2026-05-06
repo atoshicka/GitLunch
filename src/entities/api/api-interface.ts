@@ -1,5 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { LoginResponse } from '../../entities/api/types/login-types';
+import { BASE_URL } from '../../shared/constants/api/api';
+import { normalizeDish } from '../../shared/lib/normalize-dish';
 import { API_ENDPOINTS } from './api';
 import {
   AddCartItemPayload,
@@ -17,30 +19,6 @@ import {
   CreateOrderResponse,
 } from './types/order-types';
 import { BackendRestaurantProfile } from './types/restaurant-types';
-
-export const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
-
-const normalizeDish = (dish: Dish): Dish => {
-  const rawImage = dish.image_url;
-  const fullImageUrl = rawImage
-    ? rawImage.startsWith('http')
-      ? rawImage
-      : `${BASE_URL}${rawImage}`
-    : undefined;
-
-  const normalized: Dish = {
-    ...dish,
-    imageUrl: fullImageUrl,
-  };
-
-  if (!normalized.category) {
-    const categories = normalized.categories ?? [];
-    const primary = categories.find((c) => c.name.toLowerCase() !== 'акции') ?? categories[0];
-    normalized.category = primary ?? { id: 0, name: '' };
-  }
-
-  return normalized;
-};
 
 export const createApiService = (api: AxiosInstance) => ({
   async getDishes(): Promise<Dish[]> {

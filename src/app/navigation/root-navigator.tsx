@@ -8,7 +8,9 @@ import { LoginFeature } from '../../features/login';
 import { OrdersFeature } from '../../features/orders';
 import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { LoadingScreen } from '../../shared/loading/ui/LoadingScreen';
-import { AuthNavigator, ClientNavigator, RestaurantNavigator } from './app-navigation';
+import { AuthNavigator } from './auth-navigator';
+import { ClientNavigator } from './client-navigator';
+import { RestaurantNavigator } from './restaurant-navigator';
 
 export const RootNavigator: React.FC = () => {
   const dispatch = useDispatch();
