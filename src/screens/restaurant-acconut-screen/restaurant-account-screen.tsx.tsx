@@ -3,6 +3,7 @@ import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { LoginFeature } from '../../features/login/index.ts';
+import { RestaurantFeature } from '../../features/restaurant';
 import { Images } from '../../shared/constants/images.ts';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar.tsx';
 import { styles } from './restaurant-account-styles.ts.ts';
@@ -22,8 +23,10 @@ const AccountIcon = Images.navigation.account;
 
 export const RestaurantAccountScreen: React.FC = () => {
   const dispatch = useDispatch();
-  const restaurantName = useSelector(LoginFeature.selectors.selectRestaurantName);
-  const restaurantDescription = useSelector(LoginFeature.selectors.selectRestaurantDescription);
+  const restaurantName = useSelector(RestaurantFeature.selectors.selectRestaurantName);
+  const restaurantDescription = useSelector(
+    RestaurantFeature.selectors.selectRestaurantDescription
+  );
 
   const handleSettingsPress = useCallback(() => {
     console.log('Настройки');

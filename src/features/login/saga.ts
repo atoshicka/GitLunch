@@ -4,14 +4,23 @@ import { SagaIterator } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api';
 import { api } from '../../entities/api/axios-config';
-import { BackendRestaurantProfile } from '../../entities/api/types/restaurant-types';
+import { RestaurantFeature } from '../restaurant';
 import { LoginFeature } from './';
-import { actions } from './slice';
+import { actions, VALIDATION_MESSAGES } from './slice';
 
 function* handleSubmitLogin(apiService: ApiService): SagaIterator {
   try {
     const login: string = yield select(LoginFeature.selectors.selectLogin);
     const password: string = yield select(LoginFeature.selectors.selectPassword);
+
+    const errors: Record<string, string> = {};
+    if (!login.trim()) errors.login = VALIDATION_MESSAGES.REQUIRED_LOGIN;
+    if (!password.trim()) errors.password = VALIDATION_MESSAGES.REQUIRED_PASSWORD;
+
+    if (Object.keys(errors).length > 0) {
+      yield put(actions.loginFailure(errors));
+      return;
+    }
 
     const result: Awaited<ReturnType<ApiService['login']>> = yield call(
       [apiService, apiService.login],
@@ -20,7 +29,7 @@ function* handleSubmitLogin(apiService: ApiService): SagaIterator {
     );
 
     if (!result.token) {
-      yield put(actions.loginFailure({ general: 'Ошибка при выполнении запроса' }));
+      yield put(actions.loginFailure({ general: VALIDATION_MESSAGES.REQUEST_ERROR }));
       return;
     }
 
@@ -38,22 +47,13 @@ function* handleSubmitLogin(apiService: ApiService): SagaIterator {
     );
 
     if (result.user.role === 'admin') {
-      try {
-        const profile: BackendRestaurantProfile = yield call([
-          apiService,
-          apiService.getRestaurantProfile,
-        ]);
-        yield put(actions.setRestaurantName(profile.name ?? null));
-        yield put(actions.setRestaurantDescription(profile.description ?? null));
-      } catch (error) {
-        console.log('RESTAURANT PROFILE ERROR:', error);
-      }
+      yield put(RestaurantFeature.actions.fetchRestaurantProfile());
     }
   } catch (error: unknown) {
     const errorMessage =
       error instanceof AxiosError && error.response?.status === 401
-        ? 'Неправильный логин или пароль'
-        : 'Ошибка при выполнении запроса';
+        ? VALIDATION_MESSAGES.INVALID_CREDENTIALS
+        : VALIDATION_MESSAGES.REQUEST_ERROR;
     yield put(actions.loginFailure({ general: errorMessage }));
   }
 }
@@ -63,6 +63,7 @@ function* handleLogout(): SagaIterator {
   yield call([AsyncStorage, 'removeItem'], 'user');
   delete api.defaults.headers.Authorization;
   yield put(actions.logout());
+  yield put(RestaurantFeature.actions.resetRestaurant());
 }
 
 function* handleRestoreSession(apiService: ApiService): SagaIterator {
@@ -98,20 +99,14 @@ function* handleRestoreSession(apiService: ApiService): SagaIterator {
     );
 
     if (user.role === 'admin') {
-      try {
-        const profile: BackendRestaurantProfile = yield call([
-          apiService,
-          apiService.getRestaurantProfile,
-        ]);
-        yield put(actions.setRestaurantName(profile.name ?? null));
-        yield put(actions.setRestaurantDescription(profile.description ?? null));
-      } catch {}
+      yield put(RestaurantFeature.actions.fetchRestaurantProfile());
     }
   } catch {
     yield call([AsyncStorage, 'removeItem'], 'token');
     yield call([AsyncStorage, 'removeItem'], 'user');
     delete api.defaults.headers.Authorization;
     yield put(actions.restoreSessionFailure());
+    yield put(RestaurantFeature.actions.resetRestaurant());
   }
 }
 

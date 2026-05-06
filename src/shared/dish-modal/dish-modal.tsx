@@ -12,10 +12,10 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { BASE_URL } from '../../entities/api/api-interface';
 import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
 import { DishModalFeature } from '../../features/dish-modal';
+import { BASE_URL } from '../constants/api/api';
 import { styles } from './dish-modal-styles';
 
 const SWIPE_THRESHOLD = 80;
