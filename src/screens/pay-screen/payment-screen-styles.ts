@@ -119,17 +119,4 @@ export const paymentStyles = StyleSheet.create({
   row: {
     flexDirection: 'row',
   },
-  orderButton: {
-    backgroundColor: '#1F2937',
-    width: '90%',
-    paddingVertical: 18,
-    borderRadius: 40,
-    alignItems: 'center',
-  },
-  orderButtonText: {
-    ...Typography.buttonRegular,
-    fontWeight: '600',
-    fontSize: 18,
-    color: '#DFFCEA',
-  },
 });

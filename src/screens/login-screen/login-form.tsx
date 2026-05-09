@@ -3,7 +3,6 @@ import {
   Keyboard,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -14,6 +13,7 @@ import { authStyles } from '../../app/navigation/navigation-styles';
 import { LoginFeature } from '../../features/login';
 import { Images } from '../../shared/constants/images';
 import { Typography } from '../../shared/fontsFile/fonts';
+import { FormInput } from '../../shared/login-input/form-input';
 import { styles } from './login-styles';
 
 export const LoginForm: React.FC = () => {
@@ -48,48 +48,26 @@ export const LoginForm: React.FC = () => {
               </View>
 
               <View style={styles.form}>
-                <View style={styles.inputGroup}>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      Typography.bodyRegular,
-                      fieldErrors.login && styles.inputError,
-                    ]}
-                    placeholder="Login"
-                    placeholderTextColor="#94A3B8"
-                    value={loginValue}
-                    onChangeText={(text) => dispatch(LoginFeature.actions.setLogin(text))}
-                    autoCapitalize="none"
-                    editable={!isSubmitting}
-                  />
-                  {fieldErrors.login && (
-                    <Text style={[styles.errorText, Typography.caption]}>{fieldErrors.login}</Text>
-                  )}
-                </View>
+                <FormInput
+                  placeholder="Login"
+                  value={loginValue}
+                  onChangeText={(text) => dispatch(LoginFeature.actions.setLogin(text))}
+                  error={fieldErrors.login}
+                  autoCapitalize="none"
+                  editable={!isSubmitting}
+                />
 
-                <View style={styles.inputGroup}>
-                  <TextInput
-                    style={[
-                      styles.input,
-                      Typography.bodyRegular,
-                      fieldErrors.password && styles.inputError,
-                    ]}
-                    placeholder="Password"
-                    placeholderTextColor="#94A3B8"
-                    value={passwordValue}
-                    onChangeText={(text) => dispatch(LoginFeature.actions.setPassword(text))}
-                    secureTextEntry
-                    editable={!isSubmitting}
-                  />
-                  {fieldErrors.password && (
-                    <Text style={[styles.errorText, Typography.caption]}>
-                      {fieldErrors.password}
-                    </Text>
-                  )}
-                </View>
+                <FormInput
+                  placeholder="Password"
+                  value={passwordValue}
+                  onChangeText={(text) => dispatch(LoginFeature.actions.setPassword(text))}
+                  error={fieldErrors.password}
+                  secureTextEntry
+                  editable={!isSubmitting}
+                />
 
                 {fieldErrors.general && (
-                  <Text style={[styles.errorText, styles.generalError, Typography.bodySmall]}>
+                  <Text style={[styles.generalError, Typography.bodySmall]}>
                     {fieldErrors.general}
                   </Text>
                 )}

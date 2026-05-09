@@ -1,17 +1,17 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 
-import { OrdersScreen } from '../../features/orders/orders';
-import { AccountScreen } from '../../screens/account-screen/account-screen';
-import { BasketScreen } from '../../screens/basket-screen/basket-screen';
-import { ErrorScreen } from '../../screens/error-screen/error-screen';
-import { HomeScreen } from '../../screens/home-screen/home-screen';
-import { MenuScreen } from '../../screens/menu-screen/menu-screen';
-import { CustomTabBar } from '../TabBar/TabBar';
+import { AccountScreen } from '../../../screens/account-screen/account-screen';
+import { BasketScreen } from '../../../screens/basket-screen/basket-screen';
+import { ErrorScreen } from '../../../screens/error-screen/error-screen';
+import { HomeScreen } from '../../../screens/home-screen/home-screen';
+import { MenuScreen } from '../../../screens/menu-screen/menu-screen';
+import { OrdersScreen } from '../../../screens/orders-screen/orders';
+import { CustomTabBar } from '../../TabBar/TabBar';
 import { TAB_NAMES } from './navigation';
 
-import { PaymentScreen } from '../../screens/pay-screen/payment-screen';
-import { SuccessScreen } from '../../screens/success-screen/success-screen';
+import { PaymentScreen } from '../../../screens/pay-screen/payment-screen';
+import { SuccessScreen } from '../../../screens/success-screen/success-screen';
 
 export type TabStackParamList = {
   [TAB_NAMES.HOME]: undefined;

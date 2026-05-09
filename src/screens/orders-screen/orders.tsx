@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { OrdersFeature } from '../../features/orders';
 import { Order, OrderStatus } from '../../features/orders/types';
+import { DAY_NAMES } from '../../shared/constants/constants';
 import { Images } from '../../shared/constants/images';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './orders-styles';
@@ -24,14 +25,6 @@ import { styles } from './orders-styles';
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
 
 const SubtractIcon = Images.home.wave;
-
-const DAY_NAMES: Record<number, string> = {
-  1: 'понедельник',
-  2: 'вторник',
-  3: 'среду',
-  4: 'четверг',
-  5: 'пятницу',
-};
 
 const isWeekend = (dayIndex: number): boolean => dayIndex === 0 || dayIndex === 6;
 

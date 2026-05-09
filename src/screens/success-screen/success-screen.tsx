@@ -5,7 +5,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Images } from '../../shared/constants/images';
-import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation/navigation';
 import { successStyles } from './success-screen-styles';
 
 type SuccessNavProp = NativeStackNavigationProp<RootStackParamList, 'Success'>;
