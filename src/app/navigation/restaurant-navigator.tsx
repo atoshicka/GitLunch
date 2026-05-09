@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 
 import { RestaurantAccountScreen } from '../../screens/restaurant-acconut-screen/restaurant-account-screen.tsx';
-import { SCREEN_NAMES } from '../../shared/constants/navigation';
+import { SCREEN_NAMES } from '../../shared/constants/navigation/navigation.ts';
 import { CustomTabBar } from '../../shared/TabBar/TabBar';
 
 const Tab = createBottomTabNavigator();

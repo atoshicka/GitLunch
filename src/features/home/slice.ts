@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
 import { HomeState } from './types';
 
@@ -10,11 +10,14 @@ const initialState: HomeState = {
   error: null,
 };
 
-export const { name, actions, reducer } = createSlice({
+export const {
+  name,
+  actions: sliceActions,
+  reducer,
+} = createSlice({
   name: 'home',
   initialState,
   reducers: {
-    fetchRestaurants: () => {},
     fetchRestaurantsStart: (state) => {
       state.isLoading = true;
       state.error = null;
@@ -35,3 +38,10 @@ export const { name, actions, reducer } = createSlice({
     },
   },
 });
+
+export const fetchRestaurants = createAction('home/fetchRestaurants');
+
+export const actions = {
+  ...sliceActions,
+  fetchRestaurants,
+};

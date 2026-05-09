@@ -4,7 +4,7 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
 import { Images } from '../constants/images';
-import { SCREEN_NAMES, TAB_NAMES } from '../constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../constants/navigation/navigation';
 import { styles } from './tab-bar-styles';
 
 const { width } = Dimensions.get('window');

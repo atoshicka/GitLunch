@@ -3,8 +3,8 @@ import React from 'react';
 
 import { BasketScreen } from '../../screens/basket-screen/basket-screen';
 import { SearchScreen } from '../../screens/search-screen/search-screen';
-import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
-import { TabNavigator } from '../../shared/constants/TabNavigator';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation/navigation';
+import { TabNavigator } from '../../shared/constants/navigation/TabNavigator';
 
 const Stack = createNativeStackNavigator();
 

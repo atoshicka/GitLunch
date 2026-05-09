@@ -10,7 +10,8 @@ import { CartFeature } from '../../features/cart';
 import { CartDayGroup, CartItem } from '../../features/cart/types';
 import { DishModalFeature } from '../../features/dish-modal';
 import { Images } from '../../shared/constants/images';
-import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation/navigation';
+import { OrderButton } from '../../shared/order-button/order-button';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './basket-styles';
 
@@ -237,9 +238,7 @@ export const BasketScreen: React.FC = () => {
             <Text style={styles.totalLabel}>Итоговая цена:</Text>
             <Text style={styles.totalPrice}>{totalPrice.toFixed(2)} ₽</Text>
           </View>
-          <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
-            <Text style={styles.orderButtonText}>Оплатить</Text>
-          </TouchableOpacity>
+          <OrderButton onPress={handlePlaceOrder} />
         </View>
       )}
     </View>

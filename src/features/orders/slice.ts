@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { OrderStatus } from '../../entities/api/types/order-types';
 import { CreateOrderPayload, Order, OrdersState } from './types';
 
@@ -13,17 +13,14 @@ const initialState: OrdersState = {
   lastSyncAt: null,
 };
 
-export const { name, actions, reducer } = createSlice({
+export const {
+  name,
+  actions: sliceActions,
+  reducer,
+} = createSlice({
   name: 'orders',
   initialState,
   reducers: {
-    fetchOrders: () => {},
-    fetchOrderDetails: (_state, _action: PayloadAction<number>) => {},
-    createOrder: (_state, _action: PayloadAction<CreateOrderPayload>) => {},
-    startGlobalPolling: () => {},
-    stopGlobalPolling: () => {},
-    destroyAllOrders: () => {},
-
     restorePersistedState: (
       state,
       action: PayloadAction<{
@@ -151,3 +148,20 @@ export const { name, actions, reducer } = createSlice({
     },
   },
 });
+
+export const fetchOrders = createAction('orders/fetchOrders');
+export const fetchOrderDetails = createAction<number>('orders/fetchOrderDetails');
+export const createOrder = createAction<CreateOrderPayload>('orders/createOrder');
+export const startGlobalPolling = createAction('orders/startGlobalPolling');
+export const stopGlobalPolling = createAction('orders/stopGlobalPolling');
+export const destroyAllOrders = createAction('orders/destroyAllOrders');
+
+export const actions = {
+  ...sliceActions,
+  fetchOrders,
+  fetchOrderDetails,
+  createOrder,
+  startGlobalPolling,
+  stopGlobalPolling,
+  destroyAllOrders,
+};

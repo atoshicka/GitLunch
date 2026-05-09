@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,8 @@ import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { CartFeature } from '../../features/cart';
 import { OrdersFeature } from '../../features/orders';
 import { Images } from '../../shared/constants/images';
-import { TAB_NAMES } from '../../shared/constants/navigation';
+import { TAB_NAMES } from '../../shared/constants/navigation/navigation';
+import { OrderButton } from '../../shared/order-button/order-button';
 import {
   showOrderCreatedNotification,
   showOrderErrorNotification,
@@ -45,7 +46,6 @@ export const PaymentScreen: React.FC = () => {
 
   useEffect(() => {
     if (!isPendingRef.current) return;
-
     if (isCreating) return;
 
     isPendingRef.current = false;
@@ -70,21 +70,19 @@ export const PaymentScreen: React.FC = () => {
     return clean.length >= 2 ? `${clean.slice(0, 2)}/${clean.slice(2, 4)}` : clean;
   };
 
-  const handlePay = () => {
+  const handlePay = useCallback(() => {
     if (!isFormValid || isCreating) return;
 
     const isoSelectedDates = selectedDates.map((date) => {
       const parts = date.split('.');
-      if (parts.length === 3) {
-        return `${parts[2]}-${parts[1]}-${parts[0]}`;
-      }
+      if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
       return date;
     });
 
     isPendingRef.current = true;
     dispatch(OrdersFeature.actions.createOrder({ selected_dates: isoSelectedDates }));
     dispatch(CartFeature.actions.clearSelectedDays(selectedDates));
-  };
+  }, [isFormValid, isCreating, selectedDates, dispatch]);
 
   return (
     <View style={paymentStyles.container}>
@@ -166,16 +164,7 @@ export const PaymentScreen: React.FC = () => {
           </View>
         </LinearGradient>
 
-        <TouchableOpacity
-          style={[paymentStyles.orderButton, (!isFormValid || isCreating) && { opacity: 0.5 }]}
-          onPress={handlePay}
-          disabled={!isFormValid || isCreating}
-          activeOpacity={0.8}
-        >
-          <Text style={paymentStyles.orderButtonText}>
-            {isCreating ? 'Оформляем...' : 'Оплатить'}
-          </Text>
-        </TouchableOpacity>
+        <OrderButton onPress={handlePay} isLoading={isCreating} disabled={!isFormValid} />
       </View>
     </View>
   );

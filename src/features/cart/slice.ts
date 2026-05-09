@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CartDayGroup, CartItem, CartState } from './types';
 
 const initialState: CartState = {
@@ -8,13 +8,14 @@ const initialState: CartState = {
   initialized: false,
 };
 
-export const { name, actions, reducer } = createSlice({
+export const {
+  name,
+  actions: sliceActions,
+  reducer,
+} = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    fetchCart: () => {},
-    fetchCartSilent: () => {},
-
     setCartFromBackend(state, action: PayloadAction<CartDayGroup[]>) {
       const selectedDates = new Set(state.dayGroups.filter((g) => g.selected).map((g) => g.date));
       state.dayGroups = action.payload.map((g) => ({
@@ -25,10 +26,6 @@ export const { name, actions, reducer } = createSlice({
       state.error = null;
       state.initialized = true;
     },
-
-    addToCart(_state, _action: PayloadAction<Omit<CartItem, 'quantity'>>) {},
-    decreaseQuantity(_state, _action: PayloadAction<{ id: string; cartItemId?: number }>) {},
-    removeFromCart(_state, _action: PayloadAction<{ id: string; cartItemId?: number }>) {},
 
     toggleDaySelected(state, action: PayloadAction<string>) {
       const group = state.dayGroups.find((g) => g.date === action.payload);
@@ -65,3 +62,22 @@ export const { name, actions, reducer } = createSlice({
     },
   },
 });
+
+export const fetchCart = createAction('cart/fetchCart');
+export const fetchCartSilent = createAction('cart/fetchCartSilent');
+export const addToCart = createAction<Omit<CartItem, 'quantity'>>('cart/addToCart');
+export const decreaseQuantity = createAction<{ id: string; cartItemId?: number }>(
+  'cart/decreaseQuantity'
+);
+export const removeFromCart = createAction<{ id: string; cartItemId?: number }>(
+  'cart/removeFromCart'
+);
+
+export const actions = {
+  ...sliceActions,
+  fetchCart,
+  fetchCartSilent,
+  addToCart,
+  decreaseQuantity,
+  removeFromCart,
+};

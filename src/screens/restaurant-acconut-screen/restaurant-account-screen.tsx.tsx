@@ -4,16 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { LoginFeature } from '../../features/login/index.ts';
 import { RestaurantFeature } from '../../features/restaurant';
+import { RESTAURANT_MENU_ITEMS } from '../../shared/constants/constants';
 import { Images } from '../../shared/constants/images.ts';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar.tsx';
 import { styles } from './restaurant-account-styles.ts.ts';
-
-const RESTAURANT_MENU_ITEMS = [
-  { id: '1', title: 'Наше меню' },
-  { id: '2', title: 'Поддержка' },
-  { id: '3', title: 'Уведомления' },
-  { id: '4', title: 'О сервисе' },
-] as const;
 
 type RestaurantMenuItemTitle = (typeof RESTAURANT_MENU_ITEMS)[number]['title'];
 

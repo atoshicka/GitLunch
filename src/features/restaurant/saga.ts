@@ -10,8 +10,7 @@ function* handleFetchRestaurantProfile(apiService: ApiService): SagaIterator {
       apiService,
       apiService.getRestaurantProfile,
     ]);
-    yield put(actions.setRestaurantName(profile.name ?? null));
-    yield put(actions.setRestaurantDescription(profile.description ?? null));
+    yield put(actions.fetchRestaurantProfileSuccess(profile));
   } catch (error) {
     console.log('RESTAURANT PROFILE ERROR:', error);
   }

@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { BackendRestaurantProfile } from '../../entities/api/types/restaurant-types';
 import { RestaurantState } from './types';
 
 const initialState: RestaurantState = {
@@ -6,17 +7,25 @@ const initialState: RestaurantState = {
   description: null,
 };
 
-export const { name, actions, reducer } = createSlice({
+export const {
+  name,
+  actions: sliceActions,
+  reducer,
+} = createSlice({
   name: 'restaurant',
   initialState,
   reducers: {
-    setRestaurantName: (state, action: PayloadAction<string | null>) => {
-      state.name = action.payload;
+    fetchRestaurantProfileSuccess: (state, action: PayloadAction<BackendRestaurantProfile>) => {
+      state.name = action.payload.name ?? null;
+      state.description = action.payload.description ?? null;
     },
-    setRestaurantDescription: (state, action: PayloadAction<string | null>) => {
-      state.description = action.payload;
-    },
-    fetchRestaurantProfile: () => {},
     resetRestaurant: () => initialState,
   },
 });
+
+export const fetchRestaurantProfile = createAction('restaurant/fetchRestaurantProfile');
+
+export const actions = {
+  ...sliceActions,
+  fetchRestaurantProfile,
+};

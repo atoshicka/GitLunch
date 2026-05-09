@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LoginFormErrors, LoginState } from './types';
 
 export const VALIDATION_MESSAGES = {
@@ -20,7 +20,11 @@ const initialState: LoginState = {
   isRestoring: true,
 };
 
-export const { name, actions, reducer } = createSlice({
+export const {
+  name,
+  actions: sliceActions,
+  reducer,
+} = createSlice({
   name: 'login',
   initialState,
   reducers: {
@@ -55,7 +59,6 @@ export const { name, actions, reducer } = createSlice({
       state.errors = action.payload;
       state.isRestoring = false;
     },
-    logoutRequest: () => {},
     logout: (state) => {
       state.isAuthenticated = false;
       state.userName = null;
@@ -63,7 +66,6 @@ export const { name, actions, reducer } = createSlice({
       state.token = null;
       state.isRestoring = false;
     },
-    restoreSession: () => {},
     restoreSessionSuccess: (
       state,
       action: PayloadAction<{ token: string; userName: string; role: string }>
@@ -83,3 +85,12 @@ export const { name, actions, reducer } = createSlice({
     },
   },
 });
+
+export const logoutRequest = createAction('login/logoutRequest');
+export const restoreSession = createAction('login/restoreSession');
+
+export const actions = {
+  ...sliceActions,
+  logoutRequest,
+  restoreSession,
+};

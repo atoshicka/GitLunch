@@ -20,7 +20,9 @@ import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
 import { DishCard } from '../../features/dish-card';
 import { DishModalFeature } from '../../features/dish-modal';
 import { HomeFeature } from '../../features/home';
+import { FILTER_MAPPING } from '../../shared/constants/constants';
 import { Images } from '../../shared/constants/images';
+import { FilterGrid } from '../../shared/home-filter/filter-grid/filter-grid';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './home-styles';
@@ -28,13 +30,8 @@ import { styles } from './home-styles';
 const { width } = Dimensions.get('window');
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
-const HotIcon = Images.filters.hot;
-const SaladsIcon = Images.filters.salads;
-const SnacksIcon = Images.filters.snacks;
-const DessertsIcon = Images.filters.desserts;
 const SubtractIcon = Images.home.wave;
 const RestCezarIcon = Images.home.restCezar;
-const NowinIcon = Images.home.nowin;
 const AccountIcon = Images.navigation.account;
 
 const PaginationDots = React.memo(
@@ -68,61 +65,6 @@ const RestaurantCarouselItem = React.memo(
   )
 );
 
-const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: string) => void }) => (
-  <View style={styles.filterGridContainer}>
-    <View style={styles.row}>
-      <TouchableOpacity
-        style={styles.filterBlock}
-        onPress={() => onFilterPress('горячее')}
-        activeOpacity={0.7}
-      >
-        <HotIcon width={80} height={80} style={styles.filterIcon} />
-        <Text style={styles.filterText}>Горячее</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.filterBlock}
-        onPress={() => onFilterPress('салаты')}
-        activeOpacity={0.7}
-      >
-        <SaladsIcon width={80} height={80} style={styles.filterIcon} />
-        <Text style={styles.filterText}>Салаты</Text>
-      </TouchableOpacity>
-    </View>
-    <View style={styles.row}>
-      <TouchableOpacity
-        style={styles.filterBlock}
-        onPress={() => onFilterPress('десерты')}
-        activeOpacity={0.7}
-      >
-        <DessertsIcon width={80} height={80} style={styles.filterIcon} />
-        <Text style={styles.filterText}>Десерты</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.filterBlock}
-        onPress={() => onFilterPress('закуски')}
-        activeOpacity={0.7}
-      >
-        <SnacksIcon width={80} height={80} style={styles.filterIcon} />
-        <Text style={styles.filterText}>Бизнес-ланч</Text>
-      </TouchableOpacity>
-    </View>
-    <View style={styles.largeBlockContainer}>
-      <TouchableOpacity
-        style={styles.noveltyBlock}
-        onPress={() => onFilterPress('новинки')}
-        activeOpacity={0.9}
-      >
-        <NowinIcon
-          width="100%"
-          height="100%"
-          preserveAspectRatio="xMidYMid slice"
-          style={styles.noveltyImage}
-        />
-      </TouchableOpacity>
-    </View>
-  </View>
-));
-
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const dispatch = useDispatch();
@@ -137,7 +79,6 @@ export const HomeScreen: React.FC = () => {
     const timer = setTimeout(() => {
       dispatch(HomeFeature.actions.fetchRestaurants());
     }, 250);
-
     return () => clearTimeout(timer);
   }, [dispatch]);
 
@@ -159,16 +100,9 @@ export const HomeScreen: React.FC = () => {
 
   const handleFilterPress = useCallback(
     (filter: string) => {
-      const filterMapping: Record<string, string> = {
-        горячее: 'Горячее',
-        салаты: 'Салаты',
-        десерты: 'Десерты',
-        закуски: 'Бизнес-ланч',
-        новинки: 'Новинки',
-      };
       navigation.navigate('Tabs', {
         screen: 'Меню',
-        params: { mainFilter: filterMapping[filter] ?? filter, filterTimestamp: Date.now() },
+        params: { mainFilter: FILTER_MAPPING[filter] ?? filter, filterTimestamp: Date.now() },
       });
     },
     [navigation]
@@ -256,6 +190,7 @@ export const HomeScreen: React.FC = () => {
 
         <View style={styles.contentWrapper}>
           <FilterGrid onFilterPress={handleFilterPress} />
+
           <Text style={styles.sectionTitle}>Рестораны</Text>
           <View>
             <PagerView
