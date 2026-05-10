@@ -129,17 +129,6 @@ export const {
       delete state.localStatuses[action.payload];
     },
 
-    destroyAllOrdersSuccess: (state) => {
-      state.orders = [];
-      state.removedOrderIds = [];
-      state.localStatuses = {};
-      state.notifiedOrderIds = [];
-      state.lastSyncAt = null;
-    },
-    destroyAllOrdersFailure: (state, action: PayloadAction<string>) => {
-      state.error = action.payload;
-    },
-
     setOrderLocalStart: (state, action: PayloadAction<number>) => {
       const order = state.orders.find((o) => o.id === action.payload);
       if (order) {
@@ -154,7 +143,6 @@ export const fetchOrderDetails = createAction<number>('orders/fetchOrderDetails'
 export const createOrder = createAction<CreateOrderPayload>('orders/createOrder');
 export const startGlobalPolling = createAction('orders/startGlobalPolling');
 export const stopGlobalPolling = createAction('orders/stopGlobalPolling');
-export const destroyAllOrders = createAction('orders/destroyAllOrders');
 
 export const actions = {
   ...sliceActions,
@@ -163,5 +151,4 @@ export const actions = {
   createOrder,
   startGlobalPolling,
   stopGlobalPolling,
-  destroyAllOrders,
 };
