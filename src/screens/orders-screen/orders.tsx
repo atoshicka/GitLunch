@@ -110,17 +110,6 @@ export const OrdersScreen: React.FC = () => {
     [dispatch]
   );
 
-  const handleDestroyAll = useCallback(() => {
-    Alert.alert('Удалить все заказы', 'Это действие нельзя отменить. Продолжить?', [
-      { text: 'Отмена', style: 'cancel' },
-      {
-        text: 'Удалить',
-        style: 'destructive',
-        onPress: () => dispatch(OrdersFeature.actions.destroyAllOrders()),
-      },
-    ]);
-  }, [dispatch]);
-
   const renderOrderItem = useCallback(
     ({ item }: { item: Order }) => {
       const parts = item.deliveryInfo?.split('.') || [];
@@ -196,9 +185,8 @@ export const OrdersScreen: React.FC = () => {
 
           <Text style={styles.brandTitle}>GitLunch</Text>
 
-          <TouchableOpacity style={styles.topBarButton} onPress={handleDestroyAll}>
-            <Text style={{ color: '#EF4444', fontSize: 12, fontWeight: 'bold' }}>DEL ALL</Text>
-          </TouchableOpacity>
+          {/* Пустой View для симметрии топбара */}
+          <View style={styles.topBarButton} />
         </View>
         <Text style={styles.screenTitle}>Мои заказы</Text>
       </SafeAreaView>
