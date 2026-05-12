@@ -6,7 +6,7 @@ export const getApiConfig = () => {
     };
   }
   return {
-    BASE_URL: 'https://api.gitlunch.app/api/v1',
+    BASE_URL: 'https://gitlunch-backend-production.up.railway.app/api/v1',
     DEBUG: false,
   };
 };

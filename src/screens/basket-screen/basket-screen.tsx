@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
-import { Alert, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,10 +24,14 @@ const SubtractIcon = Images.home.wave;
 const renderItemImage = (item: CartItem) => {
   if (item.imageUrl) {
     return (
-      <Image
-        source={{ uri: item.imageUrl }}
+      <FastImage
+        source={{
+          uri: item.imageUrl,
+          priority: FastImage.priority.normal,
+          cache: FastImage.cacheControl.immutable,
+        }}
         style={{ width: '100%', height: '100%', borderRadius: 12 }}
-        resizeMode="contain"
+        resizeMode={FastImage.resizeMode.contain}
       />
     );
   }

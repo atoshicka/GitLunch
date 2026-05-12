@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import LinearGradient from 'react-native-linear-gradient';
 import { SvgProps } from 'react-native-svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -47,7 +48,17 @@ export const DishCard = React.memo(({ item, onPress }: DishCardProps) => {
 
   const renderImage = () => {
     if (item.imageUrl) {
-      return <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="contain" />;
+      return (
+        <FastImage
+          source={{
+            uri: item.imageUrl,
+            priority: FastImage.priority.normal,
+            cache: FastImage.cacheControl.immutable,
+          }}
+          style={styles.image}
+          resizeMode={FastImage.resizeMode.contain}
+        />
+      );
     }
     if (item.imageSvg) {
       const SvgImage = item.imageSvg as React.FC<SvgProps>;
