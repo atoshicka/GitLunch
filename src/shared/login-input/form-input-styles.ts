@@ -14,10 +14,10 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
   },
   inputError: {
-    borderColor: '#ef4444',
+    borderColor: '#FA2020',
   },
   errorText: {
-    color: '#ef4444',
+    color: '#FA2020',
     marginTop: 4,
     marginLeft: 5,
   },

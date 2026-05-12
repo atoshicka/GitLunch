@@ -1,6 +1,7 @@
 import { all, fork } from 'redux-saga/effects';
 import { createApiService } from '../entities/api/api-interface';
 import { api } from '../entities/api/axios-config';
+import { RestaurantFeature } from '../features';
 import { CartFeature } from '../features/cart';
 import { DishModalFeature } from '../features/dish-modal';
 import { HomeFeature } from '../features/home';
@@ -19,5 +20,6 @@ export function* rootSaga() {
     fork(SearchFeature.sagas.watchSearch, apiService),
     fork(DishModalFeature.sagas.watchDishModal, apiService),
     fork(OrdersFeature.sagas.watchOrders, apiService),
+    fork(RestaurantFeature.sagas.watchRestaurant, apiService),
   ]);
 }

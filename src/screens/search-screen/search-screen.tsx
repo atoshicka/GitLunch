@@ -29,7 +29,6 @@ export const SearchScreen: React.FC = () => {
   const query = useSelector(SearchFeature.selectors.selectQuery);
   const searchResults = useSelector(SearchFeature.selectors.selectResults) as Dish[];
   const isSearching = useSelector(SearchFeature.selectors.selectIsSearching);
-  const recentSearches = useSelector(SearchFeature.selectors.selectRecentSearches);
 
   useEffect(() => {
     return () => {
@@ -45,12 +44,6 @@ export const SearchScreen: React.FC = () => {
     },
     [dispatch]
   );
-
-  const handleSubmit = useCallback(() => {
-    if (query.trim()) {
-      dispatch(SearchFeature.actions.addRecentSearch(query));
-    }
-  }, [query, dispatch]);
 
   const handleDishPress = useCallback(
     (id: string | number) => {
@@ -93,25 +86,8 @@ export const SearchScreen: React.FC = () => {
     }
 
     return (
-      <View style={styles.recentContainer}>
-        {recentSearches.length > 0 ? (
-          <>
-            <Text style={styles.recentTitle}>Недавние запросы</Text>
-            <FlatList
-              data={recentSearches}
-              renderItem={({ item }: { item: string }) => (
-                <TouchableOpacity style={styles.recentItem} onPress={() => handleQueryChange(item)}>
-                  <Text style={styles.recentText}>{item}</Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(_, index) => index.toString()}
-            />
-          </>
-        ) : (
-          <View style={styles.hintContainer}>
-            <Text style={styles.hintText}>Введите название блюда, категорию или состав</Text>
-          </View>
-        )}
+      <View style={styles.hintContainer}>
+        <Text style={styles.hintText}>Введите название блюда или категорию</Text>
       </View>
     );
   };
@@ -127,12 +103,7 @@ export const SearchScreen: React.FC = () => {
             <Text style={styles.backButtonText}>‹</Text>
           </TouchableOpacity>
           <View style={styles.searchContainer}>
-            <SearchInput
-              value={query}
-              onChangeText={handleQueryChange}
-              onSubmitEditing={handleSubmit}
-              placeholder="Поиск"
-            />
+            <SearchInput value={query} onChangeText={handleQueryChange} placeholder="Поиск" />
           </View>
         </View>
 

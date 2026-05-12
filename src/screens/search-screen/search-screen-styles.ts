@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
   recentItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: '#F4F4F4',
   },
   recentText: {
     ...Typography.bodyRegular,

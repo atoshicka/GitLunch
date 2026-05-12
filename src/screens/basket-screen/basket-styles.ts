@@ -105,12 +105,12 @@ export const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: '#22C55E',
-    backgroundColor: '#fff',
+    backgroundColor: '#F4F4F4',
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#fff',
+    backgroundColor: '#F4F4F4',
     borderColor: '#22C55E',
   },
   checkboxTick: {
@@ -205,14 +205,14 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    alignItems: 'center', // Теперь кнопка будет по центру
+    alignItems: 'center',
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
-    width: '100%', // Чтобы цена и текст разошлись по краям
+    width: '100%',
   },
   totalLabel: {
     ...Typography.buttonRegular,

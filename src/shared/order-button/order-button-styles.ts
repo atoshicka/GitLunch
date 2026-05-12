@@ -16,6 +16,6 @@ export const styles = StyleSheet.create({
     ...Typography.buttonRegular,
     fontWeight: '600',
     fontSize: 18,
-    color: '#DFFCEA',
+    color: '#F4F4F4',
   },
 });

@@ -182,10 +182,7 @@ export const OrdersScreen: React.FC = () => {
           <TouchableOpacity style={styles.topBarButton} onPress={() => navigation.goBack()}>
             <Text style={styles.backButtonText}>‹</Text>
           </TouchableOpacity>
-
           <Text style={styles.brandTitle}>GitLunch</Text>
-
-          {/* Пустой View для симметрии топбара */}
           <View style={styles.topBarButton} />
         </View>
         <Text style={styles.screenTitle}>Мои заказы</Text>

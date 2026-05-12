@@ -6,7 +6,6 @@ const initialState: SearchState = {
   query: '',
   results: [],
   isSearching: false,
-  recentSearches: [],
 };
 
 export const { name, actions, reducer } = createSlice({
@@ -31,12 +30,6 @@ export const { name, actions, reducer } = createSlice({
     clearResults: (state) => {
       state.results = [];
       state.isSearching = false;
-    },
-    addRecentSearch: (state, action: PayloadAction<string>) => {
-      state.recentSearches = [
-        action.payload,
-        ...state.recentSearches.filter((s) => s !== action.payload),
-      ].slice(0, 5);
     },
   },
 });

@@ -3,6 +3,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
   Platform,
   SectionList,
   Text,
@@ -91,6 +92,7 @@ export const MenuScreen: React.FC = () => {
   );
 
   const handleBackPress = useCallback(() => {
+    Keyboard.dismiss();
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {
