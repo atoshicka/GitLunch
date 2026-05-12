@@ -1,24 +1,17 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { LoginFeature } from '../../features/login';
+import { ACCOUNT_MENU_ITEMS } from '../../shared/constants/constants';
 import { Images } from '../../shared/constants/images';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './account-styles';
 
-const MENU_ITEMS = [
-  { id: '1', title: 'Мои заказы' },
-  { id: '2', title: 'Поддержка' },
-  { id: '3', title: 'Адреса' },
-  { id: '4', title: 'О сервисе' },
-  { id: '5', title: 'Способы оплаты' },
-] as const;
-
-type MenuItemTitle = (typeof MENU_ITEMS)[number]['title'];
+type MenuItemTitle = (typeof ACCOUNT_MENU_ITEMS)[number]['title'];
 type AccountScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
 const SubtractIcon = Images.home.wave;
@@ -28,15 +21,15 @@ export const AccountScreen: React.FC = () => {
   const dispatch = useDispatch();
   const userName = useSelector(LoginFeature.selectors.selectUserName);
 
-  const handleSettingsPress = () => {
+  const handleSettingsPress = useCallback(() => {
     console.log('Настройки');
-  };
+  }, []);
 
-  const handleBackPress = () => {
+  const handleBackPress = useCallback(() => {
     navigation.goBack();
-  };
+  }, [navigation]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     Alert.alert(
       'Выход из аккаунта',
       'Вы уверены, что хотите выйти?',
@@ -45,24 +38,23 @@ export const AccountScreen: React.FC = () => {
         {
           text: 'Да',
           style: 'destructive',
-          onPress: () => {
-            dispatch(LoginFeature.actions.logoutRequest());
-          },
+          onPress: () => dispatch(LoginFeature.actions.logoutRequest()),
         },
       ],
       { cancelable: true }
     );
-  };
+  }, [dispatch]);
 
-  const handleMenuItemPress = (itemTitle: MenuItemTitle) => {
-    switch (itemTitle) {
-      case 'Мои заказы':
-        navigation.navigate('Orders');
-        break;
-      default:
-        console.log(`Нажат пункт: ${itemTitle}`);
-    }
-  };
+  const handleMenuItemPress = useCallback(
+    (itemTitle: MenuItemTitle) => {
+      switch (itemTitle) {
+        case 'Мои заказы':
+          navigation.navigate('Orders');
+          break;
+      }
+    },
+    [navigation]
+  );
 
   const SettingsIcon = Images.account.setting;
   const AccountIcon = Images.navigation.account;
@@ -101,7 +93,7 @@ export const AccountScreen: React.FC = () => {
           <Text style={styles.userName}>{userName ?? 'Гость'}</Text>
 
           <View style={styles.menuBlock}>
-            {MENU_ITEMS.map((item) => (
+            {ACCOUNT_MENU_ITEMS.map((item) => (
               <TouchableOpacity
                 key={item.id}
                 style={styles.menuItem}

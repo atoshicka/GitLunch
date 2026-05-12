@@ -1,6 +1,7 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
-import { ApiService, BASE_URL } from '../../entities/api/api-interface';
+import { ApiService } from '../../entities/api/api-interface';
 import { BackendCartDayGroup, BackendCartResponse } from '../../entities/api/types/cart-types';
+import { BASE_URL } from '../../shared/constants/api/api';
 import { actions } from './slice';
 import { CartDayGroup, CartItem } from './types';
 

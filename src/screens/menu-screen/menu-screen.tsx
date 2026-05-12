@@ -3,6 +3,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
   Platform,
   SectionList,
   Text,
@@ -19,7 +20,7 @@ import { FilterChips } from '../../features/filter/filter-chips';
 import { MenuFeature } from '../../features/menu';
 import { MenuDaySection } from '../../features/menu/types';
 import { Images } from '../../shared/constants/images';
-import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation/navigation';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './menu-styles';
@@ -91,6 +92,7 @@ export const MenuScreen: React.FC = () => {
   );
 
   const handleBackPress = useCallback(() => {
+    Keyboard.dismiss();
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {

@@ -1,20 +1,13 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { LoginFeature } from '../../features/login/index.ts';
+import { RestaurantFeature } from '../../features/restaurant';
+import { RESTAURANT_MENU_ITEMS } from '../../shared/constants/constants';
 import { Images } from '../../shared/constants/images.ts';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar.tsx';
 import { styles } from './restaurant-account-styles.ts.ts';
-
-const RESTAURANT_MENU_ITEMS = [
-  { id: '1', title: 'Наше меню' },
-  { id: '2', title: 'Поддержка' },
-  { id: '3', title: 'Уведомления' },
-  { id: '4', title: 'О сервисе' },
-] as const;
-
-type RestaurantMenuItemTitle = (typeof RESTAURANT_MENU_ITEMS)[number]['title'];
 
 const SubtractIcon = Images.home.wave;
 const SettingsIcon = Images.account.setting;
@@ -22,8 +15,14 @@ const AccountIcon = Images.navigation.account;
 
 export const RestaurantAccountScreen: React.FC = () => {
   const dispatch = useDispatch();
-  const restaurantName = useSelector(LoginFeature.selectors.selectRestaurantName);
-  const restaurantDescription = useSelector(LoginFeature.selectors.selectRestaurantDescription);
+  const restaurantName = useSelector(RestaurantFeature.selectors.selectRestaurantName);
+  const restaurantDescription = useSelector(
+    RestaurantFeature.selectors.selectRestaurantDescription
+  );
+
+  useEffect(() => {
+    dispatch(RestaurantFeature.actions.fetchRestaurantProfile());
+  }, [dispatch]);
 
   const handleSettingsPress = useCallback(() => {
     console.log('Настройки');
@@ -44,10 +43,6 @@ export const RestaurantAccountScreen: React.FC = () => {
       { cancelable: true }
     );
   }, [dispatch]);
-
-  const handleMenuItemPress = useCallback((itemTitle: RestaurantMenuItemTitle) => {
-    console.log(`Нажат пункт: ${itemTitle}`);
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -86,11 +81,7 @@ export const RestaurantAccountScreen: React.FC = () => {
 
           <View style={styles.menuBlock}>
             {RESTAURANT_MENU_ITEMS.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.menuItem}
-                onPress={() => handleMenuItemPress(item.title)}
-              >
+              <TouchableOpacity key={item.id} style={styles.menuItem}>
                 <Text style={styles.menuItemText}>{item.title}</Text>
               </TouchableOpacity>
             ))}

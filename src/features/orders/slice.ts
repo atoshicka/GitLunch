@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { OrderStatus } from '../../entities/api/types/order-types';
 import { CreateOrderPayload, Order, OrdersState } from './types';
 
@@ -13,17 +13,14 @@ const initialState: OrdersState = {
   lastSyncAt: null,
 };
 
-export const { name, actions, reducer } = createSlice({
+export const {
+  name,
+  actions: sliceActions,
+  reducer,
+} = createSlice({
   name: 'orders',
   initialState,
   reducers: {
-    fetchOrders: () => {},
-    fetchOrderDetails: (_state, _action: PayloadAction<number>) => {},
-    createOrder: (_state, _action: PayloadAction<CreateOrderPayload>) => {},
-    startGlobalPolling: () => {},
-    stopGlobalPolling: () => {},
-    destroyAllOrders: () => {},
-
     restorePersistedState: (
       state,
       action: PayloadAction<{
@@ -132,17 +129,6 @@ export const { name, actions, reducer } = createSlice({
       delete state.localStatuses[action.payload];
     },
 
-    destroyAllOrdersSuccess: (state) => {
-      state.orders = [];
-      state.removedOrderIds = [];
-      state.localStatuses = {};
-      state.notifiedOrderIds = [];
-      state.lastSyncAt = null;
-    },
-    destroyAllOrdersFailure: (state, action: PayloadAction<string>) => {
-      state.error = action.payload;
-    },
-
     setOrderLocalStart: (state, action: PayloadAction<number>) => {
       const order = state.orders.find((o) => o.id === action.payload);
       if (order) {
@@ -151,3 +137,18 @@ export const { name, actions, reducer } = createSlice({
     },
   },
 });
+
+export const fetchOrders = createAction('orders/fetchOrders');
+export const fetchOrderDetails = createAction<number>('orders/fetchOrderDetails');
+export const createOrder = createAction<CreateOrderPayload>('orders/createOrder');
+export const startGlobalPolling = createAction('orders/startGlobalPolling');
+export const stopGlobalPolling = createAction('orders/stopGlobalPolling');
+
+export const actions = {
+  ...sliceActions,
+  fetchOrders,
+  fetchOrderDetails,
+  createOrder,
+  startGlobalPolling,
+  stopGlobalPolling,
+};

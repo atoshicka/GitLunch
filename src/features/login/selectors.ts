@@ -11,12 +11,7 @@ const root = (state: State) => state[name];
 const selectLogin = createSelector(root, (rootData) => rootData.login);
 const selectPassword = createSelector(root, (rootData) => rootData.password);
 const selectUserName = createSelector(root, (rootData) => rootData.userName);
-const selectRestaurantName = createSelector(root, (rootData) => rootData.restaurantName);
 const selectRole = createSelector(root, (rootData) => rootData.role);
-const selectRestaurantDescription = createSelector(
-  root,
-  (rootData) => rootData.restaurantDescription
-);
 const selectErrors = createSelector(root, (rootData) => rootData.errors);
 const selectLoginError = createSelector(root, (rootData) => rootData.errors.login);
 const selectPasswordError = createSelector(root, (rootData) => rootData.errors.password);
@@ -30,9 +25,7 @@ export const selectors = {
   selectLogin,
   selectPassword,
   selectUserName,
-  selectRestaurantName,
   selectRole,
-  selectRestaurantDescription,
   selectErrors,
   selectLoginError,
   selectPasswordError,

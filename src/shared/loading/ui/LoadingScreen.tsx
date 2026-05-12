@@ -4,6 +4,6 @@ import { layoutStyles } from '../../../app/navigation/navigation-styles';
 
 export const LoadingScreen: React.FC = () => (
   <View style={layoutStyles.centered}>
-    <ActivityIndicator size="large" color="#86EFAC" />
+    <ActivityIndicator size="large" color="#22C55E" />
   </View>
 );

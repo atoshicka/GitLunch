@@ -1,13 +1,18 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { LoginFormErrors, LoginState } from './types';
+
+export const VALIDATION_MESSAGES = {
+  REQUIRED_LOGIN: 'Это обязательное поле',
+  REQUIRED_PASSWORD: 'Это обязательное поле',
+  INVALID_CREDENTIALS: 'Неправильный логин или пароль',
+  REQUEST_ERROR: 'Ошибка при выполнении запроса',
+} as const;
 
 const initialState: LoginState = {
   login: '',
   password: '',
   userName: null,
-  restaurantName: null,
   role: null,
-  restaurantDescription: null,
   errors: {},
   isLoading: false,
   isAuthenticated: false,
@@ -15,7 +20,11 @@ const initialState: LoginState = {
   isRestoring: true,
 };
 
-export const { name, actions, reducer } = createSlice({
+export const {
+  name,
+  actions: sliceActions,
+  reducer,
+} = createSlice({
   name: 'login',
   initialState,
   reducers: {
@@ -50,23 +59,13 @@ export const { name, actions, reducer } = createSlice({
       state.errors = action.payload;
       state.isRestoring = false;
     },
-    setRestaurantDescription: (state, action: PayloadAction<string | null>) => {
-      state.restaurantDescription = action.payload;
-    },
-    setRestaurantName: (state, action: PayloadAction<string | null>) => {
-      state.restaurantName = action.payload;
-    },
-    logoutRequest: () => {},
     logout: (state) => {
       state.isAuthenticated = false;
       state.userName = null;
-      state.restaurantName = null;
       state.role = null;
-      state.restaurantDescription = null;
       state.token = null;
       state.isRestoring = false;
     },
-    restoreSession: () => {},
     restoreSessionSuccess: (
       state,
       action: PayloadAction<{ token: string; userName: string; role: string }>
@@ -81,10 +80,17 @@ export const { name, actions, reducer } = createSlice({
       state.isAuthenticated = false;
       state.token = null;
       state.userName = null;
-      state.restaurantName = null;
       state.role = null;
-      state.restaurantDescription = null;
       state.isRestoring = false;
     },
   },
 });
+
+export const logoutRequest = createAction('login/logoutRequest');
+export const restoreSession = createAction('login/restoreSession');
+
+export const actions = {
+  ...sliceActions,
+  logoutRequest,
+  restoreSession,
+};

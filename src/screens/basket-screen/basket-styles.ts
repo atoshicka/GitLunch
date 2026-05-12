@@ -105,12 +105,12 @@ export const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: '#22C55E',
-    backgroundColor: '#fff',
+    backgroundColor: '#F4F4F4',
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#fff',
+    backgroundColor: '#F4F4F4',
     borderColor: '#22C55E',
   },
   checkboxTick: {
@@ -136,7 +136,7 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     marginRight: 16,
     overflow: 'hidden',
-    backgroundColor: 'hidden',
+    backgroundColor: 'transparent',
   },
   imagePlaceholder: {
     fontSize: 40,
@@ -205,38 +205,14 @@ export const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
-  },
-  promoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  promoLabel: {
-    ...Typography.buttonRegular,
-    color: '#1F2937',
-  },
-  promoValue: {
-    ...Typography.bodyRegular,
-    color: '#1F2937',
-  },
-  discountRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  discountLabel: {
-    ...Typography.buttonRegular,
-    color: '#1F2937',
-  },
-  discountValue: {
-    ...Typography.bodyRegular,
-    color: '#1F2937',
+    alignItems: 'center',
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    width: '100%',
   },
   totalLabel: {
     ...Typography.buttonRegular,
@@ -247,16 +223,5 @@ export const styles = StyleSheet.create({
     ...Typography.titleSmall,
     fontWeight: '800',
     color: '#1F2937',
-  },
-  orderButton: {
-    backgroundColor: '#1F2937',
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-  },
-  orderButtonText: {
-    ...Typography.buttonRegular,
-    fontWeight: '600',
-    color: '#DFFCEA',
   },
 });

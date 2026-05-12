@@ -4,8 +4,14 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
 import { Images } from '../constants/images';
-import { SCREEN_NAMES, TAB_NAMES } from '../constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../constants/navigation/navigation';
 import { styles } from './tab-bar-styles';
+
+interface TabLayout {
+  left: MainTabName;
+  center: MainTabName | null;
+  right: MainTabName;
+}
 
 const { width } = Dimensions.get('window');
 
@@ -25,12 +31,6 @@ const TAB_ICONS: Record<string, SvgComponent> = {
 
 const MAIN_TABS = [TAB_NAMES.HOME, TAB_NAMES.MENU, TAB_NAMES.BASKET] as const;
 type MainTabName = (typeof MAIN_TABS)[number];
-
-interface TabLayout {
-  left: MainTabName;
-  center: MainTabName | null;
-  right: MainTabName;
-}
 
 export const TAB_BAR_HEIGHT = 90;
 export const TAB_BAR_CIRCLE_OVERFLOW = 8;

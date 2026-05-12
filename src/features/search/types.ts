@@ -4,5 +4,4 @@ export interface SearchState {
   query: string;
   results: Dish[];
   isSearching: boolean;
-  recentSearches: string[];
 }

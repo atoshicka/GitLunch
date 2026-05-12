@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
-import { Alert, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +11,8 @@ import { CartFeature } from '../../features/cart';
 import { CartDayGroup, CartItem } from '../../features/cart/types';
 import { DishModalFeature } from '../../features/dish-modal';
 import { Images } from '../../shared/constants/images';
-import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation/navigation';
+import { OrderButton } from '../../shared/order-button/order-button';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './basket-styles';
 
@@ -22,10 +24,14 @@ const SubtractIcon = Images.home.wave;
 const renderItemImage = (item: CartItem) => {
   if (item.imageUrl) {
     return (
-      <Image
-        source={{ uri: item.imageUrl }}
+      <FastImage
+        source={{
+          uri: item.imageUrl,
+          priority: FastImage.priority.normal,
+          cache: FastImage.cacheControl.immutable,
+        }}
         style={{ width: '100%', height: '100%', borderRadius: 12 }}
-        resizeMode="contain"
+        resizeMode={FastImage.resizeMode.contain}
       />
     );
   }
@@ -237,9 +243,7 @@ export const BasketScreen: React.FC = () => {
             <Text style={styles.totalLabel}>Итоговая цена:</Text>
             <Text style={styles.totalPrice}>{totalPrice.toFixed(2)} ₽</Text>
           </View>
-          <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
-            <Text style={styles.orderButtonText}>Оплатить</Text>
-          </TouchableOpacity>
+          <OrderButton onPress={handlePlaceOrder} />
         </View>
       )}
     </View>

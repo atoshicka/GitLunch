@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Category, Dish } from '../../entities/api/types/menu-types';
 import { MenuDaySection, MenuState } from './types';
 
@@ -12,12 +12,14 @@ const initialState: MenuState = {
   error: null,
 };
 
-export const { name, actions, reducer } = createSlice({
+export const {
+  name,
+  actions: sliceActions,
+  reducer,
+} = createSlice({
   name: 'menu',
   initialState,
   reducers: {
-    fetchDishes: () => {},
-    changeFilter: (_state, _action: PayloadAction<string>) => {},
     fetchDishesStart: (state) => {
       state.isLoading = true;
       state.error = null;
@@ -45,3 +47,12 @@ export const { name, actions, reducer } = createSlice({
     },
   },
 });
+
+export const fetchDishes = createAction('menu/fetchDishes');
+export const changeFilter = createAction<string>('menu/changeFilter');
+
+export const actions = {
+  ...sliceActions,
+  fetchDishes,
+  changeFilter,
+};

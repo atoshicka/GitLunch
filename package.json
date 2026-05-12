@@ -32,6 +32,7 @@
     "axios": "^1.13.4",
     "react": "19.2.0",
     "react-native": "0.83.1",
+    "react-native-fast-image": "^8.6.3",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-pager-view": "^8.0.0",
     "react-native-qrcode-svg": "^6.3.21",

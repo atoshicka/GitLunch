@@ -150,8 +150,8 @@ export function* createOrderSaga(
     );
 
     if (response.orders && response.orders.length > 0) {
-      for (const bOrder of response.orders) {
-        const order = mapBackendOrder(bOrder);
+      for (const border of response.orders) {
+        const order = mapBackendOrder(border);
         yield put(actions.createOrderSuccess(order));
         yield put(actions.setOrderLocalStart(order.id));
       }
@@ -186,23 +186,23 @@ export function* globalPollingWorker(apiService: ApiService): SagaIterator {
       const notifiedIds = new Set(state.notifiedOrderIds);
       let latestTime = lastSyncAt ?? '';
 
-      for (const bOrder of updatedOrders) {
-        const newStatus = normalizeStatus(bOrder.status);
-        const orderTime = bOrder.updated_at ?? bOrder.created_at ?? '';
+      for (const border of updatedOrders) {
+        const newStatus = normalizeStatus(border.status);
+        const orderTime = border.updated_at ?? border.created_at ?? '';
         if (orderTime > latestTime) latestTime = orderTime;
 
         yield put(
           actions.updateOrderStatus({
-            orderId: bOrder.id,
+            orderId: border.id,
             status: newStatus,
-            statusLabel: bOrder.status_label,
-            deliveryInfo: bOrder.delivery_info,
+            statusLabel: border.status_label,
+            deliveryInfo: border.delivery_info,
           })
         );
 
-        if (newStatus === 'ready' && !notifiedIds.has(bOrder.id)) {
-          yield call(showOrderReadyNotification, bOrder.order_number);
-          yield put(actions.markOrderAsNotified(bOrder.id));
+        if (newStatus === 'ready' && !notifiedIds.has(border.id)) {
+          yield call(showOrderReadyNotification, border.order_number);
+          yield put(actions.markOrderAsNotified(border.id));
         }
       }
 
