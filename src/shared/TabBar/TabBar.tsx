@@ -7,6 +7,12 @@ import { Images } from '../constants/images';
 import { SCREEN_NAMES, TAB_NAMES } from '../constants/navigation/navigation';
 import { styles } from './tab-bar-styles';
 
+interface TabLayout {
+  left: MainTabName;
+  center: MainTabName | null;
+  right: MainTabName;
+}
+
 const { width } = Dimensions.get('window');
 
 const NavigKrugIcon = Images.navigation.nanigKrug;
@@ -25,12 +31,6 @@ const TAB_ICONS: Record<string, SvgComponent> = {
 
 const MAIN_TABS = [TAB_NAMES.HOME, TAB_NAMES.MENU, TAB_NAMES.BASKET] as const;
 type MainTabName = (typeof MAIN_TABS)[number];
-
-interface TabLayout {
-  left: MainTabName;
-  center: MainTabName | null;
-  right: MainTabName;
-}
 
 export const TAB_BAR_HEIGHT = 90;
 export const TAB_BAR_CIRCLE_OVERFLOW = 8;

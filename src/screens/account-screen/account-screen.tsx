@@ -51,8 +51,6 @@ export const AccountScreen: React.FC = () => {
         case 'Мои заказы':
           navigation.navigate('Orders');
           break;
-        default:
-          console.log(`Нажат пункт: ${itemTitle}`);
       }
     },
     [navigation]

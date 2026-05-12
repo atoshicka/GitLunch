@@ -12,7 +12,7 @@ export const FormInput: React.FC<FormInputProps> = ({ error, style, ...props }) 
     <View style={styles.inputGroup}>
       <TextInput
         style={[styles.input, Typography.bodyRegular, error && styles.inputError, style]}
-        placeholderTextColor="#94A3B8"
+        placeholderTextColor="#495E7C"
         {...props}
       />
       {error && <Text style={[styles.errorText, Typography.caption]}>{error}</Text>}

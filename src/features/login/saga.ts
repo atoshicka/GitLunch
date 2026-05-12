@@ -66,7 +66,7 @@ function* handleLogout(): SagaIterator {
   yield put(RestaurantFeature.actions.resetRestaurant());
 }
 
-function* handleRestoreSession(apiService: ApiService): SagaIterator {
+function* handleRestoreSession(): SagaIterator {
   try {
     const token: string | null = yield call([AsyncStorage, 'getItem'], 'token');
     const userJson: string | null = yield call([AsyncStorage, 'getItem'], 'user');
@@ -77,18 +77,7 @@ function* handleRestoreSession(apiService: ApiService): SagaIterator {
     }
 
     const user = JSON.parse(userJson);
-
     api.defaults.headers.Authorization = `Bearer ${token}`;
-
-    try {
-      if (user.role === 'admin') {
-        yield call([apiService, apiService.getRestaurantProfile]);
-      } else {
-        yield call([apiService, apiService.getOrders]);
-      }
-    } catch (error) {
-      throw error;
-    }
 
     yield put(
       actions.restoreSessionSuccess({
@@ -113,5 +102,5 @@ function* handleRestoreSession(apiService: ApiService): SagaIterator {
 export function* watchLogin(apiService: ApiService): SagaIterator {
   yield takeLatest(actions.submitLogin.type, handleSubmitLogin, apiService);
   yield takeLatest(actions.logoutRequest.type, handleLogout);
-  yield takeLatest(actions.restoreSession.type, handleRestoreSession, apiService);
+  yield takeLatest(actions.restoreSession.type, handleRestoreSession);
 }

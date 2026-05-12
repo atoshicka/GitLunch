@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,8 +8,6 @@ import { RESTAURANT_MENU_ITEMS } from '../../shared/constants/constants';
 import { Images } from '../../shared/constants/images.ts';
 import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar.tsx';
 import { styles } from './restaurant-account-styles.ts.ts';
-
-type RestaurantMenuItemTitle = (typeof RESTAURANT_MENU_ITEMS)[number]['title'];
 
 const SubtractIcon = Images.home.wave;
 const SettingsIcon = Images.account.setting;
@@ -21,6 +19,10 @@ export const RestaurantAccountScreen: React.FC = () => {
   const restaurantDescription = useSelector(
     RestaurantFeature.selectors.selectRestaurantDescription
   );
+
+  useEffect(() => {
+    dispatch(RestaurantFeature.actions.fetchRestaurantProfile());
+  }, [dispatch]);
 
   const handleSettingsPress = useCallback(() => {
     console.log('Настройки');
@@ -41,10 +43,6 @@ export const RestaurantAccountScreen: React.FC = () => {
       { cancelable: true }
     );
   }, [dispatch]);
-
-  const handleMenuItemPress = useCallback((itemTitle: RestaurantMenuItemTitle) => {
-    console.log(`Нажат пункт: ${itemTitle}`);
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -83,11 +81,7 @@ export const RestaurantAccountScreen: React.FC = () => {
 
           <View style={styles.menuBlock}>
             {RESTAURANT_MENU_ITEMS.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.menuItem}
-                onPress={() => handleMenuItemPress(item.title)}
-              >
+              <TouchableOpacity key={item.id} style={styles.menuItem}>
                 <Text style={styles.menuItemText}>{item.title}</Text>
               </TouchableOpacity>
             ))}

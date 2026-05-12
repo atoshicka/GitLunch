@@ -79,8 +79,6 @@ export const styles = StyleSheet.create({
     ...Typography.bodySmall,
     color: '#999999',
   },
-
-  // Карточка заказа
   orderCard: {
     borderRadius: 12,
     padding: 12,
@@ -124,8 +122,6 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-
-  // Статус
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -145,8 +141,6 @@ export const styles = StyleSheet.create({
     ...Typography.caption,
     fontWeight: '600',
   },
-
-  // Блюда
   itemsContainer: {
     marginBottom: 8,
   },
@@ -188,8 +182,6 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1F2937',
   },
-
-  // Кнопки действий
   cancelButton: {
     marginTop: 10,
     borderWidth: 1.5,
@@ -215,8 +207,6 @@ export const styles = StyleSheet.create({
     color: '#1F2937',
     fontWeight: '700',
   },
-
-  // Модалка
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

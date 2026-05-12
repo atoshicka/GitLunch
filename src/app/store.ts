@@ -7,6 +7,7 @@ import {
   LoginFeature,
   MenuFeature,
   OrdersFeature,
+  RestaurantFeature,
   SearchFeature,
 } from '../features';
 import { rootSaga } from './saga';
@@ -21,6 +22,7 @@ export const store = configureStore({
     ...MenuFeature.reducer,
     ...OrdersFeature.reducer,
     ...SearchFeature.reducer,
+    ...RestaurantFeature.reducer,
     ...DishModalFeature.reducer,
   },
   middleware: (getDefaultMiddleware) =>

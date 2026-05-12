@@ -4,7 +4,7 @@ import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F4F4F4',
     paddingHorizontal: 20,
     justifyContent: 'center',
     position: 'relative',
@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
   generalError: {
     textAlign: 'center',
     marginBottom: 8,
-    color: '#ef4444',
+    color: '#FA2020',
   },
   button: {
     backgroundColor: '#1BB910',
