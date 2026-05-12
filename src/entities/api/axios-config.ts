@@ -1,12 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { store } from '../../app/store';
+import { LoginFeature } from '../../features/login';
 import { getApiConfig } from './api';
 
 const { BASE_URL, DEBUG } = getApiConfig();
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -14,39 +16,38 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    if (DEBUG) {
-      console.log(`API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
-      if (config.data) {
-        console.log('Request Data:', config.data);
+    if (!config.headers.Authorization) {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
+    }
+
+    if (DEBUG) {
+      console.log(`[API Request]: ${config.method?.toUpperCase()} ${config.url}`);
     }
     return config;
   },
-  (error: unknown) => {
-    console.error('Request Error:', error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
   (response) => {
     if (DEBUG) {
-      console.log(`API Response: ${response.status} ${response.config.url}`);
+      console.log(`[API Response]: ${response.status} ${response.config.url}`);
     }
     return response;
   },
-  (error: unknown) => {
+  async (error) => {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
-      const message = (error.response?.data as { message?: string })?.message ?? error.message;
-      console.error(`API Error [${status}]:`, message);
+      if (status === 401) {
+        console.warn('Сессия истекла (401). Чистим всё.');
+        await AsyncStorage.multiRemove(['token', 'user']);
+        delete api.defaults.headers.Authorization;
+        store.dispatch(LoginFeature.actions.logout());
+      }
     }
     return Promise.reject(error);
   }
 );
-
-export const API_BASE_URL = BASE_URL;

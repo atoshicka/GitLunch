@@ -2,8 +2,6 @@ import { watchMenu } from './saga';
 import { selectors } from './selectors';
 import { actions, name, reducer } from './slice';
 
-export const MENU_SLICE_NAME = name;
-
 export const MenuFeature = {
   actions,
   sagas: {

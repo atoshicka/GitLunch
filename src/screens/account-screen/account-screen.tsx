@@ -1,9 +1,9 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { LoginFeature } from '../../features/login';
 import { Images } from '../../shared/constants/images';
@@ -13,11 +13,9 @@ import { styles } from './account-styles';
 const MENU_ITEMS = [
   { id: '1', title: 'Мои заказы' },
   { id: '2', title: 'Поддержка' },
-  { id: '3', title: 'Уведомления' },
-  { id: '4', title: 'Промокоды' },
-  { id: '5', title: 'Адреса' },
-  { id: '6', title: 'О сервисе' },
-  { id: '7', title: 'Способы оплаты' },
+  { id: '3', title: 'Адреса' },
+  { id: '4', title: 'О сервисе' },
+  { id: '5', title: 'Способы оплаты' },
 ] as const;
 
 type MenuItemTitle = (typeof MENU_ITEMS)[number]['title'];
@@ -27,6 +25,7 @@ const SubtractIcon = Images.home.wave;
 
 export const AccountScreen: React.FC = () => {
   const navigation = useNavigation<AccountScreenNavigationProp>();
+  const dispatch = useDispatch();
   const userName = useSelector(LoginFeature.selectors.selectUserName);
 
   const handleSettingsPress = () => {
@@ -35,6 +34,24 @@ export const AccountScreen: React.FC = () => {
 
   const handleBackPress = () => {
     navigation.goBack();
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Выход из аккаунта',
+      'Вы уверены, что хотите выйти?',
+      [
+        { text: 'Нет', style: 'cancel' },
+        {
+          text: 'Да',
+          style: 'destructive',
+          onPress: () => {
+            dispatch(LoginFeature.actions.logoutRequest());
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleMenuItemPress = (itemTitle: MenuItemTitle) => {
@@ -81,7 +98,8 @@ export const AccountScreen: React.FC = () => {
               <AccountIcon width={80} height={80} />
             </View>
           </View>
-          <Text style={styles.userName}>{userName || 'Гость'}</Text>
+          <Text style={styles.userName}>{userName ?? 'Гость'}</Text>
+
           <View style={styles.menuBlock}>
             {MENU_ITEMS.map((item) => (
               <TouchableOpacity
@@ -92,6 +110,13 @@ export const AccountScreen: React.FC = () => {
                 <Text style={styles.menuItemText}>{item.title}</Text>
               </TouchableOpacity>
             ))}
+
+            <TouchableOpacity
+              style={[styles.menuItem, { borderBottomWidth: 0 }]}
+              onPress={handleLogout}
+            >
+              <Text style={[styles.menuItemText, { color: '#FA2020' }]}>Выйти</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

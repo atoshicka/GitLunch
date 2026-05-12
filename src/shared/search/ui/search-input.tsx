@@ -26,48 +26,35 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 }) => {
   const SearchIcon = Images.search.icon;
 
-  if (onPress) {
-    return (
-      <View style={styles.wrapper}>
-        <TouchableOpacity
-          style={[styles.container, styles.searchContainer, style]}
-          onPress={onPress}
-          activeOpacity={0.7}
-        >
-          <View style={styles.placeholderContainer}>
-            <SearchIcon width={24} height={24} style={styles.searchIcon} />
-            <TextInput
-              style={styles.placeholderText}
-              placeholder={placeholder}
-              placeholderTextColor="#94A3B8"
-              editable={false}
-              pointerEvents="none"
-            />
-          </View>
-        </TouchableOpacity>
-        {rightElement && <View style={styles.rightElementContainer}>{rightElement}</View>}
+  const inputContent = (
+    <View style={[styles.container, styles.searchContainer, style]}>
+      <View style={styles.inputWrapper}>
+        <SearchIcon width={24} height={24} style={styles.searchIcon} />
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          placeholderTextColor="#94A3B8"
+          value={value}
+          onChangeText={onChangeText}
+          onSubmitEditing={onSubmitEditing}
+          returnKeyType="search"
+          autoFocus={onPress === undefined}
+          editable={onPress === undefined && editable}
+          pointerEvents={onPress !== undefined ? 'none' : 'auto'}
+        />
       </View>
-    );
-  }
+    </View>
+  );
 
   return (
     <View style={styles.wrapper}>
-      <View style={[styles.container, styles.searchContainer, style]}>
-        <View style={styles.inputWrapper}>
-          <SearchIcon width={24} height={24} style={styles.searchIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder={placeholder}
-            placeholderTextColor="#94A3B8"
-            value={value}
-            onChangeText={onChangeText}
-            onSubmitEditing={onSubmitEditing}
-            returnKeyType="search"
-            autoFocus
-            editable={editable}
-          />
-        </View>
-      </View>
+      {onPress !== undefined ? (
+        <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.searchTouchable}>
+          {inputContent}
+        </TouchableOpacity>
+      ) : (
+        inputContent
+      )}
       {rightElement && <View style={styles.rightElementContainer}>{rightElement}</View>}
     </View>
   );

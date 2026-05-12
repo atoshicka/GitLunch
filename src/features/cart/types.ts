@@ -7,12 +7,21 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  imageSvg?: FC<SvgProps>;
   imageUrl?: string;
+  imageSvg?: FC<SvgProps>;
+}
+
+export interface CartDayGroup {
+  date: string;
+  dayName: string;
+  items: CartItem[];
+  total: number;
+  selected: boolean;
 }
 
 export interface CartState {
-  items: CartItem[];
+  dayGroups: CartDayGroup[];
   loading: boolean;
   error: string | null;
+  initialized: boolean;
 }

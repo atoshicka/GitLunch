@@ -4,7 +4,7 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SvgProps } from 'react-native-svg';
 import { Images } from '../constants/images';
-import { TAB_NAMES } from '../constants/navigation';
+import { SCREEN_NAMES, TAB_NAMES } from '../constants/navigation';
 import { styles } from './tab-bar-styles';
 
 const { width } = Dimensions.get('window');
@@ -34,36 +34,12 @@ interface TabLayout {
 
 export const TAB_BAR_HEIGHT = 90;
 export const TAB_BAR_CIRCLE_OVERFLOW = 8;
-
 const WAVE_HEIGHT = 70;
 const CIRCLE_SIZE = 64;
 
 export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation }) => {
   const insets = useSafeAreaInsets();
   const previousMainTab = useRef<MainTabName>(TAB_NAMES.HOME);
-
-  const currentRouteName = state.routes[state.index].name;
-  const isAccountScreen = currentRouteName === TAB_NAMES.ACCOUNT;
-
-  const isMainTab = (name: string): name is MainTabName =>
-    (MAIN_TABS as readonly string[]).includes(name);
-
-  if (isMainTab(currentRouteName)) {
-    previousMainTab.current = currentRouteName;
-  }
-
-  const getLayout = (): TabLayout => {
-    const activeInMain: MainTabName = previousMainTab.current;
-    const others = MAIN_TABS.filter((name) => name !== activeInMain) as [MainTabName, MainTabName];
-    return {
-      left: others[0],
-      center: isAccountScreen ? null : activeInMain,
-      right: others[1],
-    };
-  };
-
-  const layout = getLayout();
-  const circleBottom = WAVE_HEIGHT - CIRCLE_SIZE / 2 + TAB_BAR_CIRCLE_OVERFLOW;
 
   const handleTabPress = useCallback(
     (routeName: string) => {
@@ -81,11 +57,42 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
     [navigation, state.routes]
   );
 
-  const renderIcon = (
-    routeName: MainTabName,
-    size: number,
-    opacity: number = 1
-  ): React.ReactElement | null => {
+  const currentRouteName = state.routes[state.index].name;
+
+  if (currentRouteName === TAB_NAMES.BASKET) return null;
+
+  const SPECIAL_SCREENS: string[] = [
+    TAB_NAMES.ACCOUNT,
+    TAB_NAMES.ORDERS,
+    TAB_NAMES.PAYMENT,
+    TAB_NAMES.SUCCESS,
+    TAB_NAMES.ERROR,
+    SCREEN_NAMES.RESTAURANT_MAIN,
+  ];
+
+  const isSpecialScreen = SPECIAL_SCREENS.includes(currentRouteName);
+
+  const isMainTab = (name: string): name is MainTabName =>
+    (MAIN_TABS as readonly string[]).includes(name);
+
+  if (isMainTab(currentRouteName)) {
+    previousMainTab.current = currentRouteName as MainTabName;
+  }
+
+  const getLayout = (): TabLayout => {
+    const activeInMain = previousMainTab.current;
+    const others = MAIN_TABS.filter((name) => name !== activeInMain) as [MainTabName, MainTabName];
+    return {
+      left: others[0],
+      center: isSpecialScreen ? null : activeInMain,
+      right: others[1],
+    };
+  };
+
+  const layout = getLayout();
+  const circleBottom = WAVE_HEIGHT - CIRCLE_SIZE / 2 + TAB_BAR_CIRCLE_OVERFLOW;
+
+  const renderIcon = (routeName: MainTabName, size: number, opacity: number = 1) => {
     const Icon = TAB_ICONS[routeName];
     if (!Icon) return null;
     return <Icon width={size} height={size} style={{ opacity }} />;
@@ -100,23 +107,15 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
         <NavWaveIcon width={width} height={WAVE_HEIGHT} preserveAspectRatio="none" />
       </View>
 
-      {!isAccountScreen && (
+      {!isSpecialScreen && (
         <>
           <View style={[styles.sideButtonsRow, { bottom: insets.bottom + WAVE_HEIGHT / 2 - 22 }]}>
-            <TouchableOpacity
-              style={styles.sideButton}
-              onPress={() => handleTabPress(layout.left)}
-              activeOpacity={0.7}
-            >
+            <TouchableOpacity style={styles.sideButton} onPress={() => handleTabPress(layout.left)}>
               {renderIcon(layout.left, 28, 0.8)}
             </TouchableOpacity>
-
-            <View style={{ width: CIRCLE_SIZE + 16 }} />
-
             <TouchableOpacity
               style={styles.sideButton}
               onPress={() => handleTabPress(layout.right)}
-              activeOpacity={0.7}
             >
               {renderIcon(layout.right, 28, 0.8)}
             </TouchableOpacity>
@@ -126,11 +125,7 @@ export const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, navigation })
             <View
               style={[
                 styles.circleWrapper,
-                {
-                  bottom: insets.bottom + circleBottom,
-                  width: CIRCLE_SIZE,
-                  height: CIRCLE_SIZE,
-                },
+                { bottom: insets.bottom + circleBottom, width: CIRCLE_SIZE, height: CIRCLE_SIZE },
               ]}
               pointerEvents="none"
             >

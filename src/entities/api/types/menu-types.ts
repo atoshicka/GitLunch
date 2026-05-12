@@ -10,8 +10,9 @@ export interface Dish {
   id: number;
   name: string;
   description: string;
-  price: string;
+  price: number;
   image_url?: string;
+  imageUrl?: string;
   categories?: DishCategory[];
   category: DishCategory;
   meal_category?: number;
@@ -38,4 +39,10 @@ export interface MenuResponse {
   dishes: Dish[];
   categories: Category[];
   total: number;
+}
+
+export interface MenuByDayResponse {
+  day: string;
+  wday: number;
+  items: Dish[];
 }

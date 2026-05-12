@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CartItem, CartState } from './types';
+import { CartDayGroup, CartItem, CartState } from './types';
 
 const initialState: CartState = {
-  items: [],
+  dayGroups: [],
   loading: false,
   error: null,
+  initialized: false,
 };
 
 export const { name, actions, reducer } = createSlice({
@@ -12,11 +13,43 @@ export const { name, actions, reducer } = createSlice({
   initialState,
   reducers: {
     fetchCart: () => {},
-    setCartFromBackend(state, action: PayloadAction<CartItem[]>) {
-      state.items = action.payload;
+    fetchCartSilent: () => {},
+
+    setCartFromBackend(state, action: PayloadAction<CartDayGroup[]>) {
+      const selectedDates = new Set(state.dayGroups.filter((g) => g.selected).map((g) => g.date));
+      state.dayGroups = action.payload.map((g) => ({
+        ...g,
+        selected: selectedDates.has(g.date),
+      }));
       state.loading = false;
       state.error = null;
+      state.initialized = true;
     },
+
+    addToCart(_state, _action: PayloadAction<Omit<CartItem, 'quantity'>>) {},
+    decreaseQuantity(_state, _action: PayloadAction<{ id: string; cartItemId?: number }>) {},
+    removeFromCart(_state, _action: PayloadAction<{ id: string; cartItemId?: number }>) {},
+
+    toggleDaySelected(state, action: PayloadAction<string>) {
+      const group = state.dayGroups.find((g) => g.date === action.payload);
+      if (group) group.selected = !group.selected;
+    },
+
+    clearSelectedDays(state, action: PayloadAction<string[]>) {
+      state.dayGroups = state.dayGroups.filter((g) => !action.payload.includes(g.date));
+    },
+
+    setCartItemBackendId(
+      state,
+      action: PayloadAction<{ menuItemId: string; cartItemId: number; date: string }>
+    ) {
+      const group = state.dayGroups.find((g) => g.date === action.payload.date);
+      if (group) {
+        const item = group.items.find((i) => i.id === action.payload.menuItemId);
+        if (item) item.cartItemId = action.payload.cartItemId;
+      }
+    },
+
     setCartLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
@@ -24,37 +57,11 @@ export const { name, actions, reducer } = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
-    addToCart(state, action: PayloadAction<Omit<CartItem, 'quantity'>>) {
-      const existing = state.items.find((i) => i.id === action.payload.id);
-      if (existing) {
-        existing.quantity += 1;
-        if (action.payload.cartItemId) {
-          existing.cartItemId = action.payload.cartItemId;
-        }
-      } else {
-        state.items.push({ ...action.payload, quantity: 1 });
-      }
-    },
-    decreaseQuantity(state, action: PayloadAction<{ id: string; cartItemId?: number }>) {
-      const idx = state.items.findIndex((i) => i.id === action.payload.id);
-      if (idx === -1) return;
-      if (state.items[idx].quantity <= 1) {
-        state.items.splice(idx, 1);
-      } else {
-        state.items[idx].quantity -= 1;
-      }
-    },
-    removeFromCart(state, action: PayloadAction<{ id: string; cartItemId?: number }>) {
-      state.items = state.items.filter((i) => i.id !== action.payload.id);
-    },
-    setCartItemBackendId(state, action: PayloadAction<{ menuItemId: string; cartItemId: number }>) {
-      const item = state.items.find((i) => i.id === action.payload.menuItemId);
-      if (item) {
-        item.cartItemId = action.payload.cartItemId;
-      }
+    setCartInitialized(state) {
+      state.initialized = true;
     },
     clearCart(state) {
-      state.items = [];
+      state.dayGroups = [];
     },
   },
 });

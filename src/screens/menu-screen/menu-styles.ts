@@ -1,8 +1,6 @@
-import { Dimensions, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
 import { Typography } from '../../shared/fontsFile/fonts';
-
-const { width } = Dimensions.get('window');
-const cardWidth = (width - 48) / 2;
 
 export const styles = StyleSheet.create({
   container: {
@@ -32,108 +30,85 @@ export const styles = StyleSheet.create({
   },
   searchWrapper: {
     paddingHorizontal: 16,
-    paddingTop: 80,
+    paddingTop: 40,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 4,
+  },
+  backButtonText: {
+    fontSize: 40,
+    color: '#1F2937',
+    lineHeight: 44,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+  },
+  searchWrapperInner: {
+    flex: 1,
+    marginRight: 8,
+  },
+  accountButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cafeTitle: {
-    ...Typography.decorativeMedium,
+    ...AgbalumoTypography.agbalumoSmall,
     color: '#1F2937',
     textAlign: 'center',
-    marginTop: 12,
+    fontSize: 28,
+    fontWeight: '800',
+    paddingHorizontal: 8,
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
-  sectionTitle: {
+  contentContainer: {
+    flex: 1,
+    paddingTop: 40,
+  },
+  menuTitle: {
     ...Typography.titleSmall,
     color: '#1F2937',
+    fontWeight: '800',
+    fontSize: 22,
     paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
+    marginBottom: 12,
   },
   filtersWrapper: {
-    marginBottom: 16,
+    marginBottom: 8,
     minHeight: 44,
     backgroundColor: '#F4F4F4',
   },
   dishesGrid: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-  },
-  dishCard: {
-    width: cardWidth,
-    marginRight: 8,
-    marginBottom: 16,
-    backgroundColor: '#DFFCEA',
-    borderRadius: 30,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  imageContainer: {
-    width: '100%',
-    aspectRatio: 1,
-    backgroundColor: 'transparent',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-    overflow: 'hidden',
-  },
-  imagePlaceholder: {
-    ...Typography.titleMedium,
-    fontSize: 40,
-  },
-  dishName: {
-    ...Typography.bodyRegular,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  dishPrice: {
-    ...Typography.buttonRegular,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 12,
-  },
-  addToCartButton: {
-    backgroundColor: '#22C55E',
-    borderRadius: 15,
-    paddingVertical: 10,
     paddingHorizontal: 12,
-    width: '100%',
-    alignItems: 'center',
+    paddingTop: 8,
   },
-  addToCartButtonText: {
-    ...Typography.buttonSmall,
+  sectionHeader: {
+    paddingHorizontal: 4,
+    paddingTop: 16,
+    paddingBottom: 10,
+  },
+  sectionWeekday: {
+    ...Typography.titleSmall,
     color: '#1F2937',
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  quantityControl: {
+  row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginTop: 4,
+    gap: 8,
+    marginBottom: 8,
   },
-  quantityButton: {
-    backgroundColor: '#22C55E',
-    width: 36,
-    height: 30,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quantityButtonText: {
-    ...Typography.buttonRegular,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    fontSize: 20,
-  },
-  quantityText: {
-    ...Typography.bodyRegular,
-    color: '#1F2937',
-    minWidth: 30,
-    textAlign: 'center',
+  cardWrapper: {
+    flex: 1,
   },
   emptyText: {
     ...Typography.bodyRegular,

@@ -4,11 +4,14 @@ export const styles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    width: '100%',
+  },
+  searchTouchable: {
+    flex: 1,
   },
   container: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: '#F4F4F4',
     borderRadius: 30,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -48,5 +51,6 @@ export const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 8,
   },
 });

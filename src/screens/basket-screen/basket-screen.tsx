@@ -1,43 +1,23 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Alert, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { CartFeature } from '../../features/cart';
-import { CartItem } from '../../features/cart/types';
-import { OrdersFeature } from '../../features/orders';
+import { CartDayGroup, CartItem } from '../../features/cart/types';
+import { DishModalFeature } from '../../features/dish-modal';
 import { Images } from '../../shared/constants/images';
-import { DishModal } from '../../shared/dish-modal/dish-modal';
+import { SCREEN_NAMES, TAB_NAMES } from '../../shared/constants/navigation';
 import { SearchInput } from '../../shared/search/ui/search-input';
 import { styles } from './basket-styles';
 
-type BasketScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+type BasketScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const AccountIcon = Images.navigation.account;
 const SubtractIcon = Images.home.wave;
-
-const getCurrentDateInfo = () => {
-  const now = new Date();
-  const daysOfWeek = [
-    'Воскресенье',
-    'Понедельник',
-    'Вторник',
-    'Среда',
-    'Четверг',
-    'Пятница',
-    'Суббота',
-  ];
-  const date = now.toLocaleDateString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-  const dayOfWeek = daysOfWeek[now.getDay()];
-  return { date, dayOfWeek };
-};
 
 const renderItemImage = (item: CartItem) => {
   if (item.imageUrl) {
@@ -60,50 +40,25 @@ export const BasketScreen: React.FC = () => {
   const navigation = useNavigation<BasketScreenNavigationProp>();
   const dispatch = useDispatch();
 
-  const items = useSelector(CartFeature.selectors.selectCartItems);
-  const totalPrice = useSelector(CartFeature.selectors.selectCartTotalPrice);
-  const totalItems = useSelector(CartFeature.selectors.selectCartTotalItems);
+  const dayGroups = useSelector(CartFeature.selectors.selectDayGroups);
+  const totalPrice = useSelector(CartFeature.selectors.selectTotalPrice);
   const loading = useSelector(CartFeature.selectors.selectCartLoading);
   const error = useSelector(CartFeature.selectors.selectCartError);
-
-  const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
+  const allItems = useSelector(CartFeature.selectors.selectAllItems);
+  const selectedDates = useSelector(CartFeature.selectors.selectSelectedDates);
 
   useEffect(() => {
     dispatch(CartFeature.actions.fetchCart());
   }, [dispatch]);
 
   const handleBackPress = useCallback(() => {
-    navigation.goBack();
+    if (navigation.canGoBack()) navigation.goBack();
+    else navigation.navigate(SCREEN_NAMES.TABS, { screen: TAB_NAMES.HOME });
   }, [navigation]);
 
-  const handleSearchPress = useCallback(() => {
-    navigation.navigate('Search', {});
-  }, [navigation]);
-
-  const handleAccountPress = useCallback(() => {
-    navigation.navigate('Tabs', { screen: 'Аккаунт' });
-  }, [navigation]);
-
-  const handleDishPress = useCallback((id: string) => {
-    setSelectedDishId(Number(id));
-  }, []);
-
-  const handleModalClose = useCallback(() => {
-    setSelectedDishId(null);
-  }, []);
-
-  const handleAddToCart = useCallback(
-    (item: CartItem) => {
-      dispatch(
-        CartFeature.actions.addToCart({
-          id: item.id,
-          cartItemId: item.cartItemId,
-          name: item.name,
-          price: item.price,
-          imageSvg: item.imageSvg,
-          imageUrl: item.imageUrl,
-        })
-      );
+  const handleDishPress = useCallback(
+    (id: string) => {
+      dispatch(DishModalFeature.actions.openDishModal(Number(id)));
     },
     [dispatch]
   );
@@ -122,35 +77,44 @@ export const BasketScreen: React.FC = () => {
     [dispatch]
   );
 
+  const handleToggleDay = useCallback(
+    (date: string) => {
+      dispatch(CartFeature.actions.toggleDaySelected(date));
+    },
+    [dispatch]
+  );
+
   const handlePlaceOrder = useCallback(() => {
-    if (items.length === 0) {
-      Alert.alert('Корзина пуста', 'Добавьте блюда в корзину');
+    if (selectedDates.length === 0) {
+      Alert.alert('Выберите дни', 'Отметьте хотя бы один день для заказа');
       return;
     }
-    const { date, dayOfWeek } = getCurrentDateInfo();
-    const code = Math.floor(10000 + Math.random() * 90000).toString();
-    const newOrder = {
-      id: Date.now().toString(),
-      date,
-      dayOfWeek,
-      code,
-      items: items.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-      })),
-      totalPrice,
-      totalItems,
-    };
-    dispatch(OrdersFeature.actions.addOrder(newOrder));
-    dispatch(CartFeature.actions.clearCart());
-    Alert.alert('Успешно', 'Заказ оформлен!');
-  }, [dispatch, items, totalPrice, totalItems]);
+    navigation.navigate(SCREEN_NAMES.PAYMENT);
+  }, [selectedDates, navigation]);
 
-  const renderItem = useCallback(
-    ({ item }: { item: CartItem }) => (
-      <TouchableOpacity activeOpacity={0.85} onPress={() => handleDishPress(item.id)}>
+  const handleAddToCart = useCallback(
+    (item: CartItem) => {
+      dispatch(
+        CartFeature.actions.addToCart({
+          id: item.id,
+          cartItemId: item.cartItemId,
+          name: item.name,
+          price: item.price,
+          imageSvg: item.imageSvg,
+          imageUrl: item.imageUrl,
+        })
+      );
+    },
+    [dispatch]
+  );
+
+  const renderCartItem = useCallback(
+    (item: CartItem) => (
+      <TouchableOpacity
+        key={item.cartItemId}
+        activeOpacity={0.85}
+        onPress={() => handleDishPress(item.id)}
+      >
         <LinearGradient
           colors={['#F4F4F4', '#A8F0B5', '#86EFAC']}
           locations={[0, 0.8, 1.3]}
@@ -164,7 +128,10 @@ export const BasketScreen: React.FC = () => {
               <Text style={styles.itemName} numberOfLines={2}>
                 {item.name}
               </Text>
-              <TouchableOpacity onPress={() => handleRemove(item)}>
+              <TouchableOpacity
+                onPress={() => handleRemove(item)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <Text style={styles.removeButton}>✕</Text>
               </TouchableOpacity>
             </View>
@@ -182,93 +149,99 @@ export const BasketScreen: React.FC = () => {
         </LinearGradient>
       </TouchableOpacity>
     ),
-    [handleAddToCart, handleDecrease, handleDishPress, handleRemove]
+    [handleDishPress, handleDecrease, handleRemove, handleAddToCart]
   );
 
-  const waveHeader = (
-    <View style={styles.waveSection}>
-      <View style={styles.waveBackground}>
-        <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
-      </View>
-      <SafeAreaView edges={['top']} style={styles.searchContainer}>
-        <View style={styles.searchWrapper}>
-          <View style={styles.topBar}>
-            <TouchableOpacity style={styles.topBarButton} onPress={handleBackPress}>
-              <Text style={styles.backButtonText}>‹</Text>
-            </TouchableOpacity>
-            <View style={styles.searchInputWrapper}>
-              <SearchInput onPress={handleSearchPress} placeholder="Поиск" />
-            </View>
-            <TouchableOpacity style={styles.topBarButton} onPress={handleAccountPress}>
-              <AccountIcon width={36} height={36} />
-            </TouchableOpacity>
+  const renderDayGroup = useCallback(
+    ({ item: group }: { item: CartDayGroup }) => (
+      <View style={styles.groupContainer}>
+        <TouchableOpacity
+          style={styles.groupHeader}
+          onPress={() => handleToggleDay(group.date)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.groupHeaderLeft}>
+            <Text style={styles.groupWeekday}>{group.dayName}</Text>
+            <Text style={styles.groupDate}>{group.date}</Text>
           </View>
-          <Text style={styles.cafeTitle}>Корзина</Text>
-        </View>
-      </SafeAreaView>
-    </View>
+          <View style={[styles.checkbox, group.selected && styles.checkboxSelected]}>
+            {group.selected && <View style={styles.checkboxTick} />}
+          </View>
+        </TouchableOpacity>
+        {group.items.map((item) => renderCartItem(item))}
+      </View>
+    ),
+    [handleToggleDay, renderCartItem]
   );
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        {waveHeader}
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Загрузка...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        {waveHeader}
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>{error}</Text>
-          <TouchableOpacity onPress={() => dispatch(CartFeature.actions.fetchCart())}>
-            <Text style={{ color: '#86EFAC', marginTop: 12 }}>Повторить</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
-  if (items.length === 0) {
-    return (
-      <View style={styles.container}>
-        {waveHeader}
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Корзина пуста</Text>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-      {waveHeader}
-      <FlatList
-        data={items}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
-      <View style={styles.footer}>
-        <View style={styles.totalContainer}>
-          <Text style={styles.totalLabel}>Итого:</Text>
-          <Text style={styles.totalPrice}>{totalPrice} ₽</Text>
+      <View style={styles.waveSection}>
+        <View style={styles.waveBackground}>
+          <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
         </View>
-        <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
-          <Text style={styles.orderButtonText}>Оформить заказ</Text>
-        </TouchableOpacity>
+        <SafeAreaView edges={['top']} style={styles.searchContainer}>
+          <View style={styles.searchWrapper}>
+            <View style={styles.topBar}>
+              <TouchableOpacity style={styles.topBarButton} onPress={handleBackPress}>
+                <Text style={styles.backButtonText}>‹</Text>
+              </TouchableOpacity>
+              <View style={styles.searchInputWrapper}>
+                <SearchInput
+                  onPress={() => navigation.navigate(SCREEN_NAMES.SEARCH, {})}
+                  placeholder="Поиск"
+                />
+              </View>
+              <TouchableOpacity
+                style={styles.topBarButton}
+                onPress={() =>
+                  navigation.navigate(SCREEN_NAMES.TABS, { screen: TAB_NAMES.ACCOUNT })
+                }
+              >
+                <AccountIcon width={36} height={36} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.cafeTitle}>Корзина</Text>
+          </View>
+        </SafeAreaView>
       </View>
-      <DishModal
-        dishId={selectedDishId}
-        visible={selectedDishId !== null}
-        onClose={handleModalClose}
-      />
+
+      {loading ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Загрузка...</Text>
+        </View>
+      ) : error ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>{error}</Text>
+          <TouchableOpacity onPress={() => dispatch(CartFeature.actions.fetchCart())}>
+            <Text style={{ color: '#22C55E', marginTop: 12 }}>Повторить</Text>
+          </TouchableOpacity>
+        </View>
+      ) : dayGroups.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Корзина пуста</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={dayGroups}
+          renderItem={renderDayGroup}
+          keyExtractor={(group) => group.date}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+
+      {allItems.length > 0 && (
+        <View style={styles.footer}>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Итоговая цена:</Text>
+            <Text style={styles.totalPrice}>{totalPrice.toFixed(2)} ₽</Text>
+          </View>
+          <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
+            <Text style={styles.orderButtonText}>Оплатить</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

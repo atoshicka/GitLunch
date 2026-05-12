@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -12,151 +12,117 @@ import {
   View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { createApiService } from '../../entities/api/api-interface';
-import { api } from '../../entities/api/axios-config';
-import { Dish } from '../../entities/api/types/menu-types';
+import { BASE_URL } from '../../entities/api/api-interface';
 import { CartFeature } from '../../features/cart';
 import { CartItem } from '../../features/cart/types';
+import { DishModalFeature } from '../../features/dish-modal';
 import { styles } from './dish-modal-styles';
-
-const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
-const apiService = createApiService(api);
 
 const SWIPE_THRESHOLD = 80;
 
-interface DishModalProps {
-  dishId: number | null;
-  visible: boolean;
-  onClose: () => void;
-}
-
-interface NutritionRowProps {
+interface NutritionItem {
   label: string;
   value: string;
-  isLast?: boolean;
 }
 
-const NutritionRow: React.FC<NutritionRowProps> = ({ label, value, isLast }) => (
+const NutritionRow: React.FC<NutritionItem & { isLast?: boolean }> = ({ label, value, isLast }) => (
   <View style={[styles.nutritionRow, isLast && { borderBottomWidth: 0 }]}>
     <Text style={styles.nutritionLabel}>{label}</Text>
     <Text style={styles.nutritionValue}>{value}</Text>
   </View>
 );
 
-export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }) => {
+export const DishModal: React.FC = () => {
   const dispatch = useDispatch();
-  const [dish, setDish] = useState<Dish | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const isOpen = useSelector(DishModalFeature.selectors.selectIsOpen);
+  const dish = useSelector(DishModalFeature.selectors.selectDish);
+  const isLoading = useSelector(DishModalFeature.selectors.selectIsLoading);
+  const error = useSelector(DishModalFeature.selectors.selectError);
+  const dishId = useSelector(DishModalFeature.selectors.selectDishId);
+
+  const cartItem = useSelector(
+    CartFeature.selectors.selectCartItemById(dish ? String(dish.id) : '')
+  ) as CartItem | null;
+  const quantity = cartItem?.quantity ?? 0;
 
   const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isOpen) {
+      translateY.setValue(0);
+    }
+  }, [isOpen, translateY]);
+
+  const handleClose = useCallback(() => {
+    dispatch(DishModalFeature.actions.closeDishModal());
+  }, [dispatch]);
+
+  const handleRetry = useCallback(() => {
+    if (dishId !== null) {
+      dispatch(DishModalFeature.actions.openDishModal(dishId));
+    }
+  }, [dispatch, dishId]);
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 0,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          translateY.setValue(gestureState.dy);
-        }
+      onMoveShouldSetPanResponder: (_, { dy }) => dy > 0,
+      onPanResponderMove: (_, { dy }) => {
+        if (dy > 0) translateY.setValue(dy);
       },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > SWIPE_THRESHOLD) {
+      onPanResponderRelease: (_, { dy }) => {
+        if (dy > SWIPE_THRESHOLD) {
           Animated.timing(translateY, {
             toValue: 600,
             duration: 200,
             useNativeDriver: true,
-          }).start(() => {
-            onClose();
-          });
+          }).start(handleClose);
         } else {
-          Animated.spring(translateY, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
+          Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
         }
       },
     })
   ).current;
 
-  const cartItemSelector = CartFeature.selectors.selectCartItemById(dish ? String(dish.id) : '');
-  const cartItem = useSelector(cartItemSelector) as CartItem | null;
-  const quantity = cartItem?.quantity ?? 0;
+  const handleCartAction = useCallback(
+    (type: 'add' | 'decrease') => {
+      if (!dish) return;
+      const action =
+        type === 'add' ? CartFeature.actions.addToCart : CartFeature.actions.decreaseQuantity;
 
-  const fetchDish = useCallback(async (id: number) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await apiService.getDishById(String(id));
-      setDish(result);
-    } catch {
-      setError('Не удалось загрузить блюдо');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      dispatch(
+        action({
+          id: String(dish.id),
+          cartItemId: cartItem?.cartItemId,
+          name: dish.name,
+          price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
+          imageSvg: dish.imageSvg,
+          imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
+        })
+      );
+    },
+    [dispatch, dish, cartItem]
+  );
 
-  useEffect(() => {
-    if (visible && dishId !== null) {
-      translateY.setValue(0);
-      fetchDish(dishId);
-    } else {
-      const timer = setTimeout(() => {
-        setDish(null);
-        setError(null);
-      }, 250);
-      return () => clearTimeout(timer);
-    }
-  }, [visible, dishId, fetchDish, translateY]);
-
-  const handleAddToCart = useCallback(() => {
-    if (!dish) return;
-    dispatch(
-      CartFeature.actions.addToCart({
-        id: String(dish.id),
-        cartItemId: cartItem?.cartItemId,
-        name: dish.name,
-        price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
-        imageSvg: dish.imageSvg,
-        imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
-      })
-    );
-  }, [dispatch, dish, cartItem?.cartItemId]);
-
-  const handleDecrease = useCallback(() => {
-    if (!dish) return;
-    dispatch(
-      CartFeature.actions.decreaseQuantity({
-        id: String(dish.id),
-        cartItemId: cartItem?.cartItemId,
-      })
-    );
-  }, [dispatch, dish, cartItem?.cartItemId]);
-
-  const hasNutrition =
-    dish?.calories !== undefined ||
-    dish?.proteins !== undefined ||
-    dish?.fats !== undefined ||
-    dish?.carbs !== undefined;
-
-  const nutritionRows = dish
+  const nutritionData: NutritionItem[] = dish
     ? [
-        dish.proteins !== undefined ? { label: 'Белки', value: `${dish.proteins} г` } : null,
-        dish.fats !== undefined ? { label: 'Жиры', value: `${dish.fats} г` } : null,
-        dish.carbs !== undefined ? { label: 'Углеводы', value: `${dish.carbs} г` } : null,
-        dish.calories !== undefined ? { label: 'Калории', value: `${dish.calories} ккал` } : null,
-      ].filter(Boolean)
+        dish.proteins !== undefined && { label: 'Белки', value: `${dish.proteins} г` },
+        dish.fats !== undefined && { label: 'Жиры', value: `${dish.fats} г` },
+        dish.carbs !== undefined && { label: 'Углеводы', value: `${dish.carbs} г` },
+        dish.calories !== undefined && { label: 'Калории', value: `${dish.calories} ккал` },
+      ].filter((item): item is NutritionItem => Boolean(item))
     : [];
 
   return (
     <Modal
-      visible={visible}
+      visible={isOpen}
       transparent
       animationType="none"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
       statusBarTranslucent
     >
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback onPress={handleClose}>
         <View style={styles.overlay} />
       </TouchableWithoutFeedback>
 
@@ -165,7 +131,7 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
           <View style={styles.handle} />
         </View>
 
-        <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
           <Text style={styles.closeButtonText}>✕</Text>
         </TouchableOpacity>
 
@@ -175,19 +141,16 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
           </View>
         )}
 
-        {error !== null && !isLoading && (
+        {!isLoading && error && (
           <View style={styles.centered}>
             <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity
-              style={styles.retryButton}
-              onPress={() => dishId !== null && fetchDish(dishId)}
-            >
+            <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
               <Text style={styles.retryButtonText}>Повторить</Text>
             </TouchableOpacity>
           </View>
         )}
 
-        {dish !== null && !isLoading && error === null && (
+        {!isLoading && !error && dish && (
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
@@ -209,42 +172,41 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
               <Text style={styles.name}>{dish.name}</Text>
 
               <View style={styles.metaRow}>
-                {dish.weight !== undefined && (
+                {dish.weight && (
                   <View style={styles.metaBadge}>
                     <Text style={styles.metaBadgeText}>{dish.weight} г</Text>
                   </View>
                 )}
-                {dish.calories !== undefined && (
+                {dish.calories && (
                   <View style={styles.metaBadge}>
                     <Text style={styles.metaBadgeText}>{dish.calories} ккал</Text>
                   </View>
                 )}
-                {dish.category?.name ? (
+                {dish.category?.name && (
                   <View style={[styles.metaBadge, styles.metaBadgeGreen]}>
                     <Text style={styles.metaBadgeText}>{dish.category.name}</Text>
                   </View>
-                ) : null}
+                )}
               </View>
 
-              {dish.description ? <Text style={styles.description}>{dish.description}</Text> : null}
+              {dish.description && <Text style={styles.description}>{dish.description}</Text>}
 
-              {dish.ingredients ? (
+              {dish.ingredients && (
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>Состав</Text>
                   <Text style={styles.ingredients}>{dish.ingredients}</Text>
                 </View>
-              ) : null}
+              )}
 
-              {hasNutrition && (
+              {nutritionData.length > 0 && (
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>Пищевая ценность</Text>
                   <View style={styles.nutritionBlock}>
-                    {nutritionRows.map((row, index) => (
+                    {nutritionData.map((item, index) => (
                       <NutritionRow
-                        key={row!.label}
-                        label={row!.label}
-                        value={row!.value}
-                        isLast={index === nutritionRows.length - 1}
+                        key={item.label}
+                        {...item}
+                        isLast={index === nutritionData.length - 1}
                       />
                     ))}
                   </View>
@@ -254,21 +216,27 @@ export const DishModal: React.FC<DishModalProps> = ({ dishId, visible, onClose }
           </ScrollView>
         )}
 
-        {dish !== null && !isLoading && error === null && (
+        {dish && !isLoading && !error && (
           <View style={styles.footer}>
             <Text style={styles.price}>{dish.price} ₽</Text>
             {quantity > 0 ? (
               <View style={styles.quantityControl}>
-                <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={() => handleCartAction('decrease')}
+                >
                   <Text style={styles.quantityButtonText}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.quantityText}>{quantity}</Text>
-                <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={() => handleCartAction('add')}
+                >
                   <Text style={styles.quantityButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
+              <TouchableOpacity style={styles.addButton} onPress={() => handleCartAction('add')}>
                 <Text style={styles.addButtonText}>В корзину</Text>
               </TouchableOpacity>
             )}

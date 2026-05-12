@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
-import { Typography } from '../../shared/fontsFile/fonts';
+import { Fonts, Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
   container: {
@@ -54,11 +54,12 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   screenTitle: {
-    ...AgbalumoTypography.agbalumoMedium,
-    fontSize: 28,
+    ...Typography.titleSmall,
     color: '#1F2937',
+    fontWeight: '800',
+    fontSize: 28,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 30,
     paddingBottom: 8,
   },
   flatList: {
@@ -68,6 +69,18 @@ export const styles = StyleSheet.create({
   list: {
     padding: 16,
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 220,
+  },
+  emptyText: {
+    ...Typography.bodySmall,
+    color: '#999999',
+  },
+
+  // Карточка заказа
   orderCard: {
     borderRadius: 12,
     padding: 12,
@@ -82,11 +95,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   dateContainer: {
     flex: 1,
-    alignItems: 'center',
+    justifyContent: 'center',
   },
   dateText: {
     ...Typography.buttonSmall,
@@ -111,6 +124,29 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+
+  // Статус
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginBottom: 10,
+    gap: 6,
+  },
+  statusDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  statusText: {
+    ...Typography.caption,
+    fontWeight: '600',
+  },
+
+  // Блюда
   itemsContainer: {
     marginBottom: 8,
   },
@@ -122,6 +158,7 @@ export const styles = StyleSheet.create({
   },
   itemName: {
     ...Typography.caption,
+    fontSize: 14,
     color: '#1F2937',
     flex: 1,
     marginRight: 8,
@@ -133,7 +170,7 @@ export const styles = StyleSheet.create({
   },
   itemQuantity: {
     ...Typography.caption,
-    color: '#666666',
+    color: '#1F2937',
   },
   itemPrice: {
     ...Typography.caption,
@@ -151,16 +188,35 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1F2937',
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
+
+  // Кнопки действий
+  cancelButton: {
+    marginTop: 10,
+    borderWidth: 1.5,
+    borderColor: '#EF4444',
+    borderRadius: 20,
+    paddingVertical: 8,
     alignItems: 'center',
-    marginTop: 220,
   },
-  emptyText: {
-    ...Typography.bodySmall,
-    color: '#999999',
+  cancelButtonText: {
+    ...Typography.caption,
+    color: '#EF4444',
+    fontWeight: '600',
   },
+  pickupButton: {
+    marginTop: 10,
+    backgroundColor: '#22C55E',
+    borderRadius: 20,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  pickupButtonText: {
+    ...Typography.caption,
+    color: '#1F2937',
+    fontWeight: '700',
+  },
+
+  // Модалка
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -168,7 +224,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F4F4F4',
     borderRadius: 20,
     padding: 24,
     paddingTop: 32,
@@ -205,14 +261,12 @@ export const styles = StyleSheet.create({
     ...Typography.caption,
     color: '#666666',
   },
-  qrContainer: {
-    marginTop: 8,
-    marginBottom: 12,
-  },
-  orderCodeText: {
-    fontSize: 13,
-    color: '#555',
+  deliveryDateText: {
+    fontFamily: Fonts.robotoMedium,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 8,
     marginTop: 2,
-    fontWeight: '500',
   },
 });

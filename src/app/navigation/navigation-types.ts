@@ -34,4 +34,7 @@ export type RootStackParamList = {
   };
   Menu: MenuScreenParams;
   Orders: undefined;
+  Payment: undefined;
+  Success: undefined;
+  Error: undefined;
 };

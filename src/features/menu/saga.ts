@@ -1,42 +1,53 @@
 import { PayloadAction } from '@reduxjs/toolkit';
-import { call, getContext, put, select, takeLatest } from 'redux-saga/effects';
+import { all, call, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api/api-interface';
-import { Category, Dish } from '../../entities/api/types/menu-types';
+import { Category, Dish, MenuByDayResponse } from '../../entities/api/types/menu-types';
 import { selectors } from './selectors';
 import { actions } from './slice';
-
-const dishMatchesCategory = (dish: Dish, categoryName: string): boolean => {
-  if (dish.categories && dish.categories.length > 0) {
-    return dish.categories.some((cat) => cat.name.toLowerCase() === categoryName.toLowerCase());
-  }
-  return dish.category?.name?.toLowerCase() === categoryName.toLowerCase();
-};
+import { MenuDaySection } from './types';
 
 function* filterDishesSaga() {
   const dishes: Dish[] = yield select(selectors.selectDishes);
   const selectedFilter: string = yield select(selectors.selectSelectedFilter);
 
-  if (!selectedFilter || selectedFilter === 'Все') {
-    yield put(actions.setFilteredDishes(dishes));
-    return;
-  }
+  const filtered =
+    !selectedFilter || selectedFilter === 'Все'
+      ? dishes
+      : dishes.filter((d) => {
+          if (d.categories && d.categories.length > 0) {
+            return d.categories.some(
+              (cat) => cat.name.toLowerCase() === selectedFilter.toLowerCase()
+            );
+          }
+          return d.category?.name?.toLowerCase() === selectedFilter.toLowerCase();
+        });
 
-  const filtered = dishes.filter((dish) => dishMatchesCategory(dish, selectedFilter));
   yield put(actions.setFilteredDishes(filtered));
 }
 
-function* fetchDishesSaga() {
+function* fetchDishesSaga(apiService: ApiService) {
   try {
-    const apiService: ApiService = yield getContext('apiService');
     yield put(actions.fetchDishesStart());
 
-    const dishes: Dish[] = yield call([apiService, apiService.getDishes]);
-    yield put(actions.fetchDishesSuccess(dishes));
+    const [raw, menuByDaysRaw, categories]: [Dish[], MenuByDayResponse[], Category[]] = yield all([
+      call([apiService, apiService.getDishes]),
+      call([apiService, apiService.getMenuByDays]),
+      call([apiService, apiService.getCategories]),
+    ]);
 
-    const categories: Category[] = yield call([apiService, apiService.getCategories]);
+    yield put(actions.fetchDishesSuccess(raw));
     yield put(actions.fetchCategoriesSuccess(categories));
 
-    yield call(filterDishesSaga);
+    const menuByDays: MenuDaySection[] = menuByDaysRaw
+      .slice()
+      .sort((a, b) => a.wday - b.wday)
+      .map((entry) => ({
+        day: entry.day,
+        wday: entry.wday,
+        dishes: entry.items,
+      }));
+
+    yield put(actions.setMenuByDays(menuByDays));
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Ошибка загрузки меню';
     yield put(actions.fetchDishesFailure(message));
@@ -48,7 +59,7 @@ function* handleFilterChangeSaga(action: PayloadAction<string>) {
   yield call(filterDishesSaga);
 }
 
-export function* watchMenu() {
-  yield takeLatest(actions.fetchDishes.type, fetchDishesSaga);
+export function* watchMenu(apiService: ApiService) {
+  yield takeLatest(actions.fetchDishes.type, fetchDishesSaga, apiService);
   yield takeLatest(actions.changeFilter.type, handleFilterChangeSaga);
 }

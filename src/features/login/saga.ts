@@ -1,39 +1,122 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AxiosError } from 'axios';
-import { getContext, put } from 'redux-saga/effects';
-import { call, select, takeLatest } from 'typed-redux-saga';
-
+import { SagaIterator } from 'redux-saga';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { ApiService } from '../../entities/api';
+import { api } from '../../entities/api/axios-config';
+import { BackendRestaurantProfile } from '../../entities/api/types/restaurant-types';
 import { LoginFeature } from './';
 import { actions } from './slice';
 
-function* handleSubmitLogin() {
+function* handleSubmitLogin(apiService: ApiService): SagaIterator {
   try {
-    const apiService: ApiService = yield getContext('apiService');
-    const login = yield* select(LoginFeature.selectors.selectLogin);
-    const password = yield* select(LoginFeature.selectors.selectPassword);
+    const login: string = yield select(LoginFeature.selectors.selectLogin);
+    const password: string = yield select(LoginFeature.selectors.selectPassword);
 
-    const result = yield* call(apiService.login, login, password);
+    const result: Awaited<ReturnType<ApiService['login']>> = yield call(
+      [apiService, apiService.login],
+      login,
+      password
+    );
 
     if (!result.token) {
       yield put(actions.loginFailure({ general: 'Ошибка при выполнении запроса' }));
       return;
     }
 
-    yield* call([AsyncStorage, 'setItem'], 'token', result.token);
-    yield* call([AsyncStorage, 'setItem'], 'user', JSON.stringify(result.user));
+    yield call([AsyncStorage, 'setItem'], 'token', result.token);
+    yield call([AsyncStorage, 'setItem'], 'user', JSON.stringify(result.user));
 
-    yield put(actions.loginSuccess({ token: result.token, userName: result.user.full_name }));
+    api.defaults.headers.Authorization = `Bearer ${result.token}`;
+
+    yield put(
+      actions.loginSuccess({
+        token: result.token,
+        userName: result.user.full_name,
+        role: result.user.role,
+      })
+    );
+
+    if (result.user.role === 'admin') {
+      try {
+        const profile: BackendRestaurantProfile = yield call([
+          apiService,
+          apiService.getRestaurantProfile,
+        ]);
+        yield put(actions.setRestaurantName(profile.name ?? null));
+        yield put(actions.setRestaurantDescription(profile.description ?? null));
+      } catch (error) {
+        console.log('RESTAURANT PROFILE ERROR:', error);
+      }
+    }
   } catch (error: unknown) {
     const errorMessage =
       error instanceof AxiosError && error.response?.status === 401
         ? 'Неправильный логин или пароль'
         : 'Ошибка при выполнении запроса';
-
     yield put(actions.loginFailure({ general: errorMessage }));
   }
 }
 
-export function* watchLogin() {
-  yield* takeLatest(actions.submitLogin.type, handleSubmitLogin);
+function* handleLogout(): SagaIterator {
+  yield call([AsyncStorage, 'removeItem'], 'token');
+  yield call([AsyncStorage, 'removeItem'], 'user');
+  delete api.defaults.headers.Authorization;
+  yield put(actions.logout());
+}
+
+function* handleRestoreSession(apiService: ApiService): SagaIterator {
+  try {
+    const token: string | null = yield call([AsyncStorage, 'getItem'], 'token');
+    const userJson: string | null = yield call([AsyncStorage, 'getItem'], 'user');
+
+    if (!token || !userJson) {
+      yield put(actions.restoreSessionFailure());
+      return;
+    }
+
+    const user = JSON.parse(userJson);
+
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+
+    try {
+      if (user.role === 'admin') {
+        yield call([apiService, apiService.getRestaurantProfile]);
+      } else {
+        yield call([apiService, apiService.getOrders]);
+      }
+    } catch (error) {
+      throw error;
+    }
+
+    yield put(
+      actions.restoreSessionSuccess({
+        token,
+        userName: user.full_name,
+        role: user.role,
+      })
+    );
+
+    if (user.role === 'admin') {
+      try {
+        const profile: BackendRestaurantProfile = yield call([
+          apiService,
+          apiService.getRestaurantProfile,
+        ]);
+        yield put(actions.setRestaurantName(profile.name ?? null));
+        yield put(actions.setRestaurantDescription(profile.description ?? null));
+      } catch {}
+    }
+  } catch {
+    yield call([AsyncStorage, 'removeItem'], 'token');
+    yield call([AsyncStorage, 'removeItem'], 'user');
+    delete api.defaults.headers.Authorization;
+    yield put(actions.restoreSessionFailure());
+  }
+}
+
+export function* watchLogin(apiService: ApiService): SagaIterator {
+  yield takeLatest(actions.submitLogin.type, handleSubmitLogin, apiService);
+  yield takeLatest(actions.logoutRequest.type, handleLogout);
+  yield takeLatest(actions.restoreSession.type, handleRestoreSession, apiService);
 }

@@ -1,17 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
-import { createApiService } from '../entities/api/api-interface';
-import { api } from '../entities/api/axios-config';
-import { CartFeature, HomeFeature, LoginFeature } from '../features';
-import { MenuFeature } from '../features/menu';
-import { OrdersFeature } from '../features/orders';
+import {
+  CartFeature,
+  DishModalFeature,
+  HomeFeature,
+  LoginFeature,
+  MenuFeature,
+  OrdersFeature,
+  SearchFeature,
+} from '../features';
 import { rootSaga } from './saga';
 
-const apiService = createApiService(api);
-
-const sagaMiddleware = createSagaMiddleware({
-  context: { apiService },
-});
+const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +20,8 @@ export const store = configureStore({
     ...HomeFeature.reducer,
     ...MenuFeature.reducer,
     ...OrdersFeature.reducer,
+    ...SearchFeature.reducer,
+    ...DishModalFeature.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(sagaMiddleware),

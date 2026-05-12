@@ -19,7 +19,10 @@
     ]
   },
   "dependencies": {
+    "@notifee/react-native": "^9.1.8",
     "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-firebase/app": "^24.0.0",
+    "@react-native-firebase/messaging": "^24.0.0",
     "@react-native/new-app-screen": "0.83.1",
     "@react-navigation/bottom-tabs": "^7.15.3",
     "@react-navigation/native": "^7.0.14",
@@ -31,6 +34,7 @@
     "react-native": "0.83.1",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-pager-view": "^8.0.0",
+    "react-native-qrcode-svg": "^6.3.21",
     "react-native-safe-area-context": "^5.7.0",
     "react-native-screens": "^4.24.0",
     "react-native-svg": "^15.15.3",
@@ -51,6 +55,7 @@
     "@react-native/eslint-config": "0.83.1",
     "@react-native/metro-config": "0.83.1",
     "@react-native/typescript-config": "0.83.1",
+    "@redux-saga/testing-utils": "^1.2.1",
     "@types/jest": "^29.5.13",
     "@types/react": "^19.2.0",
     "@types/react-native-vector-icons": "^6.4.18",
@@ -66,6 +71,7 @@
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "react-test-renderer": "19.2.0",
+    "redux-saga-test-plan": "^4.0.6",
     "typescript": "^5.8.3"
   },
   "engines": {
