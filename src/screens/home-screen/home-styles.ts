@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
-import { Typography } from '../../../shared/fontsFile/fonts';
+import { Typography } from '../../shared/fontsFile/fonts';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2;
@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
   },
   waveSection: {
     position: 'relative',
-    height: 250,
+    height: 220,
     backgroundColor: 'transparent',
     marginBottom: -70,
     zIndex: 1,
@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
   },
   searchWrapper: {
     paddingHorizontal: 16,
-    paddingTop: 50,
+    paddingTop: 42,
   },
   contentWrapper: {
     backgroundColor: 'transparent',
@@ -224,6 +224,11 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     overflow: 'hidden',
   },
+  dishImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
+  },
   imagePlaceholder: {
     fontSize: 32,
   },
@@ -263,8 +268,8 @@ export const styles = StyleSheet.create({
   quantityButton: {
     backgroundColor: '#22C55E',
     width: 36,
-    height: 36,
-    borderRadius: 18,
+    height: 30,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -280,5 +285,19 @@ export const styles = StyleSheet.create({
     minWidth: 30,
     textAlign: 'center',
     fontSize: 16,
+  },
+  emptyPromoContainer: {
+    width: '100%',
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: 'transparent',
+  },
+  emptyPromoText: {
+    ...Typography.bodyRegular,
+    color: '#9CA3AF',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });

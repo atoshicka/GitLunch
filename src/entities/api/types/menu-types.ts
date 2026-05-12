@@ -1,27 +1,37 @@
 import { FC } from 'react';
 import { SvgProps } from 'react-native-svg';
 
+export interface DishCategory {
+  id: number;
+  name: string;
+}
+
 export interface Dish {
-  id: string;
+  id: number;
   name: string;
   description: string;
-  price: number;
-  category: string;
-  filterType?: string;
+  price: string;
+  image_url?: string;
+  categories?: DishCategory[];
+  category: DishCategory;
+  meal_category?: number;
+  calories?: number;
+  weight?: number;
+  ingredients?: string;
+  proteins?: number;
+  fats?: number;
+  carbs?: number;
   isPromo?: boolean;
-  imageUrl?: string;
+  filterType?: string;
   imageSvg?: FC<SvgProps>;
-  isVegetarian: boolean;
-  isSpicy: boolean;
-  rating: number;
-  preparationTime: number;
 }
 
 export interface Category {
-  id: string;
+  id: number;
   name: string;
-  description: string;
-  icon: string;
+  description?: string;
+  icon?: string;
+  image_url?: string;
 }
 
 export interface MenuResponse {

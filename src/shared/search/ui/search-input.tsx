@@ -11,6 +11,7 @@ interface SearchInputProps {
   placeholder?: string;
   editable?: boolean;
   style?: ViewStyle;
+  rightElement?: React.ReactElement;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -18,49 +19,56 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChangeText,
   onSubmitEditing,
-  placeholder = 'Поиск блюд...',
+  placeholder = 'Поиск',
   editable = true,
   style,
+  rightElement,
 }) => {
   const SearchIcon = Images.search.icon;
 
   if (onPress) {
     return (
-      <TouchableOpacity
-        style={[styles.container, styles.searchContainer, style]}
-        onPress={onPress}
-        activeOpacity={0.7}
-      >
-        <View style={styles.placeholderContainer}>
-          <SearchIcon width={24} height={24} style={styles.searchIcon} />
-          <TextInput
-            style={styles.placeholderText}
-            placeholder={placeholder}
-            placeholderTextColor="#94A3B8"
-            editable={false}
-            pointerEvents="none"
-          />
-        </View>
-      </TouchableOpacity>
+      <View style={styles.wrapper}>
+        <TouchableOpacity
+          style={[styles.container, styles.searchContainer, style]}
+          onPress={onPress}
+          activeOpacity={0.7}
+        >
+          <View style={styles.placeholderContainer}>
+            <SearchIcon width={24} height={24} style={styles.searchIcon} />
+            <TextInput
+              style={styles.placeholderText}
+              placeholder={placeholder}
+              placeholderTextColor="#94A3B8"
+              editable={false}
+              pointerEvents="none"
+            />
+          </View>
+        </TouchableOpacity>
+        {rightElement && <View style={styles.rightElementContainer}>{rightElement}</View>}
+      </View>
     );
   }
 
   return (
-    <View style={[styles.container, styles.searchContainer, style]}>
-      <View style={styles.inputWrapper}>
-        <SearchIcon width={24} height={24} style={styles.searchIcon} />
-        <TextInput
-          style={styles.input}
-          placeholder={placeholder}
-          placeholderTextColor="#94A3B8"
-          value={value}
-          onChangeText={onChangeText}
-          onSubmitEditing={onSubmitEditing}
-          returnKeyType="search"
-          autoFocus
-          editable={editable}
-        />
+    <View style={styles.wrapper}>
+      <View style={[styles.container, styles.searchContainer, style]}>
+        <View style={styles.inputWrapper}>
+          <SearchIcon width={24} height={24} style={styles.searchIcon} />
+          <TextInput
+            style={styles.input}
+            placeholder={placeholder}
+            placeholderTextColor="#94A3B8"
+            value={value}
+            onChangeText={onChangeText}
+            onSubmitEditing={onSubmitEditing}
+            returnKeyType="search"
+            autoFocus
+            editable={editable}
+          />
+        </View>
       </View>
+      {rightElement && <View style={styles.rightElementContainer}>{rightElement}</View>}
     </View>
   );
 };

@@ -5,7 +5,6 @@ export const getApiConfig = () => {
       DEBUG: true,
     };
   }
-
   return {
     BASE_URL: 'https://api.gitlunch.app/api/v1',
     DEBUG: false,
@@ -19,24 +18,21 @@ export const API_CONFIG = {
 } as const;
 
 export const API_ENDPOINTS = {
-  // Меню
-  DISHES: '/dishes',
-  DISHES_BY_CATEGORY: (categoryId: string) => `/dishes?category=${categoryId}`,
+  DISHES: '/menu_items',
+  DISHES_BY_CATEGORY: (categoryId: string) => `/menu_items?category_id=${categoryId}`,
   CATEGORIES: '/categories',
-  DISH_DETAIL: (id: string) => `/dishes/${id}`,
+  DISH_DETAIL: (id: string) => `/menu_items/${id}`,
 
-  // Заказы
   ORDERS: '/orders',
   ORDER_DETAIL: (id: string) => `/orders/${id}`,
 
-  // Пользователи
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   PROFILE: '/users/profile',
 
-  // Корзина
   CART: '/cart',
-  CART_ITEM: (id: string) => `/cart/${id}`,
+  CART_ITEMS: '/cart/items',
+  CART_ITEM: (id: string) => `/cart/items/${id}`,
 } as const;
 
 export const DEFAULT_HEADERS = {

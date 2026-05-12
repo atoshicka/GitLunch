@@ -1,16 +1,16 @@
-import * as cartSelectors from './store/cart-selectors';
-import cartReducer, * as cartActions from './store/cart-slice';
+import { watchCart } from './saga';
+import { selectors } from './selectors';
+import { actions, name, reducer } from './slice';
 
-export const CART_SLICE_NAME = 'cart';
+export const CART_SLICE_NAME = name;
 
 export const CartFeature = {
-  actions: cartActions,
-  reducer: {
-    [CART_SLICE_NAME]: cartReducer,
+  actions,
+  sagas: {
+    watchCart,
   },
-  selectors: cartSelectors,
+  reducer: {
+    [name]: reducer,
+  },
+  selectors,
 };
-
-export * from './store/cart-selectors';
-export * from './store/cart-slice';
-export { cartReducer };

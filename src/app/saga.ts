@@ -1,14 +1,14 @@
-import { all, call } from 'redux-saga/effects';
-import { createApiService } from '../entities/api/api-interface';
-import { api } from '../entities/api/axios-config';
+import { all, fork } from 'redux-saga/effects';
+import { CartFeature } from '../features/cart';
 import { HomeFeature } from '../features/home';
 import { LoginFeature } from '../features/login';
-
-const apiService = createApiService(api);
+import { MenuFeature } from '../features/menu';
 
 export function* rootSaga() {
   yield all([
-    call(LoginFeature.sagas.watchLogin, apiService),
-    call(HomeFeature.sagas.watchHome, apiService),
+    fork(LoginFeature.sagas.watchLogin),
+    fork(HomeFeature.sagas.watchHome),
+    fork(MenuFeature.sagas.watchMenu),
+    fork(CartFeature.sagas.watchCart),
   ]);
 }

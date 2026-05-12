@@ -3,25 +3,31 @@ import { name } from './slice';
 import { LoginState } from './types';
 
 interface State {
-  [name]: LoginState
+  [name]: LoginState;
 }
 
 const root = (state: State) => state[name];
 
-export const selectLogin = createSelector(selectLoginSlice, (loginSlice) => loginSlice.login);
+const selectLogin = createSelector(root, (loginSlice) => loginSlice.login);
+const selectPassword = createSelector(root, (loginSlice) => loginSlice.password);
+const selectUserName = createSelector(root, (loginSlice) => loginSlice.userName);
+const selectErrors = createSelector(root, (loginSlice) => loginSlice.errors);
+const selectLoginError = createSelector(root, (loginSlice) => loginSlice.errors.login);
+const selectPasswordError = createSelector(root, (loginSlice) => loginSlice.errors.password);
+const selectGeneralError = createSelector(root, (loginSlice) => loginSlice.errors.general);
+const selectIsLoading = createSelector(root, (loginSlice) => loginSlice.isLoading);
+const selectIsAuthenticated = createSelector(root, (loginSlice) => loginSlice.isAuthenticated);
+const selectToken = createSelector(root, (loginSlice) => loginSlice.token);
 
-export const selectPassword = createSelector(selectLoginSlice, (loginSlice) => loginSlice.password);
-
-export const selectUserName = createSelector(selectLoginSlice, (loginSlice) => loginSlice.userName);
-
-export const selectErrors = createSelector(selectLoginSlice, (loginSlice) => loginSlice.errors);
-
-export const selectIsLoading = createSelector(
-  selectLoginSlice,
-  (loginSlice) => loginSlice.isLoading
-);
-
-export const selectIsAuthenticated = createSelector(
-  selectLoginSlice,
-  (loginSlice) => loginSlice.isAuthenticated
-);
+export const selectors = {
+  selectLogin,
+  selectPassword,
+  selectUserName,
+  selectErrors,
+  selectLoginError,
+  selectPasswordError,
+  selectGeneralError,
+  selectIsLoading,
+  selectIsAuthenticated,
+  selectToken,
+};

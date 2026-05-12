@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
-import { Provider } from 'react-redux';
+import React from 'react';
+import { Provider, useSelector } from 'react-redux';
+import { LoginFeature } from '../features/login';
 import { AppNavigator, AuthScreen } from './navigation/app-navigation';
 import { store } from './store';
 
-const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+const AppContent: React.FC = () => {
+  const isAuthenticated = useSelector(LoginFeature.selectors.selectIsAuthenticated);
 
+  return isAuthenticated ? <AppNavigator /> : <AuthScreen />;
+};
+
+const App: React.FC = () => {
   return (
     <Provider store={store}>
-      {isLoggedIn ? <AppNavigator /> : <AuthScreen onLogin={() => setIsLoggedIn(true)} />}
+      <AppContent />
     </Provider>
   );
 };

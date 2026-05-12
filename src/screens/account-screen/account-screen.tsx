@@ -1,8 +1,13 @@
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
-import { selectUserName } from '../../features/login/selectors';
+import { RootStackParamList } from '../../app/navigation/navigation-types';
+import { LoginFeature } from '../../features/login';
 import { Images } from '../../shared/constants/images';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './account-styles';
 
 const MENU_ITEMS = [
@@ -13,17 +18,33 @@ const MENU_ITEMS = [
   { id: '5', title: 'Адреса' },
   { id: '6', title: 'О сервисе' },
   { id: '7', title: 'Способы оплаты' },
-];
+] as const;
+
+type MenuItemTitle = (typeof MENU_ITEMS)[number]['title'];
+type AccountScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
+
+const SubtractIcon = Images.home.wave;
 
 export const AccountScreen: React.FC = () => {
-  const userName = useSelector(selectUserName);
+  const navigation = useNavigation<AccountScreenNavigationProp>();
+  const userName = useSelector(LoginFeature.selectors.selectUserName);
 
   const handleSettingsPress = () => {
     console.log('Настройки');
   };
 
-  const handleMenuItemPress = (itemTitle: string) => {
-    console.log(`Нажат пункт: ${itemTitle}`);
+  const handleBackPress = () => {
+    navigation.goBack();
+  };
+
+  const handleMenuItemPress = (itemTitle: MenuItemTitle) => {
+    switch (itemTitle) {
+      case 'Мои заказы':
+        navigation.navigate('Orders');
+        break;
+      default:
+        console.log(`Нажат пункт: ${itemTitle}`);
+    }
   };
 
   const SettingsIcon = Images.account.setting;
@@ -31,20 +52,36 @@ export const AccountScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
-        <SettingsIcon width={28} height={28} fill="#1F2937" />
-      </TouchableOpacity>
+      <View style={styles.waveSection} pointerEvents="none">
+        <View style={styles.waveBackground}>
+          <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
+        </View>
+      </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <SafeAreaView edges={['top']} style={styles.waveContent}>
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.topBarButton} onPress={handleBackPress}>
+            <Text style={styles.backButtonText}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.brandTitle}>GitLunch</Text>
+          <TouchableOpacity style={styles.topBarButton} onPress={handleSettingsPress}>
+            <SettingsIcon width={26} height={26} fill="#1F2937" />
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW }}
+      >
         <View style={styles.content}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
               <AccountIcon width={80} height={80} />
             </View>
           </View>
-
           <Text style={styles.userName}>{userName || 'Гость'}</Text>
-
           <View style={styles.menuBlock}>
             {MENU_ITEMS.map((item) => (
               <TouchableOpacity

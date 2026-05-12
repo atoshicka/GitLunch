@@ -1,9 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
-import { Animated, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { FilterChipsProps } from '../../app/navigation/navigation-types';
 import { styles } from './filter-chips-styles';
-
-const ALL_FILTER = 'Все';
 
 export const FilterChips: React.FC<FilterChipsProps> = ({
   filters,
@@ -12,16 +10,6 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
   style,
   disableSort = false,
 }) => {
-  const getAnimatedStyle = useCallback(
-    (filter: string) => {
-      const isSelected = selectedFilters.includes(filter);
-      return {
-        transform: [{ scale: isSelected ? 1.05 : 1 }],
-      };
-    },
-    [selectedFilters]
-  );
-
   const handlePress = useCallback(
     (filter: string) => {
       onSelectFilter(filter);
@@ -34,23 +22,8 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
       return filters;
     }
 
-    const hasAllFilter = filters.includes(ALL_FILTER);
-
-    if (!hasAllFilter) {
-      return filters;
-    }
-
-    const otherFilters = filters.filter((f) => f !== ALL_FILTER);
-
-    if (selectedFilters.length === 0 || selectedFilters.includes(ALL_FILTER)) {
-      return [ALL_FILTER, ...otherFilters];
-    }
-
-    const selected = otherFilters.filter((f) => selectedFilters.includes(f));
-    const remaining = otherFilters.filter((f) => !selectedFilters.includes(f));
-
-    return [ALL_FILTER, ...selected, ...remaining];
-  }, [filters, selectedFilters, disableSort]);
+    return filters;
+  }, [filters, disableSort]);
 
   if (!filters.length) {
     return null;
@@ -65,9 +38,8 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
     >
       {displayedFilters.map((filter) => {
         const isSelected = selectedFilters.includes(filter);
-
         return (
-          <Animated.View key={filter} style={getAnimatedStyle(filter)}>
+          <View key={filter}>
             <TouchableOpacity
               style={[
                 styles.chip,
@@ -84,7 +56,7 @@ export const FilterChips: React.FC<FilterChipsProps> = ({
                 {filter}
               </Text>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
         );
       })}
     </ScrollView>

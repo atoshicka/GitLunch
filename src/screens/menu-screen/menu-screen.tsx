@@ -1,52 +1,127 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
-import { MOCK_DISHES } from '../../../mocks';
-import { MAIN_FILTERS, SUB_FILTERS } from '../../app/constants/filters';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
-import { Dish } from '../../entities/api';
+import { Category, Dish } from '../../entities/api/types/menu-types';
 import { CartFeature } from '../../features/cart';
+import { CartItem } from '../../features/cart/types';
+import { FilterChips } from '../../features/filter/filter-chips';
+import { MenuFeature } from '../../features/menu';
+import { Images } from '../../shared/constants/images';
+import { DishModal } from '../../shared/dish-modal/dish-modal';
 import { SearchInput } from '../../shared/search/ui/search-input';
-import { FilterChips } from './filter-chips';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './menu-styles';
 
 type MenuScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 type MenuScreenRouteProp = RouteProp<RootStackParamList, 'Menu'>;
 
-const DishCard = React.memo(({ item }: { item: Dish }) => {
-  const dispatch = useDispatch();
-  const cartItemSelector = useMemo(
-    () => CartFeature.selectors.selectCartItemById(item.id),
-    [item.id]
-  );
-  const cartItem = useSelector(cartItemSelector);
-  const quantity = cartItem?.quantity || 0;
+const BASE_URL = 'https://gitlunch-backend-production.up.railway.app';
+const SubtractIcon = Images.home.wave;
+const AccountIcon = Images.navigation.account;
 
-  const handleAddToCart = useCallback(() => {
+const useDishCart = (dishId: string, dish: Dish) => {
+  const dispatch = useDispatch();
+
+  const cartItemSelector = useMemo(
+    () => CartFeature.selectors.selectCartItemById(dishId),
+    [dishId]
+  );
+
+  const cartItem = useSelector(cartItemSelector) as CartItem | null;
+  const quantity = cartItem?.quantity ?? 0;
+
+  const handleAdd = useCallback(() => {
     dispatch(
       CartFeature.actions.addToCart({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        imageSvg: item.imageSvg,
+        id: dishId,
+        cartItemId: cartItem?.cartItemId,
+        name: dish.name,
+        price: typeof dish.price === 'string' ? parseFloat(dish.price) : dish.price,
+        imageSvg: dish.imageSvg,
+        imageUrl: dish.image_url ? `${BASE_URL}${dish.image_url}` : undefined,
       })
     );
-  }, [dispatch, item.id, item.name, item.price, item.imageSvg]);
+  }, [dispatch, dishId, dish, cartItem?.cartItemId]);
 
   const handleDecrease = useCallback(() => {
-    dispatch(CartFeature.actions.decreaseQuantity(item.id));
-  }, [dispatch, item.id]);
+    dispatch(
+      CartFeature.actions.decreaseQuantity({
+        id: dishId,
+        cartItemId: cartItem?.cartItemId,
+      })
+    );
+  }, [dispatch, dishId, cartItem?.cartItemId]);
 
-  const renderImage = () => {
-    if (item.imageSvg) {
-      const SvgImage = item.imageSvg;
+  return { quantity, handleAdd, handleDecrease };
+};
+
+const DishImage = React.memo(
+  ({
+    imageUrl,
+    imageSvg,
+  }: {
+    imageUrl?: string;
+    imageSvg?: React.ComponentType<{
+      width: string;
+      height: string;
+      preserveAspectRatio: string;
+    }>;
+  }) => {
+    if (imageUrl) {
+      return (
+        <Image
+          source={{ uri: `${BASE_URL}${imageUrl}` }}
+          style={{ width: '100%', height: '100%', borderRadius: 12 }}
+          resizeMode="contain"
+        />
+      );
+    }
+    if (imageSvg) {
+      const SvgImage = imageSvg;
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
     }
-    return <Text style={styles.imagePlaceholder}>🍽️</Text>;
-  };
+    return <Text style={styles.imagePlaceholder}>🍽</Text>;
+  }
+);
+
+const QuantityControls = React.memo(
+  ({
+    quantity,
+    onIncrease,
+    onDecrease,
+  }: {
+    quantity: number;
+    onIncrease: () => void;
+    onDecrease: () => void;
+  }) => {
+    if (quantity === 0) {
+      return (
+        <TouchableOpacity style={styles.addToCartButton} onPress={onIncrease}>
+          <Text style={styles.addToCartButtonText}>В корзину</Text>
+        </TouchableOpacity>
+      );
+    }
+    return (
+      <View style={styles.quantityControl}>
+        <TouchableOpacity style={styles.quantityButton} onPress={onDecrease}>
+          <Text style={styles.quantityButtonText}>-</Text>
+        </TouchableOpacity>
+        <Text style={styles.quantityText}>{quantity}</Text>
+        <TouchableOpacity style={styles.quantityButton} onPress={onIncrease}>
+          <Text style={styles.quantityButtonText}>+</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+);
+
+const DishCard = React.memo(({ item }: { item: Dish }) => {
+  const dishId = String(item.id);
+  const { quantity, handleAdd, handleDecrease } = useDishCart(dishId, item);
 
   return (
     <LinearGradient
@@ -56,29 +131,16 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
       end={{ x: 0, y: 0 }}
       style={styles.dishCard}
     >
-      <View style={styles.imageContainer}>{renderImage()}</View>
-
+      <View style={styles.imageContainer}>
+        <DishImage imageUrl={item.image_url} imageSvg={item.imageSvg} />
+      </View>
       <Text style={styles.dishName} numberOfLines={2}>
         {item.name}
       </Text>
-
-      <Text style={styles.dishPrice}>{item.price} ₽</Text>
-
-      {quantity > 0 ? (
-        <View style={styles.quantityControl}>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
-            <Text style={styles.quantityButtonText}>-</Text>
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-          <Text style={styles.addToCartButtonText}>В корзину</Text>
-        </TouchableOpacity>
-      )}
+      <Text style={styles.dishPrice}>
+        {typeof item.price === 'string' ? parseFloat(item.price) : item.price} ₽
+      </Text>
+      <QuantityControls quantity={quantity} onIncrease={handleAdd} onDecrease={handleDecrease} />
     </LinearGradient>
   );
 });
@@ -86,110 +148,146 @@ const DishCard = React.memo(({ item }: { item: Dish }) => {
 export const MenuScreen: React.FC = () => {
   const navigation = useNavigation<MenuScreenNavigationProp>();
   const route = useRoute<MenuScreenRouteProp>();
-  const {
-    restaurantName,
-    mainFilter: initialMainFilter,
-    subFilters: initialSubFilters,
-  } = route.params || {};
+  const dispatch = useDispatch();
 
-  const [mainFilter, setMainFilter] = useState<string>(initialMainFilter || 'Все');
-  const [subFilters, setSubFilters] = useState<string[]>(initialSubFilters || []);
+  const filteredDishes = useSelector(MenuFeature.selectors.selectFilteredDishes);
+  const categories = useSelector(MenuFeature.selectors.selectCategories);
+  const selectedFilter = useSelector(MenuFeature.selectors.selectSelectedFilter);
+  const isLoading = useSelector(MenuFeature.selectors.selectMenuIsLoading);
+  const error = useSelector(MenuFeature.selectors.selectMenuError);
 
-  useEffect(() => {
-    if (initialMainFilter) {
-      setMainFilter(initialMainFilter);
-      if (initialMainFilter === 'акции') {
-        setSubFilters([]);
-      }
-    }
-  }, [initialMainFilter]);
+  const [restaurantTitle, setRestaurantTitle] = useState<string>('Кафе Цезарь');
+  const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
+  const lastAppliedTimestamp = useRef<number | null>(null);
+
+  const filters = useMemo(() => {
+    return [...new Set(categories.map((cat: Category) => cat.name))];
+  }, [categories]);
 
   useEffect(() => {
-    if (initialSubFilters) {
-      setSubFilters(initialSubFilters);
-    }
-  }, [initialSubFilters]);
+    dispatch(MenuFeature.actions.fetchDishes());
+  }, [dispatch]);
 
-  const filteredDishes = useMemo(() => {
-    const subFiltersSet = new Set(subFilters);
+  useFocusEffect(
+    useCallback(() => {
+      const params = route.params ?? {};
+      const { mainFilter, restaurantName, filterTimestamp } = params as {
+        mainFilter?: string;
+        restaurantName?: string;
+        filterTimestamp?: number;
+      };
 
-    if (mainFilter === 'акции') {
-      return MOCK_DISHES.filter((dish) => dish.isPromo);
-    }
+      if (filterTimestamp && filterTimestamp === lastAppliedTimestamp.current) return;
+      if (!filterTimestamp) return;
 
-    if (subFilters.length === 0) {
-      return MOCK_DISHES;
-    }
+      lastAppliedTimestamp.current = filterTimestamp;
+      setRestaurantTitle(restaurantName ?? 'Кафе Цезарь');
 
-    return MOCK_DISHES.filter((dish) => dish.filterType && subFiltersSet.has(dish.filterType));
-  }, [mainFilter, subFilters]);
-
-  const handleMainFilterPress = useCallback((filter: string) => {
-    if (filter === 'Все' || filter === 'акции') {
-      setMainFilter(filter);
-      if (filter === 'акции') {
-        setSubFilters([]);
+      if (mainFilter && filters.includes(mainFilter)) {
+        dispatch(MenuFeature.actions.changeFilter(mainFilter));
       }
-    }
-  }, []);
+    }, [route.params, filters, dispatch])
+  );
 
-  const handleSubFilterPress = useCallback((filter: string) => {
-    setSubFilters((prev) => {
-      if (prev.includes(filter)) {
-        return prev.filter((f) => f !== filter);
-      }
-      return [...prev, filter];
-    });
-  }, []);
+  const handleFilterPress = useCallback(
+    (filter: string) => {
+      dispatch(MenuFeature.actions.changeFilter(filter));
+    },
+    [dispatch]
+  );
 
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
   }, [navigation]);
 
-  const getTitle = useCallback(() => {
-    return mainFilter === 'акции' ? 'Акции дня' : 'Меню';
-  }, [mainFilter]);
+  const handleAccountPress = useCallback(() => {
+    navigation.navigate('Tabs', { screen: 'Аккаунт' });
+  }, [navigation]);
 
-  const restaurantTitle = restaurantName || 'Кафе Цезарь';
+  const handleDishPress = useCallback((id: number) => {
+    setSelectedDishId(id);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setSelectedDishId(null);
+  }, []);
+
+  const renderDishItem = useCallback(
+    ({ item }: { item: Dish }) => (
+      <TouchableOpacity activeOpacity={0.85} onPress={() => handleDishPress(item.id)}>
+        <DishCard item={item} />
+      </TouchableOpacity>
+    ),
+    [handleDishPress]
+  );
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+      <View style={styles.waveSection}>
+        <View style={styles.waveBackground}>
+          <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
+        </View>
+        <View style={styles.searchContainer}>
+          <View style={styles.searchWrapper}>
+            <SearchInput
+              onPress={handleSearchPress}
+              placeholder="Поиск"
+              rightElement={
+                <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
+                  <AccountIcon width={36} height={36} />
+                </TouchableOpacity>
+              }
+            />
+            <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
+          </View>
+        </View>
       </View>
 
-      <Text style={styles.cafeTitle}>{restaurantTitle}</Text>
-      <Text style={styles.sectionTitle}>{getTitle()}</Text>
+      <Text style={styles.sectionTitle}>Меню</Text>
 
-      <View style={styles.filtersWrapper}>
-        <FilterChips
-          filters={MAIN_FILTERS as unknown as string[]}
-          selectedFilters={[mainFilter]}
-          onSelectFilter={handleMainFilterPress}
-        />
-      </View>
-
-      {mainFilter === 'Все' && (
+      {filters.length > 0 && (
         <View style={styles.filtersWrapper}>
           <FilterChips
-            filters={SUB_FILTERS as unknown as string[]}
-            selectedFilters={subFilters}
-            onSelectFilter={handleSubFilterPress}
+            filters={filters}
+            selectedFilters={[selectedFilter]}
+            onSelectFilter={handleFilterPress}
           />
         </View>
       )}
 
-      <FlatList
-        data={filteredDishes}
-        numColumns={2}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.dishesGrid}
-        renderItem={({ item }) => <DishCard item={item} />}
-        ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
-        initialNumToRender={4}
-        maxToRenderPerBatch={6}
-        windowSize={5}
-        removeClippedSubviews={true}
+      {isLoading && <ActivityIndicator size="large" color="#86EFAC" style={{ marginTop: 40 }} />}
+
+      {!isLoading && (
+        <FlatList
+          data={filteredDishes}
+          numColumns={2}
+          keyExtractor={(item) => String(item.id)}
+          contentContainerStyle={[
+            styles.dishesGrid,
+            { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
+          ]}
+          renderItem={renderDishItem}
+          ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={3}
+          removeClippedSubviews
+          updateCellsBatchingPeriod={50}
+        />
+      )}
+
+      <DishModal
+        dishId={selectedDishId}
+        visible={selectedDishId !== null}
+        onClose={handleModalClose}
       />
     </View>
   );

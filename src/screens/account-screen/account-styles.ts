@@ -1,22 +1,65 @@
 import { StyleSheet } from 'react-native';
+import { AgbalumoTypography } from '../../shared/fontsFile/agbalumoFonts';
+import { Typography } from '../../shared/fontsFile/fonts';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F4F4F4',
   },
-  settingsButton: {
+  waveSection: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 220,
+    zIndex: 0,
+  },
+  waveBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  waveContent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    height: 64,
+  },
+  topBarButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backButtonText: {
+    fontSize: 40,
+    color: '#1F2937',
+    lineHeight: 44,
+  },
+  brandTitle: {
+    ...AgbalumoTypography.agbalumoSmall,
+    color: '#1F2937',
+    letterSpacing: 0.5,
+  },
+  scrollView: {
+    flex: 1,
     zIndex: 1,
-    padding: 8,
-    paddingTop: 35,
   },
   content: {
-    flex: 1,
     alignItems: 'center',
-    paddingTop: 80,
+    paddingTop: 120,
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
@@ -39,9 +82,9 @@ export const styles = StyleSheet.create({
     borderColor: '#22C55E',
   },
   userName: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    ...AgbalumoTypography.agbalumoMedium,
     color: '#1F2937',
+    fontSize: 28,
     marginBottom: 32,
   },
   menuBlock: {
@@ -58,9 +101,12 @@ export const styles = StyleSheet.create({
   menuItem: {
     paddingVertical: 16,
     paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#A7F3D0',
   },
   menuItemText: {
-    fontSize: 16,
+    ...Typography.buttonRegular,
+    fontWeight: '500',
     color: '#1F2937',
   },
 });

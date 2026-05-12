@@ -1,31 +1,33 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
   FlatList,
+  Image,
   ListRenderItem,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
   StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import PagerView from 'react-native-pager-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { MOCK_PROMO_DISHES, MOCK_RESTAURANTS } from '../../../../mocks';
-import { RootStackParamList, SubFilterType } from '../../../app/navigation/navigation-types';
-import { PromoDish, Restaurant } from '../../../entities/api/types/home-types';
-import { Images } from '../../../shared/constants/images';
-import { SearchInput } from '../../../shared/search/ui/search-input';
-import { CartFeature } from '../../cart';
+import { RootStackParamList } from '../../app/navigation/navigation-types';
+import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
+import { CartFeature } from '../../features/cart';
+import { CartItem } from '../../features/cart/types';
+import { HomeFeature } from '../../features/home';
+import { Images } from '../../shared/constants/images';
+import { DishModal } from '../../shared/dish-modal/dish-modal';
+import { SearchInput } from '../../shared/search/ui/search-input';
+import { TAB_BAR_CIRCLE_OVERFLOW, TAB_BAR_HEIGHT } from '../../shared/TabBar/TabBar';
 import { styles } from './home-styles';
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width - 48) / 2;
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Tabs'>;
 
@@ -36,69 +38,87 @@ const DessertsIcon = Images.filters.desserts;
 const SubtractIcon = Images.home.wave;
 const RestCezarIcon = Images.home.restCezar;
 const NowinIcon = Images.home.nowin;
+const AccountIcon = Images.navigation.account;
 
-const PromoDishCard = React.memo(({ item }: { item: PromoDish }) => {
+interface PromoDishCardProps {
+  item: PromoDish;
+  onPress: () => void;
+}
+
+const PromoDishCard = React.memo(({ item, onPress }: PromoDishCardProps) => {
   const dispatch = useDispatch();
-  const cartItemSelector = useMemo(
-    () => CartFeature.selectors.selectCartItemById(item.id),
-    [item.id]
-  );
-  const cartItem = useSelector(cartItemSelector);
-  const quantity = cartItem?.quantity || 0;
+
+  const cartItem = useSelector(
+    CartFeature.selectors.selectCartItemById(item.id)
+  ) as CartItem | null;
+  const quantity = cartItem?.quantity ?? 0;
 
   const handleAddToCart = useCallback(() => {
     dispatch(
       CartFeature.actions.addToCart({
         id: item.id,
+        cartItemId: cartItem?.cartItemId,
         name: item.name,
         price: item.price,
         imageSvg: item.imageSvg,
+        imageUrl: item.imageUrl,
       })
     );
-  }, [dispatch, item.id, item.name, item.price, item.imageSvg]);
+  }, [dispatch, item, cartItem?.cartItemId]);
 
   const handleDecrease = useCallback(() => {
-    dispatch(CartFeature.actions.decreaseQuantity(item.id));
-  }, [dispatch, item.id]);
+    dispatch(
+      CartFeature.actions.decreaseQuantity({
+        id: item.id,
+        cartItemId: cartItem?.cartItemId,
+      })
+    );
+  }, [dispatch, item.id, cartItem?.cartItemId]);
 
   const renderImage = () => {
+    if (item.imageUrl) {
+      return (
+        <Image source={{ uri: item.imageUrl }} style={styles.dishImage} resizeMode="contain" />
+      );
+    }
     if (item.imageSvg) {
       const SvgImage = item.imageSvg;
       return <SvgImage width="100%" height="100%" preserveAspectRatio="xMidYMid meet" />;
     }
-    return <Text style={styles.imagePlaceholder}>🍽️</Text>;
+    return <Text style={styles.imagePlaceholder}>🍽</Text>;
   };
 
   return (
-    <LinearGradient
-      colors={['#86EFAC', '#A8F0B5', '#F4F4F4']}
-      locations={[0, 0.2, 0.6]}
-      start={{ x: 0, y: 1 }}
-      end={{ x: 0, y: 0 }}
-      style={styles.dishCard}
-    >
-      <View style={styles.imageContainer}>{renderImage()}</View>
-      <Text style={styles.dishName} numberOfLines={2}>
-        {item.name}
-      </Text>
-      <Text style={styles.dishPrice}>{item.price} ₽</Text>
-
-      {quantity > 0 ? (
-        <View style={styles.quantityControl}>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
-            <Text style={styles.quantityButtonText}>-</Text>
+    <TouchableOpacity activeOpacity={0.85} onPress={onPress}>
+      <LinearGradient
+        colors={['#86EFAC', '#A8F0B5', '#F4F4F4']}
+        locations={[0, 0.2, 0.6]}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 0, y: 0 }}
+        style={styles.dishCard}
+      >
+        <View style={styles.imageContainer}>{renderImage()}</View>
+        <Text style={styles.dishName} numberOfLines={2}>
+          {item.name}
+        </Text>
+        <Text style={styles.dishPrice}>{item.price} ₽</Text>
+        {quantity > 0 ? (
+          <View style={styles.quantityControl}>
+            <TouchableOpacity style={styles.quantityButton} onPress={handleDecrease}>
+              <Text style={styles.quantityButtonText}>-</Text>
+            </TouchableOpacity>
+            <Text style={styles.quantityText}>{quantity}</Text>
+            <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
+              <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+            <Text style={styles.addToCartButtonText}>В корзину</Text>
           </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity style={styles.quantityButton} onPress={handleAddToCart}>
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-          <Text style={styles.addToCartButtonText}>В корзину</Text>
-        </TouchableOpacity>
-      )}
-    </LinearGradient>
+        )}
+      </LinearGradient>
+    </TouchableOpacity>
   );
 });
 
@@ -106,7 +126,10 @@ const PaginationDots = React.memo(
   ({ count, currentIndex }: { count: number; currentIndex: number }) => (
     <View style={styles.dotsContainer}>
       {Array.from({ length: count }).map((_, index) => (
-        <View key={index} style={[styles.dot, currentIndex === index && styles.activeDot]} />
+        <View
+          key={`dot-${index}`}
+          style={[styles.dot, currentIndex === index && styles.activeDot]}
+        />
       ))}
     </View>
   )
@@ -141,7 +164,6 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
         <HotIcon width={80} height={80} style={styles.filterIcon} />
         <Text style={styles.filterText}>Горячее</Text>
       </TouchableOpacity>
-
       <TouchableOpacity
         style={styles.filterBlock}
         onPress={() => onFilterPress('салаты')}
@@ -151,7 +173,6 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
         <Text style={styles.filterText}>Салаты</Text>
       </TouchableOpacity>
     </View>
-
     <View style={styles.row}>
       <TouchableOpacity
         style={styles.filterBlock}
@@ -161,17 +182,15 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
         <DessertsIcon width={80} height={80} style={styles.filterIcon} />
         <Text style={styles.filterText}>Десерты</Text>
       </TouchableOpacity>
-
       <TouchableOpacity
         style={styles.filterBlock}
         onPress={() => onFilterPress('закуски')}
         activeOpacity={0.7}
       >
         <SnacksIcon width={80} height={80} style={styles.filterIcon} />
-        <Text style={styles.filterText}>Закуски</Text>
+        <Text style={styles.filterText}>Бизнес-ланч</Text>
       </TouchableOpacity>
     </View>
-
     <View style={styles.largeBlockContainer}>
       <TouchableOpacity
         style={styles.noveltyBlock}
@@ -191,54 +210,52 @@ const FilterGrid = React.memo(({ onFilterPress }: { onFilterPress: (filter: stri
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const flatListRef = useRef<FlatList<Restaurant>>(null);
+  const dispatch = useDispatch();
+  const pagerRef = useRef<PagerView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const [selectedDishId, setSelectedDishId] = useState<number | null>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  const restaurants = useSelector(HomeFeature.selectors.selectRestaurants);
+  const promoDishes = useSelector(HomeFeature.selectors.selectPromoDishes);
+
+  useEffect(() => {
+    dispatch(HomeFeature.actions.fetchRestaurants());
+  }, [dispatch]);
+
   const headerOpacity = scrollY.interpolate({
     inputRange: [0, 100],
     outputRange: [0, 1],
     extrapolate: 'clamp',
   });
 
-  const restaurants = useMemo(() => MOCK_RESTAURANTS, []);
-  const promoDishes = useMemo(() => MOCK_PROMO_DISHES, []);
-
-  const infiniteData = useMemo(() => {
-    if (restaurants.length === 0) return [];
-    return [restaurants[restaurants.length - 1], ...restaurants, restaurants[0]];
-  }, [restaurants]);
-
-  useEffect(() => {
-    if (restaurants.length > 0) {
-      setCurrentIndex(0);
-      flatListRef.current?.scrollToIndex({
-        index: 1,
-        animated: false,
-      });
-    }
-  }, [restaurants]);
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [-120, 0],
+    extrapolate: 'clamp',
+  });
 
   const handleSearchPress = useCallback(() => {
     navigation.navigate('Search', {});
   }, [navigation]);
 
+  const handleAccountPress = useCallback(() => {
+    navigation.navigate('Tabs', { screen: 'Аккаунт' });
+  }, [navigation]);
+
   const handleFilterPress = useCallback(
     (filter: string) => {
-      if (filter === 'акции') {
-        navigation.navigate('Tabs', {
-          screen: 'Меню',
-          params: { mainFilter: 'акции' },
-        });
-        return;
-      }
-
+      const filterMapping: Record<string, string> = {
+        горячее: 'Горячее',
+        салаты: 'Салаты',
+        десерты: 'Десерты',
+        закуски: 'Бизнес-ланч',
+        новинки: 'Новинки',
+      };
+      const menuFilter = filterMapping[filter] ?? filter;
       navigation.navigate('Tabs', {
         screen: 'Меню',
-        params: {
-          mainFilter: 'Все',
-          subFilters: [filter as SubFilterType],
-        },
+        params: { mainFilter: menuFilter, filterTimestamp: Date.now() },
       });
     },
     [navigation]
@@ -252,6 +269,7 @@ export const HomeScreen: React.FC = () => {
           params: {
             restaurantId: restaurant.id,
             restaurantName: restaurant.name,
+            filterTimestamp: Date.now(),
           },
         });
       }
@@ -259,62 +277,56 @@ export const HomeScreen: React.FC = () => {
     [navigation]
   );
 
-  const onMomentumScrollEnd = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const contentOffset = event.nativeEvent.contentOffset;
-      const index = Math.round(contentOffset.x / width);
-      const realIndex = (index - 1 + restaurants.length) % restaurants.length;
-      setCurrentIndex(realIndex);
+  const handleDishPress = useCallback((id: number) => {
+    setSelectedDishId(id);
+  }, []);
 
-      if (index === 0) {
-        flatListRef.current?.scrollToIndex({
-          index: infiniteData.length - 2,
-          animated: false,
-        });
-      } else if (index === infiniteData.length - 1) {
-        flatListRef.current?.scrollToIndex({
-          index: 1,
-          animated: false,
-        });
-      }
-    },
-    [restaurants.length, infiniteData.length]
-  );
-
-  const getItemLayout = useCallback(
-    (data: ArrayLike<Restaurant> | null | undefined, index: number) => ({
-      length: width,
-      offset: width * index,
-      index,
-    }),
-    []
-  );
-
-  const renderRestaurantItem: ListRenderItem<Restaurant> = useCallback(
-    ({ item }) => <RestaurantCarouselItem item={item} onPress={handleRestaurantPress} />,
-    [handleRestaurantPress]
-  );
+  const handleModalClose = useCallback(() => {
+    setSelectedDishId(null);
+  }, []);
 
   const renderPromoItem: ListRenderItem<PromoDish> = useCallback(
     ({ item }) => (
       <View style={styles.promoCardContainer}>
-        <PromoDishCard item={item} />
+        <PromoDishCard item={item} onPress={() => handleDishPress(Number(item.id))} />
       </View>
     ),
-    []
+    [handleDishPress]
   );
-
-  const keyExtractor = useCallback((item: Restaurant, index: number) => `${item.id}-${index}`, []);
 
   const handleScroll = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
     useNativeDriver: true,
   });
 
-  const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, 100],
-    outputRange: [-120, 0],
-    extrapolate: 'clamp',
-  });
+  const accountButton = (
+    <TouchableOpacity onPress={handleAccountPress} activeOpacity={0.7}>
+      <AccountIcon width={36} height={36} />
+    </TouchableOpacity>
+  );
+
+  const renderPromoSection = () => {
+    if (promoDishes.length === 0) {
+      return (
+        <View style={styles.emptyPromoContainer}>
+          <Text style={styles.emptyPromoText}>Нет акционных блюд</Text>
+        </View>
+      );
+    }
+    return (
+      <FlatList
+        data={promoDishes}
+        renderItem={renderPromoItem}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.promoList}
+        decelerationRate="fast"
+        removeClippedSubviews
+        maxToRenderPerBatch={3}
+        windowSize={3}
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -323,15 +335,16 @@ export const HomeScreen: React.FC = () => {
       <Animated.View
         style={[
           styles.floatingHeader,
-          {
-            transform: [{ translateY: headerTranslateY }],
-            opacity: headerOpacity,
-          },
+          { transform: [{ translateY: headerTranslateY }], opacity: headerOpacity },
         ]}
       >
         <SafeAreaView edges={['top']} style={styles.floatingHeaderSafe}>
           <View style={styles.floatingHeaderContent}>
-            <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+            <SearchInput
+              onPress={handleSearchPress}
+              placeholder="Поиск"
+              rightElement={accountButton}
+            />
           </View>
         </SafeAreaView>
       </Animated.View>
@@ -341,15 +354,19 @@ export const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW }}
       >
         <View style={styles.waveSection}>
           <View style={styles.waveBackground}>
             <SubtractIcon width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
           </View>
-
           <SafeAreaView edges={['top']} style={styles.searchContainer}>
             <View style={styles.searchWrapper}>
-              <SearchInput onPress={handleSearchPress} placeholder="Поиск блюд..." />
+              <SearchInput
+                onPress={handleSearchPress}
+                placeholder="Поиск"
+                rightElement={accountButton}
+              />
             </View>
           </SafeAreaView>
         </View>
@@ -358,46 +375,34 @@ export const HomeScreen: React.FC = () => {
           <FilterGrid onFilterPress={handleFilterPress} />
 
           <Text style={styles.sectionTitle}>Рестораны</Text>
-
           <View>
-            <FlatList
-              ref={flatListRef}
-              data={infiniteData}
-              renderItem={renderRestaurantItem}
-              keyExtractor={keyExtractor}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={onMomentumScrollEnd}
-              decelerationRate="fast"
-              getItemLayout={getItemLayout}
-              initialScrollIndex={1}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={3}
-              windowSize={3}
-            />
+            <PagerView
+              ref={pagerRef}
+              style={{ width, height: 180 }}
+              initialPage={0}
+              onPageSelected={(e) => setCurrentIndex(e.nativeEvent.position)}
+            >
+              {restaurants.map((item) => (
+                <View key={item.id}>
+                  <RestaurantCarouselItem item={item} onPress={handleRestaurantPress} />
+                </View>
+              ))}
+            </PagerView>
             <PaginationDots count={restaurants.length} currentIndex={currentIndex} />
           </View>
 
           <View style={styles.promoSection}>
             <Text style={styles.sectionTitle}>Акции дня</Text>
-            <FlatList
-              data={promoDishes}
-              renderItem={renderPromoItem}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.promoList}
-              decelerationRate="fast"
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={3}
-              windowSize={3}
-            />
+            {renderPromoSection()}
           </View>
-
-          <View style={{ height: 30 }} />
         </View>
       </Animated.ScrollView>
+
+      <DishModal
+        dishId={selectedDishId}
+        visible={selectedDishId !== null}
+        onClose={handleModalClose}
+      />
     </View>
   );
 };
