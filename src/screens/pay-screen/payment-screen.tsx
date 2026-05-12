@@ -1,7 +1,15 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -104,68 +112,78 @@ export const PaymentScreen: React.FC = () => {
         </View>
       </SafeAreaView>
 
-      <View style={paymentStyles.content}>
-        <View style={paymentStyles.section}>
-          <Text style={paymentStyles.label}>Адрес доставки</Text>
-          <View style={paymentStyles.disabledInput}>
-            <Text style={paymentStyles.disabledInputText}>Чкалова 3</Text>
-          </View>
-        </View>
-
-        <View style={{ width: '100%', marginBottom: 5 }}>
-          <Text style={paymentStyles.label}>Способ оплаты</Text>
-        </View>
-
-        <View style={paymentStyles.sbpContainer}>
-          <TouchableOpacity activeOpacity={0.7}>
-            <SBPIcon width={100} height={50} />
-          </TouchableOpacity>
-        </View>
-
-        <LinearGradient
-          colors={['#86EFAC', '#1CD961']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={paymentStyles.cardBlock}
+      <KeyboardAvoidingView
+        style={paymentStyles.keyboardAvoidingView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          style={paymentStyles.scrollView}
+          contentContainerStyle={paymentStyles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={paymentStyles.cardBlockTitle}>Реквизиты</Text>
-
-          <TextInput
-            style={paymentStyles.input}
-            placeholder="Номер карты"
-            placeholderTextColor="#94A3B8"
-            keyboardType="numeric"
-            maxLength={19}
-            value={formatCardNumber(cardNumber)}
-            onChangeText={(t) => setCardNumber(t.replace(/\D/g, ''))}
-          />
-
-          <View style={paymentStyles.row}>
-            <TextInput
-              style={[paymentStyles.input, { flex: 1 }]}
-              placeholder="M/D"
-              placeholderTextColor="#94A3B8"
-              keyboardType="numeric"
-              maxLength={5}
-              value={formatExpiry(expiry)}
-              onChangeText={(t) => setExpiry(t.replace(/\D/g, ''))}
-            />
-            <View style={{ width: 16 }} />
-            <TextInput
-              style={[paymentStyles.input, { flex: 1 }]}
-              placeholder="CVC"
-              placeholderTextColor="#94A3B8"
-              keyboardType="numeric"
-              maxLength={3}
-              secureTextEntry
-              value={cvc}
-              onChangeText={(t) => setCvc(t.replace(/\D/g, ''))}
-            />
+          <View style={paymentStyles.section}>
+            <Text style={paymentStyles.label}>Адрес доставки</Text>
+            <View style={paymentStyles.disabledInput}>
+              <Text style={paymentStyles.disabledInputText}>Чкалова 3</Text>
+            </View>
           </View>
-        </LinearGradient>
 
-        <OrderButton onPress={handlePay} isLoading={isCreating} disabled={!isFormValid} />
-      </View>
+          <View style={{ width: '100%', marginBottom: 5 }}>
+            <Text style={paymentStyles.label}>Способ оплаты</Text>
+          </View>
+
+          <View style={paymentStyles.sbpContainer}>
+            <TouchableOpacity activeOpacity={0.7}>
+              <SBPIcon width={100} height={50} />
+            </TouchableOpacity>
+          </View>
+
+          <LinearGradient
+            colors={['#86EFAC', '#1CD961']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={paymentStyles.cardBlock}
+          >
+            <Text style={paymentStyles.cardBlockTitle}>Реквизиты</Text>
+
+            <TextInput
+              style={paymentStyles.input}
+              placeholder="Номер карты"
+              placeholderTextColor="#94A3B8"
+              keyboardType="numeric"
+              maxLength={19}
+              value={formatCardNumber(cardNumber)}
+              onChangeText={(t) => setCardNumber(t.replace(/\D/g, ''))}
+            />
+
+            <View style={paymentStyles.row}>
+              <TextInput
+                style={[paymentStyles.input, { flex: 1 }]}
+                placeholder="M/D"
+                placeholderTextColor="#94A3B8"
+                keyboardType="numeric"
+                maxLength={5}
+                value={formatExpiry(expiry)}
+                onChangeText={(t) => setExpiry(t.replace(/\D/g, ''))}
+              />
+              <View style={{ width: 16 }} />
+              <TextInput
+                style={[paymentStyles.input, { flex: 1 }]}
+                placeholder="CVC"
+                placeholderTextColor="#94A3B8"
+                keyboardType="numeric"
+                maxLength={3}
+                secureTextEntry
+                value={cvc}
+                onChangeText={(t) => setCvc(t.replace(/\D/g, ''))}
+              />
+            </View>
+          </LinearGradient>
+
+          <OrderButton onPress={handlePay} isLoading={isCreating} disabled={!isFormValid} />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 };

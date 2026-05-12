@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { PromoDish, Restaurant } from '../../entities/api/types/home-types';
@@ -71,6 +71,7 @@ export const HomeScreen: React.FC = () => {
   const pagerRef = useRef<PagerView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const insets = useSafeAreaInsets();
 
   const restaurants = useSelector(HomeFeature.selectors.selectRestaurants);
   const promoDishes = useSelector(HomeFeature.selectors.selectPromoDishes);
@@ -170,7 +171,9 @@ export const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        contentContainerStyle={{ paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW }}
+        contentContainerStyle={{
+          paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW + insets.bottom,
+        }}
         removeClippedSubviews={true}
       >
         <View style={styles.waveSection}>
