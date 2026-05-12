@@ -53,13 +53,18 @@ export const paymentStyles = StyleSheet.create({
     color: '#1F2937',
     letterSpacing: 0.5,
   },
-  content: {
+  keyboardAvoidingView: {
     flex: 1,
+    zIndex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     alignItems: 'center',
     paddingTop: 210,
-    paddingBottom: 20,
+    paddingBottom: 44,
     paddingHorizontal: 20,
-    zIndex: 1,
   },
   section: {
     width: '100%',

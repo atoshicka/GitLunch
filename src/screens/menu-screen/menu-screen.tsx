@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../../app/navigation/navigation-types';
 import { Dish } from '../../entities/api/types/menu-types';
@@ -49,6 +49,7 @@ export const MenuScreen: React.FC = () => {
   const navigation = useNavigation<MenuScreenNavigationProp>();
   const route = useRoute<MenuScreenRouteProp>();
   const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
 
   const menuByDays = useSelector(MenuFeature.selectors.selectFilteredMenuByDays);
   const categories = useSelector(MenuFeature.selectors.selectCategories);
@@ -195,7 +196,7 @@ export const MenuScreen: React.FC = () => {
             renderItem={renderItem}
             contentContainerStyle={[
               styles.dishesGrid,
-              { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW },
+              { paddingBottom: TAB_BAR_HEIGHT + TAB_BAR_CIRCLE_OVERFLOW + insets.bottom },
             ]}
             ListEmptyComponent={<Text style={styles.emptyText}>Нет блюд в этой категории</Text>}
             stickySectionHeadersEnabled={false}
